@@ -31,6 +31,8 @@ public class QInquiryEntity extends EntityPathBase<InquiryEntity> {
     //inherited
     public final DateTimePath<java.time.LocalDateTime> createdDateTime = _super.createdDateTime;
 
+    public final NumberPath<Integer> i = createNumber("i", Integer.class);
+
     public final NumberPath<Long> id = createNumber("id", Long.class);
 
     //inherited
