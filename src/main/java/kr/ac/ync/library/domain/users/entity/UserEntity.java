@@ -3,6 +3,7 @@ package kr.ac.ync.library.domain.users.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.groups.Default;
+import kr.ac.ync.library.domain.users.enums.UserRole;
 import kr.ac.ync.library.global.common.entity.BaseTimeEntity;
 import lombok.*;
 
@@ -32,6 +33,7 @@ public class UserEntity extends BaseTimeEntity {
     @Column(nullable = false)
     private String phone;
 
-    @Column(nullable = false, columnDefinition = "Boolean DEFAULT false")
-    private Boolean admin;
+    @Enumerated(value = EnumType.STRING)
+    private UserRole role;
+
 }
