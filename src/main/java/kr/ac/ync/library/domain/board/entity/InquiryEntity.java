@@ -32,4 +32,6 @@ public class InquiryEntity extends BaseTimeEntity {
 
     @Column(nullable = false)
     private String category;
+
+
 }
