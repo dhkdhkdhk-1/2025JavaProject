@@ -1,6 +1,7 @@
 package kr.ac.ync.library.domain.branch.entity;
 
 import jakarta.persistence.*;
+import kr.ac.ync.library.global.common.entity.BaseTimeEntity;
 import lombok.*;
 
 @Entity

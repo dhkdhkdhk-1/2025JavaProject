@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -42,7 +43,7 @@ public class BookServiceImpl implements BookService{
 
     @Override
     public BookResponse get(Long id) {
-        return BookMapper.toResponse(bookRepository.findById(id).orElseThrow(() -> BookNotFoundException.EXCEPTION));
+        return BookMapper.toResponse(bookRepository.findById(id).orElseThrow(() -> BookNotFoundException.EXCEPTION))
     }
 
     @Override

@@ -60,7 +60,7 @@ public class QReviewEntity extends EntityPathBase<ReviewEntity> {
 
     public QReviewEntity(Class<? extends ReviewEntity> type, PathMetadata metadata, PathInits inits) {
         super(type, metadata, inits);
-        this.book = inits.isInitialized("book") ? new kr.ac.ync.library.domain.books.entity.QBookEntity(forProperty("book")) : null;
+        this.book = inits.isInitialized("book") ? new kr.ac.ync.library.domain.books.entity.QBookEntity(forProperty("book"), inits.get("book")) : null;
         this.user = inits.isInitialized("user") ? new kr.ac.ync.library.domain.users.entity.QUserEntity(forProperty("user")) : null;
     }
 
