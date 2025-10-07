@@ -27,21 +27,27 @@ public class BookServiceImpl implements BookService{
     @Override
     public BookResponse modify(BookModRequest request) {
         BookEntity bookEntity = bookRepository.findById(request.getId()).orElseThrow(() -> BookNotFoundException.EXCEPTION);
-        return null;
+        bookEntity.uptTitle(request.getTitle());
+        bookEntity.uptCategory(request.getCategory());
+        bookEntity.uptAuthor(request.getAuthor());
+        bookEntity.uptPublisher(request.getPublisher());
+
+        return BookMapper.toResponse(bookRepository.save(bookEntity));
     }
 
     @Override
     public void remove(Long id) {
-
+        bookRepository.findById(id).orElseThrow(() -> BookNotFoundException.EXCEPTION);
+        bookRepository.deleteById(id);
     }
 
     @Override
     public BookResponse get(Long id) {
-        return null;
+        return BookMapper.toResponse(bookRepository.findById(id).orElseThrow(() -> BookNotFoundException.EXCEPTION))
     }
 
     @Override
     public List<BookResponse> getList() {
-        return List.of();
+        return bookRepository.findAll().stream().map(BookMapper::toResponse).toList();
     }
 }

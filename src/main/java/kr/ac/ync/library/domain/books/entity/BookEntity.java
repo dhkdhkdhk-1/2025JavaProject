@@ -30,12 +30,20 @@ public class BookEntity extends BaseTimeEntity {
 
     private boolean available;
 
-    public void modify(String title, String author, String publisher, BookCategory category, boolean available) {
-        this.title = title;
-        this.author = author;
-        this.publisher = publisher;
+    public void uptCategory(BookCategory category) {
         this.category = category;
-        this.available = available;
+    }
+
+    public void uptTitle(String title) {
+        this.title = title;
+    }
+
+    public void uptAuthor(String author) {
+        this.author = author;
+    }
+
+    public void uptPublisher(String publisher) {
+        this.publisher = publisher;
     }
 
     public void markAsBorrowed() {

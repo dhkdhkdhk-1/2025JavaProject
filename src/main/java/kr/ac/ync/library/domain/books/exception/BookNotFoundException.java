@@ -1,6 +1,5 @@
 package kr.ac.ync.library.domain.books.exception;
-
-import kr.ac.ync.library.global.exception.CustomException;
+import kr.ac.ync.library.global.common.exception.CustomException;
 
 public class BookNotFoundException extends CustomException {
     public static final CustomException EXCEPTION = new BookNotFoundException();
