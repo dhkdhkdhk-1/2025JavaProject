@@ -2,10 +2,12 @@ package kr.ac.ync.library.domain.books.dto;
 
 import kr.ac.ync.library.domain.books.entity.enums.BookCategory;
 import lombok.Builder;
+import lombok.Getter;
 
 import java.time.LocalDateTime;
 
 @Builder
+@Getter
 public class BookResponse {
     private Long id; // 도서 ID
     private String title; // 제목

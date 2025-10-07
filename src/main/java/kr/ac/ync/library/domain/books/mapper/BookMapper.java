@@ -6,16 +6,25 @@ import kr.ac.ync.library.domain.books.dto.BookResponse;
 import kr.ac.ync.library.domain.books.entity.BookEntity;
 
 public class BookMapper {
-    public static BookEntity toEntity(BookRegisterRequest request){
+    public static BookEntity toEntity(BookRegisterRequest request) {
         return BookEntity.builder()
                 .title(request.getTitle())
                 .author(request.getAuthor())
-                .author(request.getAuthor())
+                .category(request.getCategory())
+                .available(request.isAvailable())
+                .publisher(request.getPublisher())
                 .build();
     }
 
     public static void updateEntity(BookModRequest dto, BookEntity entity) {
-        entity.modify(dto.getTitle(), dto.getAuthor(), dto.getPublisher(), dto.getCategory(), dto.isAvailable());
+        entity.uptTitle(dto.getTitle());
+        entity.uptAuthor(dto.getAuthor());
+        entity.uptPublisher(dto.getPublisher());
+        entity.uptCategory(dto.getCategory());
+        if (dto.isAvailable())
+            entity.markAsReturned();
+        else
+            entity.markAsBorrowed();
     }
 
     public static BookResponse toResponse(BookEntity entity) {

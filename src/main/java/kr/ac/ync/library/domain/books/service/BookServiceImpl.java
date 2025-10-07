@@ -31,7 +31,10 @@ public class BookServiceImpl implements BookService{
         bookEntity.uptCategory(request.getCategory());
         bookEntity.uptAuthor(request.getAuthor());
         bookEntity.uptPublisher(request.getPublisher());
-
+        if(request.isAvailable())
+            bookEntity.markAsReturned();
+        else
+            bookEntity.markAsBorrowed();
         return BookMapper.toResponse(bookRepository.save(bookEntity));
     }
 
@@ -43,7 +46,7 @@ public class BookServiceImpl implements BookService{
 
     @Override
     public BookResponse get(Long id) {
-        return BookMapper.toResponse(bookRepository.findById(id).orElseThrow(() -> BookNotFoundException.EXCEPTION))
+        return BookMapper.toResponse(bookRepository.findById(id).orElseThrow(() -> BookNotFoundException.EXCEPTION));
     }
 
     @Override
