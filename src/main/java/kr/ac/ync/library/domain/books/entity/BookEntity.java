@@ -1,11 +1,9 @@
 package kr.ac.ync.library.domain.books.entity;
 
 import jakarta.persistence.*;
-import kr.ac.ync.library.domain.branch.entity.BranchEntity;
+import kr.ac.ync.library.domain.books.entity.enums.BookCategory;
 import kr.ac.ync.library.global.common.entity.BaseTimeEntity;
 import lombok.*;
-
-import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "tbl_books")
@@ -20,28 +18,32 @@ public class BookEntity extends BaseTimeEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "branch_id", nullable = false)
-    private BranchEntity branchEntity;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "category_id", nullable = false)
-    private BookCategoryEntity category;
+    @Enumerated(value = EnumType.STRING)
+    private BookCategory category;
 
     @Column(nullable = false)
     private String title;
-
-    private String description;
 
     private String author;
 
     private String publisher;
 
-    @Column(nullable = false)
-    private Long totalQuantity;
+    private boolean available;
 
-    @Column(nullable = false)
-    private Long availableQuantity;
+    public void modify(String title, String author, String publisher, BookCategory category, boolean available) {
+        this.title = title;
+        this.author = author;
+        this.publisher = publisher;
+        this.category = category;
+        this.available = available;
+    }
 
-    private LocalDateTime createdDateTime;
+    public void markAsBorrowed() {
+        this.available = false;
+    }
+
+    public void markAsReturned() {
+        this.available = true;
+    }
+
 }
