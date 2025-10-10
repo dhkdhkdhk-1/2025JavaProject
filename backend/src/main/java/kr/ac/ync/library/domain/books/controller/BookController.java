@@ -6,6 +6,9 @@ import kr.ac.ync.library.domain.books.dto.BookRegisterRequest;
 import kr.ac.ync.library.domain.books.dto.BookResponse;
 import kr.ac.ync.library.domain.books.service.BookService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -41,5 +44,11 @@ public class BookController {
     @GetMapping("/list")
     public ResponseEntity<List<BookResponse>> list() {
         return ResponseEntity.ok(bookService.getList());
+    }
+
+    @GetMapping //책 목록 보여줄때 한줄에 5개씩 총 3줄(15개)씩 띄우기 위해 쓴 코드
+    public ResponseEntity<Page<BookResponse>> listPage(
+            @PageableDefault(size = 15) Pageable pageable) {
+        return ResponseEntity.ok(bookService.getList(pageable));
     }
 }
