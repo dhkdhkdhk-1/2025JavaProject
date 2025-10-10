@@ -24,4 +24,6 @@ public class BookRegisterRequest {
 
     // 등록 시 기본값 true
     private boolean available = true;
+
+    private Long branchId;
 }

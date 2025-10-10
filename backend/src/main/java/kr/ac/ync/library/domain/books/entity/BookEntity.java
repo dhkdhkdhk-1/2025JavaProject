@@ -2,6 +2,7 @@ package kr.ac.ync.library.domain.books.entity;
 
 import jakarta.persistence.*;
 import kr.ac.ync.library.domain.books.entity.enums.BookCategory;
+import kr.ac.ync.library.domain.branch.entity.BranchEntity;
 import kr.ac.ync.library.global.common.entity.BaseTimeEntity;
 import lombok.*;
 
@@ -30,6 +31,10 @@ public class BookEntity extends BaseTimeEntity {
 
     private boolean available;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "branch_id", nullable = false)
+    private BranchEntity branch;
+
     public void uptCategory(BookCategory category) {
         this.category = category;
     }
@@ -54,4 +59,7 @@ public class BookEntity extends BaseTimeEntity {
         this.available = true;
     }
 
+    public void uptBranch(BranchEntity branch) {
+        this.branch = branch;
+    }
 }

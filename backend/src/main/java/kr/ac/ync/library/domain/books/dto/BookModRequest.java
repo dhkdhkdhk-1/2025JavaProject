@@ -23,4 +23,5 @@ public class BookModRequest {
 
     private boolean available;
 
+    private Long branchId;
 }

@@ -4,8 +4,15 @@ import kr.ac.ync.library.domain.books.dto.BookModRequest;
 import kr.ac.ync.library.domain.books.dto.BookRegisterRequest;
 import kr.ac.ync.library.domain.books.dto.BookResponse;
 import kr.ac.ync.library.domain.books.entity.BookEntity;
+import kr.ac.ync.library.domain.branch.exception.BranchNotFoundException;
+import kr.ac.ync.library.domain.branch.repository.BranchRepository;
+import lombok.RequiredArgsConstructor;
 
+@RequiredArgsConstructor
 public class BookMapper {
+
+    private static BranchRepository branchRepository;
+
     public static BookEntity toEntity(BookRegisterRequest request) {
         return BookEntity.builder()
                 .title(request.getTitle())
@@ -25,6 +32,7 @@ public class BookMapper {
             entity.markAsReturned();
         else
             entity.markAsBorrowed();
+        entity.uptBranch(branchRepository.findById((dto.getBranchId())).orElseThrow(() -> BranchNotFoundException.EXCEPTION));
     }
 
     public static BookResponse toResponse(BookEntity entity) {
@@ -37,6 +45,7 @@ public class BookMapper {
                 .available(entity.isAvailable())
                 .createdDateTime(entity.getCreatedDateTime())
                 .modifiedDateTime(entity.getModifiedDateTime())
+                .branchId(entity.getBranch().getId())
                 .build();
     }
 }

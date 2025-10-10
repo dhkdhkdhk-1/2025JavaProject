@@ -10,4 +10,5 @@ public class Book {
     private String author;
     private String publisher;
     private boolean available;
+    private Long branchId;
 }
