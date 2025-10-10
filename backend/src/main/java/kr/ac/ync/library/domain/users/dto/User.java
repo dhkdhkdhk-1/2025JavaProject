@@ -1,6 +1,6 @@
 package kr.ac.ync.library.domain.users.dto;
 
-import kr.ac.ync.library.domain.users.enums.UserRole;
+import kr.ac.ync.library.domain.users.entity.enums.UserRole;
 import lombok.*;
 
 @Getter

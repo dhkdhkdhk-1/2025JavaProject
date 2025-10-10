@@ -1,7 +1,7 @@
 package kr.ac.ync.library.global.common.security.auth;
 
 import kr.ac.ync.library.domain.users.dto.User; // ✅ 꼭 DTO User import
-import kr.ac.ync.library.domain.users.enums.UserRole;
+import kr.ac.ync.library.domain.users.entity.enums.UserRole;
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;

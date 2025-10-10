@@ -35,7 +35,6 @@ public class SecurityConfig
                         authorize ->
                                 authorize.requestMatchers("/auth/**").permitAll()
                                         .requestMatchers("/admin/**").hasAnyRole("ADMIN")
-                                        .requestMatchers("/book/**").permitAll()
                                         .anyRequest().authenticated())
                 .exceptionHandling(handlingConfigurer -> handlingConfigurer
                                 .authenticationEntryPoint(jwtAuthenticationEntryPoint())
