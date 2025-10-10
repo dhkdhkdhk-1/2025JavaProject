@@ -13,6 +13,7 @@ export default function Header() {
         <a href="/support">고객센터</a>
         <a href="/mypage">마이페이지</a>
         <button className="login-btn">로그인</button>
+        <button className="login-btn">회원가입</button>
       </nav>
     </header>
   );
