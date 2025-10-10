@@ -1,9 +1,11 @@
 package kr.ac.ync.library.domain.reviews.controller;
 
 import jakarta.validation.Valid;
+import kr.ac.ync.library.domain.books.dto.BookResponse;
 import kr.ac.ync.library.domain.reviews.dto.Review;
 import kr.ac.ync.library.domain.reviews.dto.ReviewModRequest;
 import kr.ac.ync.library.domain.reviews.dto.ReviewRegisterRequest;
+import kr.ac.ync.library.domain.reviews.dto.ReviewResponse;
 import kr.ac.ync.library.domain.reviews.entity.ReviewEntity;
 import kr.ac.ync.library.domain.reviews.exception.ReviewNotFoundException;
 import kr.ac.ync.library.domain.reviews.repository.ReviewRepository;
@@ -25,6 +27,13 @@ public class ReviewController {
     private final UserSecurity userSecurity;
     private final ReviewRepository reviewRepository; // 본인 확인용
 
+    @GetMapping("/list")
+    public ResponseEntity<List<ReviewResponse>> list() {
+        return ResponseEntity.ok(reviewService.getList());
+    }
+
+
+
     // 누구나 특정 책 리뷰 조회 가능
     @GetMapping("/book/{bookId}")
     public ResponseEntity<List<Review>> findByBookId(
@@ -36,7 +45,7 @@ public class ReviewController {
     }
 
     // 로그인한 회원만 리뷰 등록 가능
-    @PostMapping("/{bookId}")
+    @PostMapping("/write/{bookId}")
     public void register(
             @PathVariable("bookId") Long bookId,
             @Valid @RequestBody ReviewRegisterRequest request
