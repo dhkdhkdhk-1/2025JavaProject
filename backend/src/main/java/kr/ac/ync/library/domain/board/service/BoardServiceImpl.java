@@ -4,7 +4,7 @@ import kr.ac.ync.library.domain.board.entity.BoardEntity;
 import kr.ac.ync.library.domain.board.repository.BoardRepository;
 import kr.ac.ync.library.domain.users.entity.UserEntity;
 
-import kr.ac.ync.library.domain.users.enums.UserRole;
+import kr.ac.ync.library.domain.users.entity.enums.UserRole;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

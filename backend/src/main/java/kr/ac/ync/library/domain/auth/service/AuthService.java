@@ -2,6 +2,8 @@ package kr.ac.ync.library.domain.auth.service;
 
 
 import kr.ac.ync.library.domain.auth.dto.request.AuthenticationRequest;
+import kr.ac.ync.library.domain.auth.dto.request.SignupRequest;
+import kr.ac.ync.library.domain.auth.dto.request.WithdrawRequest;
 import kr.ac.ync.library.domain.auth.dto.response.JsonWebTokenResponse;
 
 public interface AuthService
@@ -10,5 +12,8 @@ public interface AuthService
 
     JsonWebTokenResponse refresh(String token);
 
+    void signup(SignupRequest request);
+
+    void withdraw(WithdrawRequest request);
 
 }
