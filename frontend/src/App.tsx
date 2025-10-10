@@ -3,8 +3,9 @@ import Layout from "./layout/Layout";
 import AdminLayout from "./layout/admin/AdminLayout";
 import Home from "./pages/home/Home";
 import Dashboard from "./pages/admin/Dashboard";
+import React from "react"; // TypeScript에서는 명시적으로 import하는 게 안전함
 
-function App() {
+const App: React.FC = () => {
   return (
     <BrowserRouter>
       <Routes>
@@ -20,6 +21,6 @@ function App() {
       </Routes>
     </BrowserRouter>
   );
-}
+};
 
 export default App;
