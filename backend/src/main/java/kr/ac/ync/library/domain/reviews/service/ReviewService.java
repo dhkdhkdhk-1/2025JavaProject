@@ -1,6 +1,5 @@
 package kr.ac.ync.library.domain.reviews.service;
 
-import kr.ac.ync.library.domain.books.dto.BookResponse;
 import kr.ac.ync.library.domain.reviews.dto.Review;
 import kr.ac.ync.library.domain.reviews.dto.ReviewModRequest;
 import kr.ac.ync.library.domain.reviews.dto.ReviewRegisterRequest;

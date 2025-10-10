@@ -7,6 +7,7 @@ import com.querydsl.core.types.dsl.*;
 import com.querydsl.core.types.PathMetadata;
 import javax.annotation.processing.Generated;
 import com.querydsl.core.types.Path;
+import com.querydsl.core.types.dsl.PathInits;
 
 
 /**
@@ -17,6 +18,8 @@ public class QBookEntity extends EntityPathBase<BookEntity> {
 
     private static final long serialVersionUID = -438068127L;
 
+    private static final PathInits INITS = PathInits.DIRECT2;
+
     public static final QBookEntity bookEntity = new QBookEntity("bookEntity");
 
     public final kr.ac.ync.library.global.common.entity.QBaseTimeEntity _super = new kr.ac.ync.library.global.common.entity.QBaseTimeEntity(this);
@@ -24,6 +27,8 @@ public class QBookEntity extends EntityPathBase<BookEntity> {
     public final StringPath author = createString("author");
 
     public final BooleanPath available = createBoolean("available");
+
+    public final kr.ac.ync.library.domain.branch.entity.QBranchEntity branch;
 
     public final EnumPath<kr.ac.ync.library.domain.books.entity.enums.BookCategory> category = createEnum("category", kr.ac.ync.library.domain.books.entity.enums.BookCategory.class);
 
@@ -40,15 +45,24 @@ public class QBookEntity extends EntityPathBase<BookEntity> {
     public final StringPath title = createString("title");
 
     public QBookEntity(String variable) {
-        super(BookEntity.class, forVariable(variable));
+        this(BookEntity.class, forVariable(variable), INITS);
     }
 
     public QBookEntity(Path<? extends BookEntity> path) {
-        super(path.getType(), path.getMetadata());
+        this(path.getType(), path.getMetadata(), PathInits.getFor(path.getMetadata(), INITS));
     }
 
     public QBookEntity(PathMetadata metadata) {
-        super(BookEntity.class, metadata);
+        this(metadata, PathInits.getFor(metadata, INITS));
+    }
+
+    public QBookEntity(PathMetadata metadata, PathInits inits) {
+        this(BookEntity.class, metadata, inits);
+    }
+
+    public QBookEntity(Class<? extends BookEntity> type, PathMetadata metadata, PathInits inits) {
+        super(type, metadata, inits);
+        this.branch = inits.isInitialized("branch") ? new kr.ac.ync.library.domain.branch.entity.QBranchEntity(forProperty("branch")) : null;
     }
 
 }

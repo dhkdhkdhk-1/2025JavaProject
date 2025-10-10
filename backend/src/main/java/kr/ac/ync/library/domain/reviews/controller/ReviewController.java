@@ -1,7 +1,7 @@
 package kr.ac.ync.library.domain.reviews.controller;
 
 import jakarta.validation.Valid;
-import kr.ac.ync.library.domain.books.dto.BookResponse;
+
 import kr.ac.ync.library.domain.reviews.dto.Review;
 import kr.ac.ync.library.domain.reviews.dto.ReviewModRequest;
 import kr.ac.ync.library.domain.reviews.dto.ReviewRegisterRequest;
@@ -32,8 +32,6 @@ public class ReviewController {
         return ResponseEntity.ok(reviewService.getList());
     }
 
-
-
     // 누구나 특정 책 리뷰 조회 가능
     @GetMapping("/book/{bookId}")
     public ResponseEntity<List<Review>> findByBookId(
@@ -54,8 +52,6 @@ public class ReviewController {
         User user = userSecurity.getUser();
         reviewService.register(request, bookId, user.getId());
     }
-
-
 
     // 리뷰 수정: 로그인한 회원 본인만 가능
     @PutMapping
