@@ -42,13 +42,14 @@ public class BookController {
     }
 
     @GetMapping("/list")
-    public ResponseEntity<List<BookResponse>> list() {
-        return ResponseEntity.ok(bookService.getList());
+    public ResponseEntity<Page<BookResponse>> getBooks(Pageable pageable) {
+        Page<BookResponse> page = bookService.getList(pageable);
+        return ResponseEntity.ok(page);
     }
 
     @GetMapping //책 목록 보여줄때 한줄에 5개씩 총 3줄(15개)씩 띄우기 위해 쓴 코드
     public ResponseEntity<Page<BookResponse>> listPage(
-            @PageableDefault(size = 15) Pageable pageable) {
+            @PageableDefault(size = 10) Pageable pageable) {
         return ResponseEntity.ok(bookService.getList(pageable));
     }
 }

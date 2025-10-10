@@ -11,7 +11,6 @@ import lombok.Setter;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class JsonWebTokenResponse
 {
-
     private String accessToken;
     private String refreshToken;
 }
