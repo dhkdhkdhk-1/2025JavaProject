@@ -1,13 +1,9 @@
 package kr.ac.ync.library.domain.users.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.groups.Default;
-import kr.ac.ync.library.domain.users.enums.UserRole;
+import kr.ac.ync.library.domain.users.entity.enums.UserRole;
 import kr.ac.ync.library.global.common.entity.BaseTimeEntity;
 import lombok.*;
-
-import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "tbl_users")

@@ -1,4 +1,4 @@
-package kr.ac.ync.library.domain.users.enums;
+package kr.ac.ync.library.domain.users.entity.enums;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
