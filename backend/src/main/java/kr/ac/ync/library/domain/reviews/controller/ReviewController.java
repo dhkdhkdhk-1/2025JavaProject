@@ -54,7 +54,7 @@ public class ReviewController {
     }
 
     // 리뷰 수정: 로그인한 회원 본인만 가능
-    @PutMapping
+    @PutMapping("/mod")
     public void modify(@Valid @RequestBody ReviewModRequest request) {
         User user = userSecurity.getUser();
 
@@ -70,7 +70,7 @@ public class ReviewController {
     }
 
     // 리뷰 삭제: 로그인한 회원 본인만 가능
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/remove/{id}")
     public void remove(@PathVariable("id") Long id) {
         User user = userSecurity.getUser();
 

@@ -91,9 +91,9 @@ public class ReviewServiceImpl implements ReviewService {
                 .stream().map(ReviewMapper::toResponse).toList();
     }
 
-    @Override // 책 한 페이지에 한 줄에 5개, 3줄 총 15개 띄우기 위한 코드
+    @Override // 리뷰 한페이지에15개
     public Page<ReviewResponse> getList(Pageable pageable) {
-        Pageable fixedPageable = Pageable.ofSize(15).withPage(pageable.getPageNumber());
+        Pageable fixedPageable = Pageable.ofSize(6).withPage(pageable.getPageNumber());
 
         // DB에서 리뷰 조회
         Page<ReviewEntity> page = reviewRepository.findAll(fixedPageable);
