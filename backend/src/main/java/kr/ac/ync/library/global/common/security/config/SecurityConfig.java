@@ -35,6 +35,9 @@ public class SecurityConfig
                         authorize ->
                                 authorize.requestMatchers("/auth/**").permitAll()
                                         .requestMatchers("/admin/**").hasAnyRole("ADMIN")
+                                        .requestMatchers("/review/book/**").permitAll() //리뷰조회는 비회원도 가능
+                                        .requestMatchers("/review/**").hasAnyRole("USER", "MANAGER", "ADMIN") // 리뷰 수정 및 작성 등은 회원만 가능
+                                        .requestMatchers("/book/**").permitAll()
                                         .anyRequest().authenticated())
                 .exceptionHandling(handlingConfigurer -> handlingConfigurer
                                 .authenticationEntryPoint(jwtAuthenticationEntryPoint())
