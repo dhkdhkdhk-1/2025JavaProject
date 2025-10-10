@@ -26,14 +26,15 @@ public class QBookEntity extends EntityPathBase<BookEntity> {
 
     public final StringPath author = createString("author");
 
-    public final BooleanPath available = createBoolean("available");
+    public final NumberPath<Long> availableQuantity = createNumber("availableQuantity", Long.class);
 
-    public final kr.ac.ync.library.domain.branch.entity.QBranchEntity branch;
+    public final kr.ac.ync.library.domain.branch.entity.QBranchEntity branchEntity;
 
-    public final EnumPath<kr.ac.ync.library.domain.books.entity.enums.BookCategory> category = createEnum("category", kr.ac.ync.library.domain.books.entity.enums.BookCategory.class);
+    public final QBookCategoryEntity category;
 
-    //inherited
-    public final DateTimePath<java.time.LocalDateTime> createdDateTime = _super.createdDateTime;
+    public final DateTimePath<java.time.LocalDateTime> createdDateTime = createDateTime("createdDateTime", java.time.LocalDateTime.class);
+
+    public final StringPath description = createString("description");
 
     public final NumberPath<Long> id = createNumber("id", Long.class);
 
@@ -43,6 +44,8 @@ public class QBookEntity extends EntityPathBase<BookEntity> {
     public final StringPath publisher = createString("publisher");
 
     public final StringPath title = createString("title");
+
+    public final NumberPath<Long> totalQuantity = createNumber("totalQuantity", Long.class);
 
     public QBookEntity(String variable) {
         this(BookEntity.class, forVariable(variable), INITS);
@@ -62,7 +65,8 @@ public class QBookEntity extends EntityPathBase<BookEntity> {
 
     public QBookEntity(Class<? extends BookEntity> type, PathMetadata metadata, PathInits inits) {
         super(type, metadata, inits);
-        this.branch = inits.isInitialized("branch") ? new kr.ac.ync.library.domain.branch.entity.QBranchEntity(forProperty("branch")) : null;
+        this.branchEntity = inits.isInitialized("branchEntity") ? new kr.ac.ync.library.domain.branch.entity.QBranchEntity(forProperty("branchEntity")) : null;
+        this.category = inits.isInitialized("category") ? new QBookCategoryEntity(forProperty("category")) : null;
     }
 
 }

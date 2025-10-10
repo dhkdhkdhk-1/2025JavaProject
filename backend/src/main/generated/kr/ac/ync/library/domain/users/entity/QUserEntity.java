@@ -35,7 +35,7 @@ public class QUserEntity extends EntityPathBase<UserEntity> {
 
     public final StringPath phone = createString("phone");
 
-    public final EnumPath<kr.ac.ync.library.domain.users.entity.enums.UserRole> role = createEnum("role", kr.ac.ync.library.domain.users.entity.enums.UserRole.class);
+    public final EnumPath<kr.ac.ync.library.domain.users.enums.UserRole> role = createEnum("role", kr.ac.ync.library.domain.users.enums.UserRole.class);
 
     public final StringPath username = createString("username");
 
