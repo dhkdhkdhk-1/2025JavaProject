@@ -6,6 +6,10 @@ import kr.ac.ync.library.domain.branch.exception.BranchNotFoundException;
 import kr.ac.ync.library.domain.branch.mapper.BranchMapper;
 import kr.ac.ync.library.domain.branch.repository.BranchRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -54,9 +58,11 @@ public class BranchServiceImpl implements BranchService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<BranchResponse> getList() {
-        return branchRepository.findAll().stream()
-                .map(branchMapper::toResponse)
-                .toList();
+    public Page<BranchResponse> getList(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));
+
+        Page<BranchEntity> branchPage = branchRepository.findAll(pageable);
+
+        return branchPage.map(branchMapper::toResponse);
     }
 }

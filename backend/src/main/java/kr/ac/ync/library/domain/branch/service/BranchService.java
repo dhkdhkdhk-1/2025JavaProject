@@ -6,6 +6,7 @@ import kr.ac.ync.library.domain.books.dto.BookResponse;
 import kr.ac.ync.library.domain.branch.dto.BranchModRequest;
 import kr.ac.ync.library.domain.branch.dto.BranchRegisterRequest;
 import kr.ac.ync.library.domain.branch.dto.BranchResponse;
+import org.springframework.data.domain.Page;
 
 import java.util.List;
 
@@ -18,5 +19,5 @@ public interface BranchService {
 
     BranchResponse get(Long id);
 
-    List<BranchResponse> getList();
+    Page<BranchResponse> getList(int page, int size);
 }

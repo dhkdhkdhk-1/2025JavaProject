@@ -6,6 +6,7 @@ import kr.ac.ync.library.domain.branch.dto.BranchRegisterRequest;
 import kr.ac.ync.library.domain.branch.dto.BranchResponse;
 import kr.ac.ync.library.domain.branch.service.BranchService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,6 +18,13 @@ import java.util.List;
 public class BranchController {
 
     private final BranchService branchService;
+    @GetMapping("/list")
+    public ResponseEntity<Page<BranchResponse>> list(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size) {
+
+        return ResponseEntity.ok(branchService.getList(page, size));
+    }
 
     // 지점 등록 (Create)
     @PostMapping
@@ -41,11 +49,5 @@ public class BranchController {
     @GetMapping("/{id}")
     public ResponseEntity<BranchResponse> get(@PathVariable Long id) {
         return ResponseEntity.ok(branchService.get(id));
-    }
-
-    // ✅ 지점 전체 조회 (Read All)
-    @GetMapping("/list")
-    public ResponseEntity<List<BranchResponse>> list() {
-        return ResponseEntity.ok(branchService.getList());
     }
 }
