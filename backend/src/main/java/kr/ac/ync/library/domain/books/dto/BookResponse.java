@@ -17,4 +17,5 @@ public class BookResponse {
     private boolean available; // 대여 가능 여부
     private LocalDateTime createdDateTime; // 등록일
     private LocalDateTime modifiedDateTime;
+    private Long branchId;
 }
