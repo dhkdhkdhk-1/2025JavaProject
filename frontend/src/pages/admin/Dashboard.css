@@ -1,0 +1,54 @@
+.dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 20px;
+  background-color: #f9fafc;
+  min-height: 100vh;
+}
+
+.dashboard-header {
+  display: flex;
+  gap: 16px;
+  justify-content: space-around;
+}
+
+.dashboard-content {
+  display: flex;
+  gap: 24px;
+}
+
+.dashboard-left,
+.dashboard-center,
+.dashboard-right {
+  flex: 1;
+}
+
+.chart-card,
+.list-card {
+  background: white;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+}
+
+.list-card h4 {
+  margin-bottom: 10px;
+}
+
+.list-card ul {
+  list-style: none;
+  padding: 0;
+}
+
+.list-card li {
+  padding: 6px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 10px;
+}

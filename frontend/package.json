@@ -7,13 +7,24 @@
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^13.5.0",
+<<<<<<< HEAD
     "@types/react": "^19.2.2",
     "@types/react-dom": "^19.2.1",
+=======
+    "@types/node": "^24.7.1",
+    "@types/react": "^19.2.2",
+    "axios": "^1.12.2",
+>>>>>>> c35d19df9fd5014d31ef032afc84827e7f338510
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-router-dom": "^7.9.3",
     "react-scripts": "5.0.1",
+<<<<<<< HEAD
     "typescript": "^5.9.3",
+=======
+    "recharts": "^3.2.1",
+    "typescript": "^4.9.5",
+>>>>>>> c35d19df9fd5014d31ef032afc84827e7f338510
     "web-vitals": "^2.1.4"
   },
   "scripts": {
@@ -39,5 +50,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "@types/react-dom": "^19.2.1"
   }
 }
