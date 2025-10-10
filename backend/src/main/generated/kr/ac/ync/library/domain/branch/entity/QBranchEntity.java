@@ -7,6 +7,7 @@ import com.querydsl.core.types.dsl.*;
 import com.querydsl.core.types.PathMetadata;
 import javax.annotation.processing.Generated;
 import com.querydsl.core.types.Path;
+import com.querydsl.core.types.dsl.PathInits;
 
 
 /**
@@ -18,6 +19,8 @@ public class QBranchEntity extends EntityPathBase<BranchEntity> {
     private static final long serialVersionUID = -447904778L;
 
     public static final QBranchEntity branchEntity = new QBranchEntity("branchEntity");
+
+    public final ListPath<kr.ac.ync.library.domain.books.entity.BookEntity, kr.ac.ync.library.domain.books.entity.QBookEntity> books = this.<kr.ac.ync.library.domain.books.entity.BookEntity, kr.ac.ync.library.domain.books.entity.QBookEntity>createList("books", kr.ac.ync.library.domain.books.entity.BookEntity.class, kr.ac.ync.library.domain.books.entity.QBookEntity.class, PathInits.DIRECT2);
 
     public final NumberPath<Long> id = createNumber("id", Long.class);
 
