@@ -1,0 +1,12 @@
+.admin-layout {
+  display: flex;
+  height: 100vh;
+}
+
+.admin-content {
+  flex: 1;
+  margin-left: 220px; /* sidebar width 만큼 띄움 */
+  background: #f9f9f9;
+  padding: 24px;
+  overflow-y: auto;
+}
