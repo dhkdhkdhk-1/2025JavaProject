@@ -43,6 +43,8 @@ public class BookMapper {
                 .publisher(entity.getPublisher())
                 .category(entity.getCategory())
                 .available(entity.isAvailable())
+                .description(entity.getDescription()) // 엔티티 필드 그대로
+                .imageUrl(entity.getImageUrl())       // 엔티티 필드 그대로
                 .createdDateTime(entity.getCreatedDateTime())
                 .modifiedDateTime(entity.getModifiedDateTime())
                 .branchId(entity.getBranch().getId())

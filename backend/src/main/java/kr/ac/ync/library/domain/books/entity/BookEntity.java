@@ -31,6 +31,11 @@ public class BookEntity extends BaseTimeEntity {
 
     private boolean available;
 
+    @Column(columnDefinition = "TEXT")
+    private String description;
+
+    private String imageUrl;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "branch_id", nullable = false)
     private BranchEntity branch;

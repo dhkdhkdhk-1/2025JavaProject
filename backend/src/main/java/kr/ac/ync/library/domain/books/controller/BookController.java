@@ -17,6 +17,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/book")
+@CrossOrigin(origins = "http://localhost:3000") // React 개발 서버 허용
 public class BookController {
     private final BookService bookService;
 

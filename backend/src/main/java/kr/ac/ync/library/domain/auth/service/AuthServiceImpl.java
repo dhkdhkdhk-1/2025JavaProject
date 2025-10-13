@@ -10,7 +10,7 @@ import kr.ac.ync.library.domain.auth.dto.request.WithdrawRequest;
 import kr.ac.ync.library.domain.auth.dto.response.JsonWebTokenResponse;
 import kr.ac.ync.library.domain.users.dto.User;
 import kr.ac.ync.library.domain.users.entity.UserEntity;
-import kr.ac.ync.library.domain.users.enums.UserRole;
+import kr.ac.ync.library.domain.users.entity.enums.UserRole;
 import kr.ac.ync.library.domain.users.repository.UserRepository;
 import kr.ac.ync.library.global.common.jwt.JwtProvider;
 import kr.ac.ync.library.global.common.jwt.enums.JwtType;
