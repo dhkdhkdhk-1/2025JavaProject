@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { CheckboxField } from "./components/CheckboxField";
 import { InputField } from "./components/InputField";
 import { VariantPrimaryWrapper } from "./components/VariantPrimaryWrapper";
+import { TextContentTitle } from "./components/TextContentTitle";
+
 import "./Login-Variables.css";
 import "./Login-Style.css";
 
@@ -11,13 +13,13 @@ const Login: React.FC = () => {
   const [remember, setRemember] = useState(false);
 
   const handleLogin = () => {
-    // 로그인 처리 로직 작성
     console.log({ email, password, remember });
   };
 
   return (
     <div className="login-page">
-      <h1 className="login-title">로그인</h1>
+      <TextContentTitle title="로그인" align="center" className="login-title" />
+
       <div className="login-box">
         <InputField
           className="login-input"

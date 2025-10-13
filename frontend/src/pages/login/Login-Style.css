@@ -42,5 +42,5 @@ body {
 main {
   flex: 1;
   padding: var(--spacing-base);
-  margin-bottom: 43.7px; /* footer와의 간격 */
+  margin-bottom: -2.5px; /* footer와의 간격 */
 }
