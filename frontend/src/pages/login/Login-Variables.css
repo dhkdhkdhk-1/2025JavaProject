@@ -73,6 +73,6 @@
   font-size: var(--font-size-button);
   border-radius: var(--border-radius);
   cursor: pointer;
-  background-color: black; /* 배경 검정색 */
-  color: white; /* 글자 흰색 */
+  background-color: black;
+  color: white;
 }
