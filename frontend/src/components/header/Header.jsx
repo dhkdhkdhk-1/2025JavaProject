@@ -22,7 +22,7 @@ export default function Header() {
         <button className="login-btn" onClick={handleLoginClick}>
           로그인
         </button>
-        {/* <button className="login-btn">회원가입</button> */}
+        <button className="login-btn">회원가입</button>
       </nav>
     </header>
   );
