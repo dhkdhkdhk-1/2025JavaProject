@@ -10,7 +10,6 @@ import lombok.Setter;
 @Setter
 public class BookRegisterRequest {
 
-
     @NotBlank(message = "책 제목을 입력해주세요.")
     private String title;
 
@@ -22,8 +21,12 @@ public class BookRegisterRequest {
 
     private String publisher;
 
-    // 등록 시 기본값 true
     private boolean available = true;
 
-    private Long branchId;
+    // ★ 추가 확인
+    private String description; // 줄거리
+    private String imageUrl;    // 이미지 URL
+
+    @NotNull(message = "지점ID(branchId)는 필수입니다.")
+    private Long branchId;      // ★ 반드시 필요
 }
