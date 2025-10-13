@@ -12,8 +12,37 @@ const Login: React.FC = () => {
   const [password, setPassword] = useState("");
   const [remember, setRemember] = useState(false);
 
-  const handleLogin = () => {
-    console.log({ email, password, remember });
+  const handleLogin = async () => {
+    try {
+      const response = await fetch("http://localhost:8080/auth", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email,
+          password,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("로그인 실패");
+      }
+
+      const data = await response.json();
+      console.log("로그인 성공, 받은 토큰:", data);
+
+      // 토큰 저장
+      localStorage.setItem("accessToken", data.accessToken);
+      localStorage.setItem("refreshToken", data.refreshToken);
+
+      // 이후 이동 등 추가 작업
+      alert("로그인 성공!");
+      // 예: navigate("/books"); (react-router-dom 사용 시)
+    } catch (error) {
+      console.error(error);
+      alert("로그인 실패: 이메일과 비밀번호를 확인하세요.");
+    }
   };
 
   return (
