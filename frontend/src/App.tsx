@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Layout from "./layout/Layout";
-import Login from "./pages/login/Login"; // 로그인 컴포넌트
-import Home from "./pages/home/Home"; // 홈 컴포넌트 (새로 만드셨거나 기존에 있음)
+import Login from "./pages/login/Login";
+import Home from "./pages/home/Home";
 import BookList from "./pages/booklist/BookList";
 
 function App() {
