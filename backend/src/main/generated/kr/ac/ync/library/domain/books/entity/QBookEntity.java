@@ -7,7 +7,6 @@ import com.querydsl.core.types.dsl.*;
 import com.querydsl.core.types.PathMetadata;
 import javax.annotation.processing.Generated;
 import com.querydsl.core.types.Path;
-import com.querydsl.core.types.dsl.PathInits;
 
 
 /**
@@ -18,23 +17,18 @@ public class QBookEntity extends EntityPathBase<BookEntity> {
 
     private static final long serialVersionUID = -438068127L;
 
-    private static final PathInits INITS = PathInits.DIRECT2;
-
     public static final QBookEntity bookEntity = new QBookEntity("bookEntity");
 
     public final kr.ac.ync.library.global.common.entity.QBaseTimeEntity _super = new kr.ac.ync.library.global.common.entity.QBaseTimeEntity(this);
 
     public final StringPath author = createString("author");
 
-    public final NumberPath<Long> availableQuantity = createNumber("availableQuantity", Long.class);
+    public final BooleanPath available = createBoolean("available");
 
-    public final kr.ac.ync.library.domain.branch.entity.QBranchEntity branchEntity;
+    public final EnumPath<kr.ac.ync.library.domain.books.entity.enums.BookCategory> category = createEnum("category", kr.ac.ync.library.domain.books.entity.enums.BookCategory.class);
 
-    public final QBookCategoryEntity category;
-
-    public final DateTimePath<java.time.LocalDateTime> createdDateTime = createDateTime("createdDateTime", java.time.LocalDateTime.class);
-
-    public final StringPath description = createString("description");
+    //inherited
+    public final DateTimePath<java.time.LocalDateTime> createdDateTime = _super.createdDateTime;
 
     public final NumberPath<Long> id = createNumber("id", Long.class);
 
@@ -45,28 +39,16 @@ public class QBookEntity extends EntityPathBase<BookEntity> {
 
     public final StringPath title = createString("title");
 
-    public final NumberPath<Long> totalQuantity = createNumber("totalQuantity", Long.class);
-
     public QBookEntity(String variable) {
-        this(BookEntity.class, forVariable(variable), INITS);
+        super(BookEntity.class, forVariable(variable));
     }
 
     public QBookEntity(Path<? extends BookEntity> path) {
-        this(path.getType(), path.getMetadata(), PathInits.getFor(path.getMetadata(), INITS));
+        super(path.getType(), path.getMetadata());
     }
 
     public QBookEntity(PathMetadata metadata) {
-        this(metadata, PathInits.getFor(metadata, INITS));
-    }
-
-    public QBookEntity(PathMetadata metadata, PathInits inits) {
-        this(BookEntity.class, metadata, inits);
-    }
-
-    public QBookEntity(Class<? extends BookEntity> type, PathMetadata metadata, PathInits inits) {
-        super(type, metadata, inits);
-        this.branchEntity = inits.isInitialized("branchEntity") ? new kr.ac.ync.library.domain.branch.entity.QBranchEntity(forProperty("branchEntity")) : null;
-        this.category = inits.isInitialized("category") ? new QBookCategoryEntity(forProperty("category")) : null;
+        super(BookEntity.class, metadata);
     }
 
 }

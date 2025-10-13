@@ -7,7 +7,6 @@ import com.querydsl.core.types.dsl.*;
 import com.querydsl.core.types.PathMetadata;
 import javax.annotation.processing.Generated;
 import com.querydsl.core.types.Path;
-import kr.ac.ync.library.domain.users.entity.enums.UserRole;
 
 
 /**
@@ -36,7 +35,7 @@ public class QUserEntity extends EntityPathBase<UserEntity> {
 
     public final StringPath phone = createString("phone");
 
-    public final EnumPath<UserRole> role = createEnum("role", UserRole.class);
+    public final EnumPath<kr.ac.ync.library.domain.users.entity.enums.UserRole> role = createEnum("role", kr.ac.ync.library.domain.users.entity.enums.UserRole.class);
 
     public final StringPath username = createString("username");
 
