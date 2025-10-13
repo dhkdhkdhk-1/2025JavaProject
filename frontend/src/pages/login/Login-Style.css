@@ -1,0 +1,46 @@
+:root {
+  --color-primary: #222;
+  --color-secondary: #007bff;
+  --color-border: #bbb;
+  --color-border-focus: #555;
+  --color-background: #fff;
+  --color-text-muted: #444;
+
+  --font-size-title: 32px;
+  --font-size-input: 14px;
+  --font-size-button: 16px;
+
+  --spacing-base: 20px;
+  --spacing-large: 40px;
+
+  --border-radius: 6px;
+  --input-padding: 8px 12px;
+}
+
+/* 기본 초기화 */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: var(--color-background);
+  color: var(--color-primary);
+  font-family: sans-serif;
+}
+
+/* 메인 콘텐츠 */
+main {
+  flex: 1;
+  padding: var(--spacing-base);
+  margin-bottom: 43.7px; /* footer와의 간격 */
+}

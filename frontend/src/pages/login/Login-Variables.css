@@ -1,0 +1,76 @@
+@import "./Login-Variables.css";
+
+.login-page {
+  max-width: 400px;
+  margin: 80px auto 120px auto;
+  padding: 0 var(--spacing-base);
+  background-color: var(--color-background);
+  text-align: center;
+}
+
+.login-title {
+  margin-bottom: var(--spacing-large);
+  font-weight: bold;
+  font-size: var(--font-size-title);
+  color: var(--color-primary);
+}
+
+.login-box {
+  border: 1px solid var(--color-border);
+  padding: var(--spacing-large) var(--spacing-base);
+  border-radius: var(--border-radius);
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+  background-color: var(--color-background);
+  text-align: left;
+}
+
+.login-input {
+  margin-bottom: var(--spacing-base);
+}
+
+.login-input-field {
+  width: 100%;
+  padding: var(--input-padding);
+  font-size: var(--font-size-input);
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+  transition: border-color 0.2s ease;
+}
+
+.login-input-field:focus {
+  border-color: var(--color-border-focus);
+  outline: none;
+}
+
+.login-checkbox {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16px;
+  font-size: var(--font-size-input);
+  cursor: pointer;
+}
+
+.login-forgot {
+  font-size: var(--font-size-input);
+  color: var(--color-text-muted);
+  margin-bottom: 30px;
+  cursor: pointer;
+  user-select: none;
+  font-weight: 600;
+}
+
+.login-forgot:hover {
+  color: var(--color-secondary);
+  text-decoration: underline;
+}
+
+.login-button {
+  width: 100%;
+  display: block;
+  padding: 12px 0;
+  font-weight: 600;
+  font-size: var(--font-size-button);
+  border-radius: var(--border-radius);
+  cursor: pointer;
+}
