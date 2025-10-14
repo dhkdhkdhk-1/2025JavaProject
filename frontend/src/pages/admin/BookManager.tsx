@@ -1,6 +1,14 @@
-import React, { useEffect, useState } from "react";
-import { getBooks, Book } from "../../api/BookApi";
-import Sidebar from "../../components/sidebar/Sidebar";
+import React, { useEffect, useState, useCallback } from "react";
+import {
+  getBooks,
+  addBook,
+  updateBook,
+  deleteBook,
+  Book,
+} from "../../api/BookApi";
+import AddBookModal from "../../components/modal/AddBookModal";
+import UpdateBookModal from "../../components/modal/UpdateBookModal";
+import DeleteBookModal from "../../components/modal/DeleteBookModal";
 import "./BookManager.css";
 
 const BookManager: React.FC = () => {
@@ -9,12 +17,24 @@ const BookManager: React.FC = () => {
   const [totalPages, setTotalPages] = useState(0);
   const [keyword, setKeyword] = useState("");
 
-  useEffect(() => {
+  // 모달 상태 관리
+  const [isAddOpen, setIsAddOpen] = useState(false);
+  const [isUpdateOpen, setIsUpdateOpen] = useState(false);
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const [selectedBook, setSelectedBook] = useState<Book | null>(null);
+
+  // ✅ 목록 새로고침 함수
+
+  const refreshBooks = useCallback(() => {
     getBooks(page, 10, keyword).then((data) => {
       setBooks(data.content);
       setTotalPages(data.totalPages);
     });
   }, [page, keyword]);
+
+  useEffect(() => {
+    refreshBooks();
+  }, [refreshBooks]);
 
   const translateCategory = (c: string) => {
     switch (c) {
@@ -33,15 +53,56 @@ const BookManager: React.FC = () => {
     }
   };
 
+  // ✅ 새 책 등록
+  const handleAddBook = async (form: any) => {
+    try {
+      await addBook(form);
+      alert("📚 도서가 성공적으로 등록되었습니다!");
+      setIsAddOpen(false);
+      refreshBooks();
+    } catch (err) {
+      console.error(err);
+      alert("등록 중 오류가 발생했습니다 ❌");
+    }
+  };
+
+  // ✅ 책 수정
+  const handleUpdateBook = async (form: any) => {
+    try {
+      await updateBook(form);
+      alert("✏️ 도서 정보가 수정되었습니다!");
+      setIsUpdateOpen(false);
+      refreshBooks();
+    } catch (err) {
+      console.error(err);
+      alert("수정 중 오류가 발생했습니다 ❌");
+    }
+  };
+
+  // ✅ 책 삭제
+  const handleDeleteBook = async () => {
+    if (!selectedBook) return;
+    try {
+      await deleteBook(selectedBook.id);
+      alert("🗑 도서가 삭제되었습니다!");
+      setIsDeleteOpen(false);
+      refreshBooks();
+    } catch (err) {
+      console.error(err);
+      alert("삭제 중 오류가 발생했습니다 ❌");
+    }
+  };
+
   return (
     <div className="admin-layout">
       <div className="admin-body">
-        <Sidebar />
         <main className="admin-content">
           <div className="book-header">
             <h2>📘 도서 관리</h2>
             <div className="book-actions">
-              <button className="add-btn">+ Add Book</button>
+              <button className="add-btn" onClick={() => setIsAddOpen(true)}>
+                + Add Book
+              </button>
               <input
                 type="text"
                 placeholder="Search by title..."
@@ -73,8 +134,24 @@ const BookManager: React.FC = () => {
                   <td>{translateCategory(b.category)}</td>
                   <td>{b.available ? "가능" : "불가"}</td>
                   <td>
-                    <button className="icon-btn edit">✏️</button>
-                    <button className="icon-btn delete">🗑</button>
+                    <button
+                      className="icon-btn edit"
+                      onClick={() => {
+                        setSelectedBook(b);
+                        setIsUpdateOpen(true);
+                      }}
+                    >
+                      ✏️
+                    </button>
+                    <button
+                      className="icon-btn delete"
+                      onClick={() => {
+                        setSelectedBook(b);
+                        setIsDeleteOpen(true);
+                      }}
+                    >
+                      🗑
+                    </button>
                   </td>
                 </tr>
               ))}
@@ -100,6 +177,26 @@ const BookManager: React.FC = () => {
           </div>
         </main>
       </div>
+
+      {/* ✅ 모달들 */}
+      <AddBookModal
+        isOpen={isAddOpen}
+        onAdd={handleAddBook}
+        onClose={() => setIsAddOpen(false)}
+      />
+
+      <UpdateBookModal
+        isOpen={isUpdateOpen}
+        book={selectedBook}
+        onUpdate={handleUpdateBook}
+        onClose={() => setIsUpdateOpen(false)}
+      />
+
+      <DeleteBookModal
+        isOpen={isDeleteOpen}
+        onConfirm={handleDeleteBook}
+        onClose={() => setIsDeleteOpen(false)}
+      />
     </div>
   );
 };

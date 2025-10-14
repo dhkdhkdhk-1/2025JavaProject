@@ -9,10 +9,13 @@ import lombok.Setter;
 @Getter
 @Setter
 public class BookModRequest {
+
     @NotNull(message = "책 ID를 입력해주세요.")
     private Long id;
+
     @NotBlank(message = "책 제목을 입력해주세요.")
     private String title;
+
     @NotBlank(message = "글쓴이를 입력해주세요.")
     private String author;
 
@@ -23,5 +26,10 @@ public class BookModRequest {
 
     private boolean available;
 
-    private Long branchId;
+    // ★ 추가 확인
+    private String description; // 줄거리
+    private String imageUrl;    // 이미지 URL
+
+    @NotNull(message = "지점ID(branchId)는 필수입니다.")
+    private Long branchId;      // ★ 수정 시에도 받기
 }

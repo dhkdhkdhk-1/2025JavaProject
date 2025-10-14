@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import './Home.css';
+import React, { useEffect, useState } from "react";
+import "./Home.css";
 
 interface BookCard {
   id: number;
@@ -14,8 +14,8 @@ export default function Home() {
 
   const announcements = [
     "공지사항 1- 테스트용 공지",
-    "공지사항 2- 테스트용 공지", 
-    "공지사항 3- 테스트용 공지"
+    "공지사항 2- 테스트용 공지",
+    "공지사항 3- 테스트용 공지",
   ];
 
 useEffect(() => {
@@ -54,11 +54,11 @@ useEffect(() => {
 
       {/* Books Section */}
       <section className="books-section">
-        {books.map(book => (
+        {books.map((book) => (
           <div key={book.id} className="book-card">
-            <img 
-              src={book.imageUrl || 'https://via.placeholder.com/150'} 
-              alt={book.title} 
+            <img
+              src={book.imageUrl || "https://via.placeholder.com/150"}
+              alt={book.title}
               className="book-image"
             />
             <div className="book-info">
