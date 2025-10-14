@@ -4,6 +4,7 @@ import { InputField } from "./components/InputField";
 import { VariantPrimaryWrapper } from "./components/VariantPrimaryWrapper";
 import { TextContentTitle } from "./components/TextContentTitle";
 import { useNavigate } from "react-router-dom";
+import { login } from "../../api/authApi"; // ✅ API 분리된 함수 import
 
 import "./Login-Variables.css";
 import "./Login-Style.css";
@@ -16,33 +17,20 @@ const Login: React.FC = () => {
   const navigate = useNavigate();
 
   const handleLogin = async () => {
-    try {
-      const response = await fetch("http://localhost:8080/auth", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email,
-          password,
-        }),
-      });
+    const result = await login({ email, password }); // ✅ axios로 변경
 
-      if (!response.ok) {
-        throw new Error("로그인 실패");
-      }
-
-      const data = await response.json();
-      localStorage.setItem("accessToken", data.accessToken);
-      localStorage.setItem("refreshToken", data.refreshToken);
-      window.dispatchEvent(new Event("storage"));
-
-      if (window.confirm("로그인 성공! 홈 화면으로 이동하시겠습니까?")) {
-        navigate("/");
-      }
-    } catch (error) {
-      console.error(error);
+    if (!result) {
       alert("로그인 실패: 이메일과 비밀번호를 확인하세요.");
+      return;
+    }
+
+    // ✅ 토큰 저장
+    localStorage.setItem("accessToken", result.accessToken);
+    localStorage.setItem("refreshToken", result.refreshToken);
+    window.dispatchEvent(new Event("storage"));
+
+    if (window.confirm("로그인 성공! 홈 화면으로 이동하시겠습니까?")) {
+      navigate("/");
     }
   };
 
@@ -71,12 +59,10 @@ const Login: React.FC = () => {
             onChange={(e) => setPassword(e.target.value)}
             type={showPassword ? "text" : "password"}
           />
-
-          {/* ✅ lucide-react 없이 이모지로 대체 */}
           <button
             type="button"
             className="toggle-password-btn"
-            onMouseDown={(e) => e.preventDefault()} // 포커스 유지
+            onMouseDown={(e) => e.preventDefault()}
             onClick={() => setShowPassword((prev) => !prev)}
           >
             {showPassword ? "🙈" : "👁️"}
