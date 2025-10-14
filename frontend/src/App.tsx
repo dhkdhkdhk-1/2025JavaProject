@@ -6,7 +6,7 @@ import AdminLayout from "./layout/admin/AdminLayout";
 
 // ✅ 사용자 페이지
 import Home from "./pages/home/Home";
-// import BookList from "./pages/booklist/BookList";
+import BookList from "./pages/booklist/BookList";
 import Login from "./pages/login/Login"; // ✅ 로그인 추가
 
 // ✅ 관리자 페이지
@@ -20,7 +20,7 @@ const App: React.FC = () => {
         {/* ✅ 일반 사용자용 */}
         <Route element={<Layout />}>
           <Route path="/" element={<Home />} />
-          {/* <Route path="/booklist" element={<BookList />} /> */}
+          <Route path="/booklist" element={<BookList />} />
           <Route path="/login" element={<Login />} />{" "}
           {/* ✅ 로그인 경로 추가 */}
         </Route>
