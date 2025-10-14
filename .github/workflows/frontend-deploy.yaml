@@ -1,0 +1,36 @@
+name: Deploy Frontend to S3
+
+on:
+  workflow_dispatch: # 원할 때 수동으로 실행
+  push:
+    branches:
+      - deploy-frontend # 이 브랜치에 push하면 자동 배포도 가능
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Install and build
+        run: |
+          cd frontend
+          npm ci
+          npm run build
+
+      - name: Deploy to S3
+        uses: aws-actions/s3-sync@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          region: ap-northeast-2
+          source: frontend/build/
+          destination: s3://ync-library-frontend/
+          delete: true
