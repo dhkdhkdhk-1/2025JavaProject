@@ -7,6 +7,9 @@ import kr.ac.ync.library.domain.books.entity.BookEntity;
 import kr.ac.ync.library.domain.books.exception.BookNotFoundException;
 import kr.ac.ync.library.domain.books.mapper.BookMapper;
 import kr.ac.ync.library.domain.books.repository.BookRepository;
+import kr.ac.ync.library.domain.branch.entity.BranchEntity;
+import kr.ac.ync.library.domain.branch.exception.BranchNotFoundException;
+import kr.ac.ync.library.domain.branch.repository.BranchRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -14,31 +17,43 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class BookServiceImpl implements BookService{
+public class BookServiceImpl implements BookService {
+
     private final BookRepository bookRepository;
+    private final BranchRepository branchRepository;
 
     @Override
     public BookResponse register(BookRegisterRequest request) {
+        BranchEntity branch = branchRepository.findById(request.getBranchId())
+                .orElseThrow(() -> BranchNotFoundException.EXCEPTION);
+
         BookEntity entity = BookMapper.toEntity(request);
+        entity.uptBranch(branch);
+
         return BookMapper.toResponse(bookRepository.save(entity));
     }
 
     @Override
     public BookResponse modify(BookModRequest request) {
-        BookEntity bookEntity = bookRepository.findById(request.getId()).orElseThrow(() -> BookNotFoundException.EXCEPTION);
-        bookEntity.uptTitle(request.getTitle());
-        bookEntity.uptCategory(request.getCategory());
-        bookEntity.uptAuthor(request.getAuthor());
-        bookEntity.uptPublisher(request.getPublisher());
-        if(request.isAvailable())
-            bookEntity.markAsReturned();
-        else
-            bookEntity.markAsBorrowed();
-        return BookMapper.toResponse(bookRepository.save(bookEntity));
+        BookEntity book = bookRepository.findById(request.getId())
+                .orElseThrow(() -> BookNotFoundException.EXCEPTION);
+
+        book.uptTitle(request.getTitle());
+        book.uptCategory(request.getCategory());
+        book.uptAuthor(request.getAuthor());
+        book.uptPublisher(request.getPublisher());
+
+        if (request.isAvailable()) book.markAsReturned();
+        else book.markAsBorrowed();
+
+        BranchEntity branch = branchRepository.findById(request.getBranchId())
+                .orElseThrow(() -> BranchNotFoundException.EXCEPTION);
+        book.uptBranch(branch);
+
+        return BookMapper.toResponse(bookRepository.save(book));
     }
 
     @Override
@@ -49,11 +64,18 @@ public class BookServiceImpl implements BookService{
 
     @Override
     public BookResponse get(Long id) {
-        return BookMapper.toResponse(bookRepository.findById(id).orElseThrow(() -> BookNotFoundException.EXCEPTION));
+        return BookMapper.toResponse(
+                bookRepository.findById(id).orElseThrow(() -> BookNotFoundException.EXCEPTION)
+        );
     }
 
     @Override
     public List<BookResponse> getList() {
+<<<<<<< HEAD
+        return bookRepository.findAll()
+                .stream()
+=======
+
         return bookRepository.findAll().stream().map(BookMapper::toResponse).toList();
     }
 
@@ -62,8 +84,25 @@ public class BookServiceImpl implements BookService{
     public Page<BookResponse> getList(Pageable pageable) {
         Page<BookEntity> page = bookRepository.findAll(pageable);
         List<BookResponse> responses = page.getContent().stream()
+>>>>>>> 7d4910a5e1e2de52eb3f94b8b6fce669e3e2bea0
                 .map(BookMapper::toResponse)
                 .toList();
+<<<<<<< HEAD
         return new PageImpl<>(responses, pageable, page.getTotalElements());
+=======
+
+<<<<<<< HEAD
+    @Override
+    public Page<BookResponse> getList(Pageable pageable) {
+        Pageable fixedPageable = Pageable.ofSize(9).withPage(pageable.getPageNumber());
+        Page<BookEntity> page = bookRepository.findAll(fixedPageable);
+
+        // ✅ 스트림 완료 (세미콜론 추가 및 반환 방식 수정)
+        return page.map(BookMapper::toResponse);
+=======
+        // Page<BookResponse> 반환
+        return new PageImpl<>(responses, fixedPageable, page.getTotalElements());
+>>>>>>> 7d4910a5e1e2de52eb3f94b8b6fce669e3e2bea0
+>>>>>>> 269432835d449995c459c8c1a320f7ccce3a66c5
     }
 }

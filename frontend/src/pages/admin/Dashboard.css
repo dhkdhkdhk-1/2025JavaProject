@@ -4,12 +4,13 @@
 .dashboard {
   display: grid;
   grid-template-columns: 1.3fr 1.7fr;
-  gap: 24px;
-  padding: 32px;
+  gap: 20px;
+  padding: 32px 32px 32px 140px; /* ✅ 왼쪽 패딩 제거 */
   background-color: #f7f8fa;
   min-height: 100vh;
-  align-items: stretch; /* ✅ 차트/오른쪽 카드 높이 자동 동일 */
+  align-items: stretch;
   box-sizing: border-box;
+  width: 100%;
 }
 
 /* ==============================

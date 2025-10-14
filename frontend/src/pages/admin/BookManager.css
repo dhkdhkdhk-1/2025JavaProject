@@ -1,3 +1,41 @@
+/* ===== 전체 레이아웃 ===== */
+.admin-layout {
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: #fff; /* 🔥 회색 배경 제거 */
+}
+
+.admin-body {
+  display: flex;
+  flex: 1;
+  background: #fff;
+  margin: 0;
+  padding: 0;
+  gap: 0; /* ✅ flex 간 여백 제거 */
+}
+
+/* ===== 사이드바 ===== */
+.admin-body .sidebar {
+  width: 220px; /* ✅ 사이드바 고정폭 */
+  flex-shrink: 0;
+  background: #1e1e1e;
+  padding: 0;
+  margin: 0;
+}
+
+/* ===== 메인 콘텐츠 (도서 관리 부분) ===== */
+.admin-content {
+  flex: 1;
+  background: #fff;
+  margin: 0; /* ✅ 불필요한 외부 여백 제거 */
+  padding: 24px 24px 24px 140px; /* ✅ 사이드바에서 딱 맞게 */
+  min-height: 100vh;
+  box-sizing: border-box;
+}
+
+/* ===== 도서 관리 헤더 ===== */
 .book-header {
   display: flex;
   justify-content: space-between;
@@ -5,9 +43,37 @@
   margin-bottom: 16px;
 }
 
+.book-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.add-btn {
+  background: #007bff;
+  color: #fff;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.add-btn:hover {
+  background: #0069d9;
+}
+
+.book-actions input {
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding: 6px 10px;
+}
+
+/* ===== 테이블 ===== */
 .book-table {
   width: 100%;
   border-collapse: collapse;
+  table-layout: fixed;
   background: #fff;
 }
 
@@ -16,11 +82,83 @@
   text-align: left;
   padding: 10px 14px;
   border-bottom: 1px solid #eee;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
+.book-table th {
+  background: #fafafa;
+  font-weight: 600;
+}
+
+/* 열 너비 고정 */
+.book-table th:nth-child(1),
+.book-table td:nth-child(1) {
+  width: 6%;
+}
+.book-table th:nth-child(2),
+.book-table td:nth-child(2) {
+  width: 22%;
+}
+.book-table th:nth-child(3),
+.book-table td:nth-child(3) {
+  width: 15%;
+}
+.book-table th:nth-child(4),
+.book-table td:nth-child(4) {
+  width: 20%;
+}
+.book-table th:nth-child(5),
+.book-table td:nth-child(5) {
+  width: 15%;
+}
+.book-table th:nth-child(6),
+.book-table td:nth-child(6) {
+  width: 10%;
+}
+.book-table th:nth-child(7),
+.book-table td:nth-child(7) {
+  width: 12%;
+}
+
+/* ===== 아이콘 ===== */
+.icon-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 4px 6px;
+  font-size: 16px;
+}
+
+.icon-btn.edit:hover {
+  color: #007bff;
+}
+.icon-btn.delete:hover {
+  color: #dc3545;
+}
+
+/* ===== 페이지네이션 ===== */
 .pagination {
   display: flex;
   justify-content: center;
+  align-items: center;
   margin-top: 16px;
   gap: 8px;
+}
+
+.pagination button {
+  background: #f1f1f1;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.pagination button:hover {
+  background: #e0e0e0;
+}
+
+.pagination span {
+  font-weight: 500;
 }
