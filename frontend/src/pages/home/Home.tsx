@@ -23,6 +23,13 @@ const Home: React.FC = () => {
   };
 
   useEffect(() => {
+    fetch('http://localhost:8080/book/list?page=0&size=5') // ✅ 백엔드 API 호출
+      .then(res => res.json())
+      .then((data) => {
+        console.log("📚 백엔드 응답:", data);
+        setBooks(data.content); // ✅ content 배열만 저장
+      })
+      .catch(err => console.error("❌ 책 목록 불러오기 오류:", err));
     const fetchBooks = async () => {
       const data = await getLatestBooks(); // 최신 5권 가져오기
       setBooks(data);
