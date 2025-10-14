@@ -56,7 +56,7 @@
   position: absolute;
   right: 12px;
   top: 50%;
-  transform: translateY(5%); /* 👈 -50% → -40% 로 변경 */
+  transform: translateY(10%); /* 👈 -50% → -40% 로 변경 */
   background: transparent;
   border: none;
   cursor: pointer;
