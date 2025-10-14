@@ -77,13 +77,14 @@ public class BookServiceImpl implements BookService {
                 .toList();
     }
 
-    @Override // 책 한 페이지당 9개(3줄 x 3개)
+    // 변경 후 (size 강제 X)
+    @Override
     public Page<BookResponse> getList(Pageable pageable) {
-        Pageable fixedPageable = Pageable.ofSize(9).withPage(pageable.getPageNumber());
-        Page<BookEntity> page = bookRepository.findAll(fixedPageable);
-
-        // Page<BookEntity> → Page<BookResponse>
-        return page.map(BookMapper::toResponse);
+        Page<BookEntity> page = bookRepository.findAll(pageable);
+        List<BookResponse> responses = page.getContent().stream()
+                .map(BookMapper::toResponse)
+                .toList();
+        return new PageImpl<>(responses, pageable, page.getTotalElements());
     }
 }
 
