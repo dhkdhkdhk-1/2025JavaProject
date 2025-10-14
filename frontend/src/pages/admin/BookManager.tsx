@@ -6,7 +6,6 @@ import {
   deleteBook,
   Book,
 } from "../../api/BookApi";
-import Sidebar from "../../components/sidebar/Sidebar";
 import AddBookModal from "../../components/modal/AddBookModal";
 import UpdateBookModal from "../../components/modal/UpdateBookModal";
 import DeleteBookModal from "../../components/modal/DeleteBookModal";
@@ -97,7 +96,6 @@ const BookManager: React.FC = () => {
   return (
     <div className="admin-layout">
       <div className="admin-body">
-        <Sidebar />
         <main className="admin-content">
           <div className="book-header">
             <h2>📘 도서 관리</h2>
