@@ -3,6 +3,7 @@ import { CheckboxField } from "./components/CheckboxField";
 import { InputField } from "./components/InputField";
 import { VariantPrimaryWrapper } from "./components/VariantPrimaryWrapper";
 import { TextContentTitle } from "./components/TextContentTitle";
+import { useNavigate } from "react-router-dom";
 
 import "./Login-Variables.css";
 import "./Login-Style.css";
@@ -10,7 +11,9 @@ import "./Login-Style.css";
 const Login: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [remember, setRemember] = useState(false);
+  const navigate = useNavigate();
 
   const handleLogin = async () => {
     try {
@@ -30,15 +33,13 @@ const Login: React.FC = () => {
       }
 
       const data = await response.json();
-      console.log("로그인 성공, 받은 토큰:", data);
-
-      // 토큰 저장
       localStorage.setItem("accessToken", data.accessToken);
       localStorage.setItem("refreshToken", data.refreshToken);
+      window.dispatchEvent(new Event("storage"));
 
-      // 이후 이동 등 추가 작업
-      alert("로그인 성공!");
-      // 예: navigate("/books"); (react-router-dom 사용 시)
+      if (window.confirm("로그인 성공! 홈 화면으로 이동하시겠습니까?")) {
+        navigate("/");
+      }
     } catch (error) {
       console.error(error);
       alert("로그인 실패: 이메일과 비밀번호를 확인하세요.");
@@ -58,21 +59,39 @@ const Login: React.FC = () => {
           valueType="value"
           onChange={(e) => setEmail(e.target.value)}
         />
-        <InputField
-          className="login-input"
-          inputClassName="login-input-field"
-          label="Password"
-          value={password}
-          valueType="value"
-          onChange={(e) => setPassword(e.target.value)}
-        />
+
+        {/* 👁 비밀번호 입력 */}
+        <div className="password-container">
+          <InputField
+            className="login-input"
+            inputClassName="login-input-field"
+            label="Password"
+            value={password}
+            valueType="value"
+            onChange={(e) => setPassword(e.target.value)}
+            type={showPassword ? "text" : "password"}
+          />
+
+          {/* ✅ lucide-react 없이 이모지로 대체 */}
+          <button
+            type="button"
+            className="toggle-password-btn"
+            onMouseDown={(e) => e.preventDefault()} // 포커스 유지
+            onClick={() => setShowPassword((prev) => !prev)}
+          >
+            {showPassword ? "🙈" : "👁️"}
+          </button>
+        </div>
+
         <CheckboxField
           className="login-checkbox"
           label="계정 정보 저장"
           valueType={remember ? "checked" : "unchecked"}
           onChange={(e) => setRemember(e.target.checked)}
         />
+
         <div className="login-forgot">비밀번호 찾기</div>
+
         <VariantPrimaryWrapper
           className="login-button"
           label="로그인"

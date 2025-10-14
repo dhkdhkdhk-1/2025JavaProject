@@ -1,11 +1,33 @@
 import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
 import "./Header.css";
 
 export default function Header() {
   const navigate = useNavigate();
+  const [isLoggedIn, setIsLoggedIn] = useState(
+    !!localStorage.getItem("accessToken")
+  );
 
-  const handleLoginClick = () => {
-    navigate("/login");
+  useEffect(() => {
+    const handleStorageChange = () => {
+      setIsLoggedIn(!!localStorage.getItem("accessToken"));
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
+  }, []); // setIsLoggedIn은 React가 안정적으로 관리하므로 deps 생략 OK
+
+  const handleLoginClick = () => navigate("/login");
+  const handleSignupClick = () => navigate("/signup");
+
+  const handleLogout = () => {
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken");
+    alert("로그아웃되었습니다.");
+    setIsLoggedIn(false);
+    navigate("/");
+    // ✅ 다른 컴포넌트에서도 로그인 상태 변경 감지 가능
+    window.dispatchEvent(new Event("storage"));
   };
 
   return (
@@ -19,10 +41,22 @@ export default function Header() {
         <a href="/board">게시판</a>
         <a href="/support">고객센터</a>
         <a href="/mypage">마이페이지</a>
-        <button className="login-btn" onClick={handleLoginClick}>
-          로그인
-        </button>
-        <button className="login-btn">회원가입</button>
+
+        {/* ✅ 로그인 상태에 따라 버튼 표시 */}
+        {!isLoggedIn ? (
+          <>
+            <button className="login-btn" onClick={handleLoginClick}>
+              로그인
+            </button>
+            <button className="login-btn" onClick={handleSignupClick}>
+              회원가입
+            </button>
+          </>
+        ) : (
+          <button className="login-btn" onClick={handleLogout}>
+            로그아웃
+          </button>
+        )}
       </nav>
     </header>
   );
