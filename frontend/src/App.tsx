@@ -6,12 +6,8 @@ import AdminLayout from "./layout/admin/AdminLayout";
 
 // ✅ 사용자 페이지
 import Home from "./pages/home/Home";
-<<<<<<< HEAD
-import BookList from "./pages/booklist/BookList";
 import Login from "./pages/login/Login"; // ✅ 로그인 추가
-=======
 import BookList from "./pages/booklist/BookList"; // ✅ 추가
->>>>>>> 7d4910a5e1e2de52eb3f94b8b6fce669e3e2bea0
 
 // ✅ 관리자 페이지
 import Dashboard from "./pages/admin/Dashboard";
@@ -24,27 +20,20 @@ const App: React.FC = () => {
         {/* ✅ 일반 사용자용 */}
         <Route element={<Layout />}>
           <Route path="/" element={<Home />} />
-<<<<<<< HEAD
           <Route path="/booklist" element={<BookList />} />
           <Route path="/login" element={<Login />} />{" "}
           {/* ✅ 로그인 경로 추가 */}
-=======
           <Route path="/booklist" element={<BookList />} />{" "}
           {/* ✅ 도서목록 라우트 등록 */}
           <Route path="/booklist" element={<BookList />} /> {/* ✅ 추가됨 */}
->>>>>>> 7d4910a5e1e2de52eb3f94b8b6fce669e3e2bea0
         </Route>
-
         {/* ✅ 관리자용 */}
         <Route path="/admin" element={<AdminLayout />}>
           <Route index element={<Dashboard />} />{" "}
           {/* 기본 /admin → Dashboard */}
           <Route path="books" element={<BookManager />} />{" "}
-<<<<<<< HEAD
           {/* /admin/books → 도서관리 */}
-=======
           {/* /admin/books → 도서관리 페이지 */}
->>>>>>> 7d4910a5e1e2de52eb3f94b8b6fce669e3e2bea0
         </Route>
       </Routes>
     </BrowserRouter>

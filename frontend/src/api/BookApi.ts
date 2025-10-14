@@ -17,9 +17,6 @@ export interface PageResponse<T> {
   totalElements: number;
   number: number;
 }
-<<<<<<< HEAD
-
-=======
 
 export interface BookForm {
   title: string;
@@ -44,7 +41,6 @@ export const deleteBook = async (id: number) => {
   return res.data;
 };
 
->>>>>>> 7d4910a5e1e2de52eb3f94b8b6fce669e3e2bea0
 export const getBooks = async (page = 0, size = 10, keyword = "") => {
   const res = await axios.get<PageResponse<Book>>(
     `${BASE_URL}/book/list?page=${page}&size=${size}&keyword=${keyword}`
