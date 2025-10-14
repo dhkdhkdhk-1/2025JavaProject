@@ -57,19 +57,13 @@ public class BookServiceImpl implements BookService{
         return bookRepository.findAll().stream().map(BookMapper::toResponse).toList();
     }
 
-    @Override // 책 한페이지에 한줄에 5개 3줄 총 15개 띄우기 위한 코드
+    // 변경 후 (size 강제 X)
+    @Override
     public Page<BookResponse> getList(Pageable pageable) {
-        Pageable fixedPageable = Pageable.ofSize(9).withPage(pageable.getPageNumber());
-
-        // DB 조회
-        Page<BookEntity> page = bookRepository.findAll(fixedPageable);
-
-        // 엔티티 -> DTO 변환
+        Page<BookEntity> page = bookRepository.findAll(pageable);
         List<BookResponse> responses = page.getContent().stream()
                 .map(BookMapper::toResponse)
                 .toList();
-
-        // Page<BookResponse> 반환
-        return new PageImpl<>(responses, fixedPageable, page.getTotalElements());
+        return new PageImpl<>(responses, pageable, page.getTotalElements());
     }
 }
