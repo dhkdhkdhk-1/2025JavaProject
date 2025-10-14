@@ -12,6 +12,7 @@ import kr.ac.ync.library.domain.branch.exception.BranchNotFoundException;
 import kr.ac.ync.library.domain.branch.repository.BranchRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -92,14 +93,10 @@ public class BookServiceImpl implements BookService {
 
         // 엔티티 -> DTO 변환
         List<BookResponse> responses = page.getContent().stream()
-
-        return bookRepository.findAll().stream()
                 .map(BookMapper::toResponse)
                 .toList();
-    }
 
-    @Override // 프론트에서 넘긴 pageable 그대로 사용 (강제 size 고정 제거)
-    public Page<BookResponse> getList(Pageable pageable) {
-        return bookRepository.findAll(pageable).map(BookMapper::toResponse);
+        // Page<BookResponse> 반환
+        return new PageImpl<>(responses, fixedPageable, page.getTotalElements());
     }
 }
