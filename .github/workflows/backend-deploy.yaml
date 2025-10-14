@@ -35,7 +35,7 @@ jobs:
           cd deploy && zip -r deploy.zip .
 
       - name: Upload to S3 (for CodeDeploy)
-        uses: aws-actions/s3-sync@v2
+        uses: aws-actions/s3-sync@v1
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
