@@ -20,24 +20,28 @@ export default function Header() {
   const handleLoginClick = () => navigate("/login");
   const handleSignupClick = () => navigate("/signup");
 
-  const handleLogout = () => {
-    localStorage.removeItem("accessToken");
-    localStorage.removeItem("refreshToken");
-    alert("로그아웃되었습니다.");
-    setIsLoggedIn(false);
-    navigate("/");
-    // ✅ 다른 컴포넌트에서도 로그인 상태 변경 감지 가능
-    window.dispatchEvent(new Event("storage"));
-  };
+// src/layout/Header.tsx (핵심만)
+const handleLogout = () => {
+  localStorage.removeItem("accessToken");
+  localStorage.removeItem("refreshToken");
+  localStorage.removeItem("role"); // ✅ 추가
+  alert("로그아웃되었습니다.");
+  setIsLoggedIn(false);
+  navigate("/login"); // ✅ 로그인 화면으로
+  window.dispatchEvent(new Event("storage"));
+};
 
   return (
     <header className="header">
       <div className="header-left">
-        <h2>📚 Library System</h2>
+        <h2 className="logo" onClick={() => navigate("/home")} style={{ cursor: "pointer" }}>
+        📚 Library System
+        </h2>
       </div>
 
+
       <nav className="header-right">
-        <a href="/">도서목록</a>
+        <a href="/booklist">도서목록</a>
         <a href="/board">게시판</a>
         <a href="/support">고객센터</a>
         <a href="/mypage">마이페이지</a>

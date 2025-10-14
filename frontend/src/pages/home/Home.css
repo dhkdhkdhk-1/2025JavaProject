@@ -140,3 +140,65 @@
   .books-section { grid-template-columns: 1fr; }
   .book-card { max-width: 360px; margin: 0 auto; }
 }
+
+/* ====== 홈 카드/이미지/텍스트 오버라이드 ====== */
+
+/* 카드 높이 강제 제거: 내용만큼 늘어나게 */
+.book-card {
+  height: auto !important;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+/* 이미지 래퍼: 일정 높이만 보장, 내부 이미지는 전체가 보이게 contain */
+.book-image {
+  width: 100%;
+  height: 200px !important;       /* 이미지 영역 고정 높이 (원하면 180~220px 조절) */
+  border-radius: 8px;
+  overflow: hidden;
+  background: #f6f6f6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 !important;          /* 내부 여백 제거 */
+}
+
+/* 이미지: 자르지 말고 전부 보이게 */
+.book-image img {
+  max-width: 100%;
+  max-height: 100%;
+  width: auto !important;
+  height: auto !important;
+  object-fit: contain !important; /* 핵심: 잘림 방지 */
+  display: block;
+}
+
+/* 텍스트 영역 간격/말줄임 최적화 */
+.book-info {
+  gap: 6px;
+  margin-top: 8px;
+  padding: 0;
+}
+
+.book-title {
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.28;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;          /* 최대 2줄까지만 */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.book-author {
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.2;
+  white-space: nowrap;            /* 1줄 */
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.book-rating { margin-top: 4px; }

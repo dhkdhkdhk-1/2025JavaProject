@@ -1,40 +1,59 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+// src/App.tsx
 import React from "react";
+import { BrowserRouter, Routes, Route, Navigate, Outlet } from "react-router-dom";
 
 import Layout from "./layout/Layout";
 import AdminLayout from "./layout/admin/AdminLayout";
 
-// ✅ 사용자 페이지
+// 사용자 페이지
 import Home from "./pages/home/Home";
-import Login from "./pages/login/Login"; // ✅ 로그인 추가
-import BookList from "./pages/booklist/BookList"; // ✅ 추가
+import Login from "./pages/login/Login";
+import BookList from "./pages/booklist/BookList";
 
-// ✅ 관리자 페이지
+// 관리자 페이지
 import Dashboard from "./pages/admin/Dashboard";
 import BookManager from "./pages/admin/BookManager";
+
+/** 로그인 가드: 로그인되어 있으면 Layout을 렌더, 아니면 /login으로 */
+const ProtectedLayout: React.FC = () => {
+  const token = localStorage.getItem("accessToken");
+  if (!token) return <Navigate to="/login" replace />;
+  // ✅ Layout 내부에 <Outlet />이 있어야 하며, 아래 중첩 라우트가 Outlet으로 들어갑니다.
+  return <Layout />;
+};
+
+/** 관리자 가드: ADMIN만 AdminLayout 렌더, 아니면 /home으로 */
+const AdminLayoutGuard: React.FC = () => {
+  const role = localStorage.getItem("role");
+  if (role !== "ADMIN") return <Navigate to="/home" replace />;
+  // ✅ AdminLayout 내부에 <Outlet />이 있어야 하고, 아래 중첩 라우트가 Outlet으로 들어갑니다.
+  return <AdminLayout />;
+};
 
 const App: React.FC = () => {
   return (
     <BrowserRouter>
       <Routes>
-        {/* ✅ 일반 사용자용 */}
-        <Route element={<Layout />}>
-          <Route path="/" element={<Home />} />
+        {/* 비로그인 기본 진입: 로그인 페이지 */}
+        <Route path="/login" element={<Login />} />
+
+        {/* 로그인한 사용자 전용 영역 */}
+        <Route element={<ProtectedLayout />}>
+          <Route path="/home" element={<Home />} />
           <Route path="/booklist" element={<BookList />} />
-          <Route path="/login" element={<Login />} />{" "}
-          {/* ✅ 로그인 경로 추가 */}
-          <Route path="/booklist" element={<BookList />} />{" "}
-          {/* ✅ 도서목록 라우트 등록 */}
-          <Route path="/booklist" element={<BookList />} /> {/* ✅ 추가됨 */}
         </Route>
-        {/* ✅ 관리자용 */}
-        <Route path="/admin" element={<AdminLayout />}>
-          <Route index element={<Dashboard />} />{" "}
-          {/* 기본 /admin → Dashboard */}
-          <Route path="books" element={<BookManager />} />{" "}
-          {/* /admin/books → 도서관리 */}
-          {/* /admin/books → 도서관리 페이지 */}
+
+        {/* 관리자 전용 영역 (로그인 + 롤 가드) */}
+        <Route element={<ProtectedLayout />}>
+          <Route path="/admin" element={<AdminLayoutGuard />}>
+            <Route index element={<Dashboard />} />
+            <Route path="books" element={<BookManager />} />
+          </Route>
         </Route>
+
+        {/* 기본 및 미지정 경로 */}
+        <Route path="/" element={<Navigate to="/login" replace />} />
+        <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </BrowserRouter>
   );

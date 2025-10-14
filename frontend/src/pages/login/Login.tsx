@@ -1,39 +1,56 @@
+// src/pages/login/Login.tsx
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+
 import { CheckboxField } from "./components/CheckboxField";
 import { InputField } from "./components/InputField";
 import { VariantPrimaryWrapper } from "./components/VariantPrimaryWrapper";
 import { TextContentTitle } from "./components/TextContentTitle";
-import { useNavigate } from "react-router-dom";
-import { login } from "../../api/AuthApi"; // ✅ API 분리된 함수 import
+
+import { login, getMe, setAccessToken } from "../../api/AuthApi";
 
 import "./Login-Variables.css";
 import "./Login-Style.css";
 
 const Login: React.FC = () => {
+  // ⬇ 컴포넌트 상태는 컴포넌트 내부에
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [remember, setRemember] = useState(false);
+
   const navigate = useNavigate();
 
+  // ⬇ 로그인 핸들러도 컴포넌트 내부에
   const handleLogin = async () => {
-    const result = await login({ email, password }); // ✅ axios로 변경
-
-    if (!result) {
+    const tokens = await login({ email, password });
+    if (!tokens) {
       alert("로그인 실패: 이메일과 비밀번호를 확인하세요.");
       return;
     }
 
-    // ✅ 토큰 저장
-    localStorage.setItem("accessToken", result.accessToken);
-    localStorage.setItem("refreshToken", result.refreshToken);
-    window.dispatchEvent(new Event("storage"));
+    // 1) 토큰 저장 + axios 인스턴스에 주입
+    localStorage.setItem("accessToken", tokens.accessToken);
+    localStorage.setItem("refreshToken", tokens.refreshToken);
+    setAccessToken(tokens.accessToken);
 
-    if (window.confirm("로그인 성공! 홈 화면으로 이동하시겠습니까?")) {
-      navigate("/");
+    try {
+      // 2) 내 정보 조회
+      const me = await getMe();
+      localStorage.setItem("role", me.role);
+      window.dispatchEvent(new Event("storage"));
+
+      // 3) 역할별 이동
+      if (me.role === "ADMIN") navigate("/admin");
+      else navigate("/home");
+    } catch (e) {
+      console.error("/user/me 조회 실패", e);
+      alert("로그인은 되었지만 사용자 정보를 불러오지 못했습니다.");
+      navigate("/home");
     }
   };
 
+  // ⬇ JSX 반환도 컴포넌트 내부에
   return (
     <div className="login-page">
       <TextContentTitle title="로그인" align="center" className="login-title" />
@@ -48,7 +65,6 @@ const Login: React.FC = () => {
           onChange={(e) => setEmail(e.target.value)}
         />
 
-        {/* 👁 비밀번호 입력 */}
         <div className="password-container">
           <InputField
             className="login-input"
