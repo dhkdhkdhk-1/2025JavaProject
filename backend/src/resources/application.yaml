@@ -16,7 +16,5 @@ spring:
 application:
   jwt:
     secretKey: ync.ac.kr-secret-key-1234567890!@#$
-    expiration: 900000 #15분
-    refreshExpiration: 86400000 #1일
-
-    #Github에 올라가면 안됨
+    expiration: 900000 # 15분
+    refreshExpiration: 86400000 # 1일
