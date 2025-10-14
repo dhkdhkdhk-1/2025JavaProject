@@ -8,7 +8,7 @@
 
 /* 페이지 타이틀 */
 .page-title {
-  margin: 0 0 16px 140px;
+  margin: 0 0 16px 0;
   font-size: 24px;
   font-weight: 700;
   color: var(--sds-color-text-default-default);
@@ -252,7 +252,7 @@
 .book-image {
   display: flex;
   width: 100%;
-  height: 206px; /* 이미지 높이는 그대로 유지 */
+  height: 206px;                            /* 이미지 높이는 그대로 유지 */
   justify-content: center;
   align-items: center;
   padding: var(--sds-size-space-400, 16px);
@@ -294,6 +294,7 @@
   align-items: center;
   gap: 4px;
 }
+
 
 /* ===== 페이징 (본문 하단 중앙) ===== */
 .pagination {

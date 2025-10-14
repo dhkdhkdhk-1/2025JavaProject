@@ -28,5 +28,5 @@ public class BranchEntity{
 
     @OneToMany(mappedBy = "branch", cascade = CascadeType.ALL)
     @ToString.Exclude
-    private final List<BookEntity> books = new ArrayList<>();
+    private List<BookEntity> books = new ArrayList<>();
 }
