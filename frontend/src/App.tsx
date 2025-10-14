@@ -6,10 +6,11 @@ import AdminLayout from "./layout/admin/AdminLayout";
 
 // ✅ 사용자 페이지
 import Home from "./pages/home/Home";
+import BookList from "./pages/booklist/BookList"; // ✅ 도서목록 추가
 
 // ✅ 관리자 페이지
 import Dashboard from "./pages/admin/Dashboard";
-import BookManager from "./pages/admin/BookManager"; // ⬅️ 새로 추가한 부분
+import BookManager from "./pages/admin/BookManager";
 
 const App: React.FC = () => {
   return (
@@ -18,14 +19,13 @@ const App: React.FC = () => {
         {/* ✅ 일반 사용자용 */}
         <Route element={<Layout />}>
           <Route path="/" element={<Home />} />
+          <Route path="/booklist" element={<BookList />} /> {/* ✅ 도서목록 라우트 등록 */}
         </Route>
 
         {/* ✅ 관리자용 */}
         <Route path="/admin" element={<AdminLayout />}>
-          <Route index element={<Dashboard />} />{" "}
-          {/* 기본 /admin → Dashboard */}
-          <Route path="books" element={<BookManager />} />{" "}
-          {/* /admin/books → 도서관리 페이지 */}
+          <Route index element={<Dashboard />} /> {/* 기본 /admin → Dashboard */}
+          <Route path="books" element={<BookManager />} /> {/* /admin/books → 도서관리 페이지 */}
         </Route>
       </Routes>
     </BrowserRouter>

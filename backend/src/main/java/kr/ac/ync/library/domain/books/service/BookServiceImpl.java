@@ -59,7 +59,7 @@ public class BookServiceImpl implements BookService{
 
     @Override // 책 한페이지에 한줄에 5개 3줄 총 15개 띄우기 위한 코드
     public Page<BookResponse> getList(Pageable pageable) {
-        Pageable fixedPageable = Pageable.ofSize(10).withPage(pageable.getPageNumber());
+        Pageable fixedPageable = Pageable.ofSize(9).withPage(pageable.getPageNumber());
 
         // DB 조회
         Page<BookEntity> page = bookRepository.findAll(fixedPageable);

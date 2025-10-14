@@ -8,7 +8,7 @@ export default function Header() {
       </div>
 
       <nav className="header-right">
-        <a href="/">도서목록</a>
+        <a href="/booklist">도서목록</a>
         <a href="/board">게시판</a>
         <a href="/support">고객센터</a>
         <a href="/mypage">마이페이지</a>
