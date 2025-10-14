@@ -4,7 +4,7 @@ import { InputField } from "./components/InputField";
 import { VariantPrimaryWrapper } from "./components/VariantPrimaryWrapper";
 import { TextContentTitle } from "./components/TextContentTitle";
 import { useNavigate } from "react-router-dom";
-import { login } from "../../api/authApi"; // ✅ API 분리된 함수 import
+import { login } from "../../api/AuthApi"; // ✅ API 분리된 함수 import
 
 import "./Login-Variables.css";
 import "./Login-Style.css";
