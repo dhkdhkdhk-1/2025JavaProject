@@ -1,0 +1,17 @@
+/* src/pages/signup/Signup-Variables.css */
+:root {
+  --color-primary: #222;
+  --color-secondary: #555;
+  --color-background: #fff;
+  --color-border: #ddd;
+  --color-border-focus: #000;
+  --color-text-muted: #666;
+
+  --font-size-title: 28px;
+  --font-size-input: 14px;
+  --font-size-button: 15px;
+
+  --spacing-base: 16px;
+  --spacing-large: 24px;
+  --border-radius: 6px;
+}

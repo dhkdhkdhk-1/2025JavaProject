@@ -28,11 +28,11 @@
   margin-bottom: var(--spacing-base);
 }
 
-/* ✅ 입력창 정렬 수정 */
+/* ✅ 입력창 정렬 */
 .login-input-field {
   width: 100%;
-  height: 44px; /* 높이 살짝 증가 */
-  padding: 10px 44px 10px 12px; /* 오른쪽 여백 확보 */
+  height: 44px;
+  padding: 10px 44px 10px 12px;
   font-size: var(--font-size-input);
   border: 1px solid #ccc;
   border-radius: 4px;
@@ -51,12 +51,12 @@
   margin-bottom: var(--spacing-base);
 }
 
-/* ✅ 눈 아이콘 수직 중앙 정렬 */
+/* ✅ 눈 아이콘 위치 조정 */
 .toggle-password-btn {
   position: absolute;
   right: 12px;
   top: 50%;
-  transform: translateY(10%); /* 👈 -50% → -40% 로 변경 */
+  transform: translateY(10%);
   background: transparent;
   border: none;
   cursor: pointer;
@@ -73,29 +73,39 @@
   color: #000;
 }
 
-.login-checkbox {
+/* ✅ 체크박스 + 문구 같은 줄 */
+.remember-container {
   display: flex;
   align-items: center;
-  margin-bottom: 16px;
+  gap: 6px;
+  margin-bottom: 10px;
   font-size: var(--font-size-input);
   cursor: pointer;
+  color: var(--color-text);
 }
 
-.login-forgot {
-  font-size: var(--font-size-input);
-  color: var(--color-text-muted);
-  margin-bottom: 30px;
+/* ✅ 회원가입 + 비밀번호 찾기 */
+.login-link-container {
+  display: flex;
+  flex-direction: column; /* 위아래 배치 */
+  align-items: flex-start;
+  gap: 4px;
+  margin-top: 8px;
+  margin-bottom: 24px;
+}
+
+.clickable {
+  color: #007bff;
   cursor: pointer;
-  user-select: none;
-  font-weight: 600;
+  font-size: 14px;
+  font-weight: 500;
 }
 
-.login-forgot:hover {
-  color: var(--color-secondary);
+.clickable:hover {
   text-decoration: underline;
 }
 
-/* ✅ 버튼 원래 UI 유지 */
+/* ✅ 버튼 */
 .login-button {
   width: 100%;
   display: block;

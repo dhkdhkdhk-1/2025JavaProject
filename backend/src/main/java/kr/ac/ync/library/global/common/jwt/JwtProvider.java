@@ -28,21 +28,29 @@ public class JwtProvider {
     private final UserRepository userRepository;
 
 
-    public Jws<Claims> getClaims(String token)
-    {
-        try
-        {
+    public Jws<Claims> getClaims(String token) {
+        try {
             return Jwts.parser()
                     .setSigningKey(getSigningKey())
                     .build()
                     .parseClaimsJws(token);
-        }
-        catch(ExpiredJwtException e) { throw new JwtException("Expired JWT", e); }
-        catch ( UnsupportedJwtException e) { throw new JwtException("Unsupported JWT", e); } // 토큰 만료
-        catch ( MalformedJwtException e) { throw new JwtException("Malformed JWT", e); } //구조가 잘못된 JWT
-        catch ( SignatureException e) { throw new JwtException("Invalid JWT", e); } // 서명이 잘몬된 JWT
-        catch ( IllegalArgumentException e) { throw new JwtException("Unsupported JWT", e); } //널 빈 문자열
-        catch ( WeakKeyException e) { throw new JwtException("Unsupported JWT", e); } // 알고리즘 예외
+        } catch (ExpiredJwtException e) {
+            throw new JwtException("Expired JWT", e);
+        } catch (UnsupportedJwtException e) {
+            throw new JwtException("Unsupported JWT", e);
+        } // 토큰 만료
+        catch (MalformedJwtException e) {
+            throw new JwtException("Malformed JWT", e);
+        } //구조가 잘못된 JWT
+        catch (SignatureException e) {
+            throw new JwtException("Invalid JWT", e);
+        } // 서명이 잘몬된 JWT
+        catch (IllegalArgumentException e) {
+            throw new JwtException("Unsupported JWT", e);
+        } //널 빈 문자열
+        catch (WeakKeyException e) {
+            throw new JwtException("Unsupported JWT", e);
+        } // 알고리즘 예외
 
 
     }
@@ -86,15 +94,13 @@ public class JwtProvider {
         return !(claims.getHeader().get(Header.JWT_TYPE).equals(jwtType.toString()));
     }
 
-    public Authentication getAuthentication(String token)
-    {
+    public Authentication getAuthentication(String token) {
         Jws<Claims> claims = getClaims(token);
-        if(isWrongType(claims, JwtType.ACCESS))
-        {
+        if (isWrongType(claims, JwtType.ACCESS)) {
             throw TokenTypeException.EXCEPTION;
         }
 
-        String email= claims.getPayload().getSubject();
+        String email = claims.getPayload().getSubject();
         User user = userRepository.findByEmail(email)
                 .map(UserMapper::toDTO)
                 .orElseThrow(() -> UserNotFoundException.EXCEPTION);
@@ -106,4 +112,29 @@ public class JwtProvider {
         return authentication;
 
     }
+
+    // ✅ 추가된 부분: JWT 토큰의 유효성을 검사하는 메서드
+    // - 토큰이 만료되었거나 구조가 잘못되었으면 false 반환
+    // - 정상 토큰이면 true 반환
+    public boolean validateToken(String token) {
+        try {
+            Jwts.parser()
+                    .setSigningKey(getSigningKey())
+                    .build()
+                    .parseClaimsJws(token);
+            return true; // ✅ 유효한 토큰
+        } catch (ExpiredJwtException e) {
+            System.out.println("❌ JWT 만료됨");
+        } catch (UnsupportedJwtException e) {
+            System.out.println("❌ 지원되지 않는 JWT 형식");
+        } catch (MalformedJwtException e) {
+            System.out.println("❌ 잘못된 JWT 구조");
+        } catch (SignatureException e) {
+            System.out.println("❌ JWT 서명 불일치");
+        } catch (IllegalArgumentException e) {
+            System.out.println("❌ JWT 값이 비어있음");
+        }
+        return false;
+    }
+
 }

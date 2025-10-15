@@ -18,29 +18,44 @@ import java.io.IOException;
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
-    private final JwtProvider jwtProvider;
 
+    private final JwtProvider jwtProvider;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
 
-        //전처리, JWT 인증
+        String path = request.getRequestURI();
+
+        // ✅ 인증이 필요 없는 경로는 JWT 검사 생략
+        if (isExcludedPath(path)) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        // ✅ JWT 토큰 추출
+        String authorization = request.getHeader(HttpHeaders.AUTHORIZATION);
         String token = null;
-        String authorization = request.getHeader(HttpHeaders.AUTHORIZATION);//헤더부문
-        //Bearer가 이미 있음
-        if(StringUtils.hasText(authorization)
-                && authorization.startsWith("Bearer")){
+
+        if (StringUtils.hasText(authorization) && authorization.startsWith("Bearer ")) {
             token = authorization.substring(7);
         }
 
-        if (token != null){
+        // ✅ 유효한 토큰이면 인증 정보 설정
+        if (token != null && jwtProvider.validateToken(token)) {
             Authentication authentication = jwtProvider.getAuthentication(token);
             SecurityContextHolder.getContext().setAuthentication(authentication);
-
         }
 
-        filterChain.doFilter(request,response);
+        filterChain.doFilter(request, response);
+    }
 
+    // ✅ 인증 제외 경로 정의
+    private boolean isExcludedPath(String path) {
+        return path.startsWith("/auth")   // ✅ 반드시 /auth/ 말고 /auth 로
+                || path.startsWith("/book")
+                || path.startsWith("/branch")
+                || path.equals("/")
+                || path.equals("/error");
     }
 }
