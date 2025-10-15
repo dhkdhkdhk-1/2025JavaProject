@@ -20,6 +20,7 @@ const App: React.FC = () => {
         {/* ✅ 일반 사용자용 */}
         <Route element={<Layout />}>
           <Route path="/" element={<Home />} />
+          <h1>테스트 배포입니다 🚀</h1>
           <Route path="/booklist" element={<BookList />} />
           <Route path="/login" element={<Login />} />{" "}
           {/* ✅ 로그인 경로 추가 */}
