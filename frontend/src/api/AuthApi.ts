@@ -53,7 +53,9 @@ export const login = async (
 // ✅ 회원가입 API
 export const signup = async (data: SignupRequest): Promise<boolean> => {
   try {
-    await api.post("/auth/signup", data);
+    await api.post("/auth/signup", data, {
+      headers: { "Content-Type": "application/json", Authorization: "" }, // ✅ Authorization 비움
+    });
     return true;
   } catch (error) {
     console.error("회원가입 실패:", error);
@@ -64,7 +66,11 @@ export const signup = async (data: SignupRequest): Promise<boolean> => {
 // ✅ 이메일 중복확인 API
 export const checkEmail = async (email: string): Promise<boolean> => {
   try {
-    const res = await api.post("/auth/check-email", { email });
+    const res = await axios.post(
+      "http://localhost:8080/auth/check-email",
+      { email },
+      { headers: { "Content-Type": "application/json" } } // ✅ Authorization 제거
+    );
     alert(res.data?.message || "사용 가능한 이메일입니다.");
     return true;
   } catch (error: any) {
@@ -81,7 +87,11 @@ export const checkEmail = async (email: string): Promise<boolean> => {
 // ✅ 휴대폰 인증 API
 export const verifyPhone = async (phone: string): Promise<boolean> => {
   try {
-    const res = await api.post("/auth/verify-phone", { phone });
+    const res = await axios.post(
+      "http://localhost:8080/auth/verify-phone",
+      { phone },
+      { headers: { "Content-Type": "application/json" } } // ✅ Authorization 제거
+    );
     alert(res.data?.message || "인증번호가 전송되었습니다.");
     return true;
   } catch (error: any) {

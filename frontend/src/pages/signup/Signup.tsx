@@ -1,3 +1,4 @@
+// src/pages/signup/Signup.tsx
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -16,7 +17,13 @@ const Signup: React.FC = () => {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
 
+  // ✅ 이메일 중복확인 여부
+  const [isEmailChecked, setIsEmailChecked] = useState(false);
+
   const navigate = useNavigate();
+
+  // ✅ 이메일 정규식 (모든 일반 이메일 도메인 허용)
+  const emailRegex = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
 
   // ✅ 이메일 중복확인
   const handleEmailCheck = async () => {
@@ -24,7 +31,17 @@ const Signup: React.FC = () => {
       alert("이메일을 입력해주세요.");
       return;
     }
-    await checkEmail(email);
+
+    // ✅ 이메일 형식 확인 (정규식)
+    if (!emailRegex.test(email)) {
+      alert("올바른 이메일 형식을 입력해주세요. (예: example@domain.com)");
+      return;
+    }
+
+    const success = await checkEmail(email);
+    if (success) {
+      setIsEmailChecked(true); // ✅ 중복확인 완료
+    }
   };
 
   // ✅ 휴대폰 본인인증
@@ -36,7 +53,7 @@ const Signup: React.FC = () => {
     await verifyPhone(phone);
   };
 
-  // ✅ 회원가입 처리 (입력 검증 추가)
+  // ✅ 회원가입 처리
   const handleSignup = async () => {
     // 1️⃣ 공백 확인
     if (!email || !password || !passwordCheck || !name || !phone) {
@@ -44,19 +61,25 @@ const Signup: React.FC = () => {
       return;
     }
 
-    // 2️⃣ 이메일 형식 확인 (간단히 '@' 포함 여부)
-    if (!email.includes("@")) {
-      alert("올바른 이메일 형식을 입력해주세요.");
+    // 2️⃣ 이메일 형식 확인
+    if (!emailRegex.test(email)) {
+      alert("올바른 이메일 형식을 입력해주세요. (예: example@domain.com)");
       return;
     }
 
-    // 3️⃣ 비밀번호 일치 확인
+    // 3️⃣ 이메일 중복확인 여부 확인
+    if (!isEmailChecked) {
+      alert("이메일 중복확인을 먼저 진행해주세요.");
+      return;
+    }
+
+    // 4️⃣ 비밀번호 일치 확인
     if (password !== passwordCheck) {
       alert("비밀번호가 일치하지 않습니다.");
       return;
     }
 
-    // 4️⃣ 전화번호 숫자 형식 확인
+    // 5️⃣ 전화번호 숫자 형식 확인
     if (!/^\d{10,11}$/.test(phone)) {
       alert("전화번호는 숫자만 입력해주세요. (10~11자리)");
       return;
@@ -91,7 +114,10 @@ const Signup: React.FC = () => {
             label="Email"
             value={email}
             valueType="value"
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(e) => {
+              setEmail(e.target.value);
+              setIsEmailChecked(false); // ✅ 이메일 변경 시 다시 확인 필요
+            }}
           />
           <button className="small-btn" onClick={handleEmailCheck}>
             중복확인
