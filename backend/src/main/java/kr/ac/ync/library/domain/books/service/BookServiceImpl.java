@@ -56,14 +56,8 @@ public class BookServiceImpl implements BookService{
 
     @Override
     public List<BookResponse> getList() {
-<<<<<<< HEAD
         return bookRepository.findAll().stream().map(BookMapper::toResponse).toList();
-=======
-        return bookRepository.findAll()
-                .stream()
-                .map(BookMapper::toResponse)
-                .toList();
->>>>>>> 2b86c0046ed852fab5adbc9af2403787409a6350
+
     }
 
     // 변경 후 (size 강제 X)

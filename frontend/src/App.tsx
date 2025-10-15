@@ -1,6 +1,6 @@
 // src/App.tsx
 import React from "react";
-import { BrowserRouter, Routes, Route, Navigate, Outlet } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
 import Layout from "./layout/Layout";
 import AdminLayout from "./layout/admin/AdminLayout";
@@ -24,7 +24,10 @@ const ProtectedLayout: React.FC = () => {
 
 /** 관리자 가드: ADMIN만 AdminLayout 렌더, 아니면 /home으로 */
 const AdminLayoutGuard: React.FC = () => {
+  const token = localStorage.getItem("accessToken");
   const role = localStorage.getItem("role");
+
+  if (!token) return <Navigate to="/login" replace />;
   if (role !== "ADMIN") return <Navigate to="/home" replace />;
   // ✅ AdminLayout 내부에 <Outlet />이 있어야 하고, 아래 중첩 라우트가 Outlet으로 들어갑니다.
   return <AdminLayout />;
@@ -44,9 +47,8 @@ const App: React.FC = () => {
         </Route>
 
         {/* 관리자 전용 영역 (로그인 + 롤 가드) */}
-        <Route element={<ProtectedLayout />}>
-          <Route path="/admin" element={<AdminLayoutGuard />}>
-            <Route index element={<Dashboard />} />
+        <Route element={<AdminLayoutGuard />}>
+          <Route path="/admin" element={<Dashboard />}>
             <Route path="books" element={<BookManager />} />
           </Route>
         </Route>
