@@ -56,7 +56,7 @@ const Signup: React.FC = () => {
   const handleSignup = async () => {
     // 1️⃣ 공백 확인
     if (!email || !password || !passwordCheck || !username || !phone) {
-      alert("모든 필드를 입력해주세요.");
+      alert("모든 정보를 입력해주세요.");
       return;
     }
 
