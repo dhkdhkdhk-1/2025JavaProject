@@ -28,21 +28,29 @@ public class JwtProvider {
     private final UserRepository userRepository;
 
 
-    public Jws<Claims> getClaims(String token)
-    {
-        try
-        {
+    public Jws<Claims> getClaims(String token) {
+        try {
             return Jwts.parser()
                     .setSigningKey(getSigningKey())
                     .build()
                     .parseClaimsJws(token);
-        }
-        catch(ExpiredJwtException e) { throw new JwtException("Expired JWT", e); }
-        catch ( UnsupportedJwtException e) { throw new JwtException("Unsupported JWT", e); } // 토큰 만료
-        catch ( MalformedJwtException e) { throw new JwtException("Malformed JWT", e); } //구조가 잘못된 JWT
-        catch ( SignatureException e) { throw new JwtException("Invalid JWT", e); } // 서명이 잘몬된 JWT
-        catch ( IllegalArgumentException e) { throw new JwtException("Unsupported JWT", e); } //널 빈 문자열
-        catch ( WeakKeyException e) { throw new JwtException("Unsupported JWT", e); } // 알고리즘 예외
+        } catch (ExpiredJwtException e) {
+            throw new JwtException("Expired JWT", e);
+        } catch (UnsupportedJwtException e) {
+            throw new JwtException("Unsupported JWT", e);
+        } // 토큰 만료
+        catch (MalformedJwtException e) {
+            throw new JwtException("Malformed JWT", e);
+        } //구조가 잘못된 JWT
+        catch (SignatureException e) {
+            throw new JwtException("Invalid JWT", e);
+        } // 서명이 잘몬된 JWT
+        catch (IllegalArgumentException e) {
+            throw new JwtException("Unsupported JWT", e);
+        } //널 빈 문자열
+        catch (WeakKeyException e) {
+            throw new JwtException("Unsupported JWT", e);
+        } // 알고리즘 예외
 
 
     }
@@ -86,15 +94,13 @@ public class JwtProvider {
         return !(claims.getHeader().get(Header.JWT_TYPE).equals(jwtType.toString()));
     }
 
-    public Authentication getAuthentication(String token)
-    {
+    public Authentication getAuthentication(String token) {
         Jws<Claims> claims = getClaims(token);
-        if(isWrongType(claims, JwtType.ACCESS))
-        {
+        if (isWrongType(claims, JwtType.ACCESS)) {
             throw TokenTypeException.EXCEPTION;
         }
 
-        String email= claims.getPayload().getSubject();
+        String email = claims.getPayload().getSubject();
         User user = userRepository.findByEmail(email)
                 .map(UserMapper::toDTO)
                 .orElseThrow(() -> UserNotFoundException.EXCEPTION);
@@ -130,4 +136,5 @@ public class JwtProvider {
         }
         return false;
     }
+
 }

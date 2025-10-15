@@ -52,7 +52,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     // ✅ 인증 제외 경로 정의
     private boolean isExcludedPath(String path) {
-        return path.startsWith("/auth")
+        return path.startsWith("/auth")   // ✅ 반드시 /auth/ 말고 /auth 로
                 || path.startsWith("/book")
                 || path.startsWith("/branch")
                 || path.equals("/")
