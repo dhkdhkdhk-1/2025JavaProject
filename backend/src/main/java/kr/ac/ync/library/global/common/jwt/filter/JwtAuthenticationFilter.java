@@ -52,10 +52,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     // ✅ 인증 제외 경로 정의
     private boolean isExcludedPath(String path) {
-        return path.startsWith("/auth/")
-                || path.startsWith("/book/")
-                || path.startsWith("/branch/")
-                || path.equals("/error")
-                || path.equals("/"); // 추가 가능
+        return path.startsWith("/auth")
+                || path.startsWith("/book")
+                || path.startsWith("/branch")
+                || path.equals("/")
+                || path.equals("/error");
     }
 }
