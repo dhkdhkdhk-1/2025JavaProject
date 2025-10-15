@@ -4,21 +4,13 @@ import "./Header.css";
 
 export default function Header() {
   const navigate = useNavigate();
-  const [isLoggedIn, setIsLoggedIn] = useState(
-    !!localStorage.getItem("accessToken")
-  );
 
   useEffect(() => {
-    const handleStorageChange = () => {
-      setIsLoggedIn(!!localStorage.getItem("accessToken"));
-    };
+    const handleStorageChange = () => {};
 
     window.addEventListener("storage", handleStorageChange);
     return () => window.removeEventListener("storage", handleStorageChange);
   }, []); // setIsLoggedIn은 React가 안정적으로 관리하므로 deps 생략 OK
-
-  const handleLoginClick = () => navigate("/login");
-  const handleSignupClick = () => navigate("/signup");
 
   // src/layout/Header.tsx (핵심만)
   const handleLogout = () => {
@@ -26,7 +18,6 @@ export default function Header() {
     localStorage.removeItem("refreshToken");
     localStorage.removeItem("role"); // ✅ 추가
     alert("로그아웃되었습니다.");
-    setIsLoggedIn(false);
     navigate("/login"); // ✅ 로그인 화면으로
     window.dispatchEvent(new Event("storage"));
   };
