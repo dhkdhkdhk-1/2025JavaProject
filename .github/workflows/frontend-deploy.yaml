@@ -46,3 +46,18 @@ jobs:
           AWS_REGION: ap-northeast-2
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+      - name: Send Discord Notification
+        if: always()
+        run: |
+          if [ "${{ job.status }}" == "success" ]; then
+            STATUS="✅ Frontend 배포 성공!"
+          else
+            STATUS="❌ Frontend 배포 실패!"
+          fi
+
+          PAYLOAD=$(echo "{\"content\": \"${STATUS}\n브랜치: ${{ github.ref_name }}\n커밋: ${{ github.actor }} - ${{ github.event.head_commit.message }}\"}")
+
+          curl -H "Content-Type: application/json" \
+              -d "$PAYLOAD" \
+              ${{ secrets.DISCORD_WEBHOOK_URL }}
