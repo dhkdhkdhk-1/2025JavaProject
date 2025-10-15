@@ -21,6 +21,11 @@ jobs:
         with:
           node-version: 18
 
+      - name: Create .env.production file # 👈 추가
+        run: |
+          cd frontend
+          echo "REACT_APP_API_URL=${{ secrets.REACT_APP_API_URL }}" > .env.production
+
       - name: Install and build
         run: |
           cd frontend
