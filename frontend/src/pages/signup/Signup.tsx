@@ -1,4 +1,3 @@
-// src/pages/signup/Signup.tsx
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -14,7 +13,7 @@ const Signup: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [passwordCheck, setPasswordCheck] = useState("");
-  const [name, setName] = useState("");
+  const [username, setUsername] = useState(""); // ✅ 이름 통일
   const [phone, setPhone] = useState("");
 
   // ✅ 이메일 중복확인 여부
@@ -56,7 +55,7 @@ const Signup: React.FC = () => {
   // ✅ 회원가입 처리
   const handleSignup = async () => {
     // 1️⃣ 공백 확인
-    if (!email || !password || !passwordCheck || !name || !phone) {
+    if (!email || !password || !passwordCheck || !username || !phone) {
       alert("모든 필드를 입력해주세요.");
       return;
     }
@@ -86,7 +85,14 @@ const Signup: React.FC = () => {
     }
 
     try {
-      const success = await signup({ email, password, name, phone });
+      const success = await signup({
+        email,
+        password,
+        passwordCheck, // ✅ 추가됨
+        username,
+        phone,
+      });
+
       if (success) {
         alert("회원가입이 완료되었습니다!");
         navigate("/login");
@@ -145,9 +151,9 @@ const Signup: React.FC = () => {
         {/* ✅ 이름 */}
         <InputField
           label="Name"
-          value={name}
+          value={username}
           valueType="value"
-          onChange={(e) => setName(e.target.value)}
+          onChange={(e) => setUsername(e.target.value)} // ✅ 이름 일관성 수정
         />
 
         {/* ✅ 휴대폰 + 인증 버튼 */}

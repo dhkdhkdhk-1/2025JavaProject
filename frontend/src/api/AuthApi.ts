@@ -12,23 +12,28 @@ export function setAccessToken(token: string | null) {
   }
 }
 
+// ✅ 로그인 요청 DTO
 export interface LoginRequest {
   email: string;
   password: string;
 }
 
+// ✅ 회원가입 요청 DTO (백엔드 DTO와 완전 일치)
 export interface SignupRequest {
   email: string;
+  username: string;
   password: string;
-  name: string;
+  passwordCheck: string;
   phone: string;
 }
 
+// ✅ 로그인 응답 DTO
 export interface TokenResponse {
   accessToken: string;
   refreshToken: string;
 }
 
+// ✅ 사용자 정보 DTO
 export interface User {
   id: number;
   username: string;
@@ -53,8 +58,17 @@ export const login = async (
 // ✅ 회원가입 API
 export const signup = async (data: SignupRequest): Promise<boolean> => {
   try {
-    await api.post("/auth/signup", data, {
-      headers: { "Content-Type": "application/json", Authorization: "" }, // ✅ Authorization 비움
+    // ✅ 백엔드 DTO 필드와 동일한 key 전송
+    const payload = {
+      email: data.email,
+      username: data.username,
+      password: data.password,
+      passwordCheck: data.passwordCheck, // ✅ 추가됨
+      phone: data.phone,
+    };
+
+    await axios.post("http://localhost:8080/auth/signup", payload, {
+      headers: { "Content-Type": "application/json" },
     });
     return true;
   } catch (error) {
@@ -69,7 +83,7 @@ export const checkEmail = async (email: string): Promise<boolean> => {
     const res = await axios.post(
       "http://localhost:8080/auth/check-email",
       { email },
-      { headers: { "Content-Type": "application/json" } } // ✅ Authorization 제거
+      { headers: { "Content-Type": "application/json" } }
     );
     alert(res.data?.message || "사용 가능한 이메일입니다.");
     return true;
@@ -90,7 +104,7 @@ export const verifyPhone = async (phone: string): Promise<boolean> => {
     const res = await axios.post(
       "http://localhost:8080/auth/verify-phone",
       { phone },
-      { headers: { "Content-Type": "application/json" } } // ✅ Authorization 제거
+      { headers: { "Content-Type": "application/json" } }
     );
     alert(res.data?.message || "인증번호가 전송되었습니다.");
     return true;
@@ -111,4 +125,5 @@ export const getMe = async (): Promise<User> => {
   return res.data;
 };
 
+// ✅ 앱 시작 시 토큰 설정
 setAccessToken(localStorage.getItem("accessToken"));
