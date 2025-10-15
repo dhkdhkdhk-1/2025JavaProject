@@ -1,40 +1,37 @@
-import React from "react";
+import React, { ChangeEvent } from "react";
 
-type InputFieldProps = {
+interface InputFieldProps {
+  label: string;
+  value: string;
+  valueType: "value" | "checked";
+  onChange: (e: ChangeEvent<HTMLInputElement>) => void;
   className?: string;
   inputClassName?: string;
-  label: string;
-  value?: string;
-  valueType?: "placeholder" | "value";
-  state?: "default" | "disabled";
-  type?: string; // ✅ 비밀번호 등 input type 지정용 속성 추가
-  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
-};
+  type?: string;
+  placeholder?: string; // ✅ 추가
+}
 
 export const InputField: React.FC<InputFieldProps> = ({
-  className = "",
-  inputClassName = "",
   label,
-  value = "",
-  valueType = "placeholder",
-  state = "default",
-  type = "text", // ✅ 기본값은 text로 설정
+  value,
+  valueType,
   onChange,
+  className,
+  inputClassName,
+  type = "text",
+  placeholder, // ✅ 구조 분해 추가
 }) => {
   return (
-    <div className={`input-field ${className}`}>
-      <label
-        style={{ display: "block", marginBottom: "4px", fontSize: "14px" }}
-      >
-        {label}
-      </label>
+    <div className={className || "signup-input"}>
+      {/* label과 input을 세로 정렬 */}
+      <label className="signup-label">{label}</label>
       <input
-        type={type} // ✅ type prop을 적용
-        className={inputClassName}
-        placeholder={valueType === "placeholder" ? value : ""}
+        className={inputClassName || "signup-input-field"}
+        type={type}
         value={valueType === "value" ? value : undefined}
-        disabled={state === "disabled"}
+        checked={valueType === "checked" ? value === "true" : undefined}
         onChange={onChange}
+        placeholder={placeholder} // ✅ 적용됨
       />
     </div>
   );

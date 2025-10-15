@@ -1,8 +1,6 @@
-// src/pages/login/Login.tsx
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { CheckboxField } from "./components/CheckboxField";
 import { InputField } from "./components/InputField";
 import { VariantPrimaryWrapper } from "./components/VariantPrimaryWrapper";
 import { TextContentTitle } from "./components/TextContentTitle";
@@ -13,7 +11,6 @@ import "./Login-Variables.css";
 import "./Login-Style.css";
 
 const Login: React.FC = () => {
-  // ⬇ 컴포넌트 상태는 컴포넌트 내부에
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -21,7 +18,6 @@ const Login: React.FC = () => {
 
   const navigate = useNavigate();
 
-  // ⬇ 로그인 핸들러도 컴포넌트 내부에
   const handleLogin = async () => {
     const tokens = await login({ email, password });
     if (!tokens) {
@@ -29,18 +25,15 @@ const Login: React.FC = () => {
       return;
     }
 
-    // 1) 토큰 저장 + axios 인스턴스에 주입
     localStorage.setItem("accessToken", tokens.accessToken);
     localStorage.setItem("refreshToken", tokens.refreshToken);
     setAccessToken(tokens.accessToken);
 
     try {
-      // 2) 내 정보 조회
       const me = await getMe();
       localStorage.setItem("role", me.role);
       window.dispatchEvent(new Event("storage"));
 
-      // 3) 역할별 이동
       if (me.role === "ADMIN") navigate("/admin");
       else navigate("/home");
     } catch (e) {
@@ -50,7 +43,6 @@ const Login: React.FC = () => {
     }
   };
 
-  // ⬇ JSX 반환도 컴포넌트 내부에
   return (
     <div className="login-page">
       <TextContentTitle title="로그인" align="center" className="login-title" />
@@ -85,14 +77,31 @@ const Login: React.FC = () => {
           </button>
         </div>
 
-        <CheckboxField
-          className="login-checkbox"
-          label="계정 정보 저장"
-          valueType={remember ? "checked" : "unchecked"}
-          onChange={(e) => setRemember(e.target.checked)}
-        />
+        {/* ✅ 체크박스 + 텍스트 같은 줄에 */}
+        <div className="remember-container">
+          <input
+            type="checkbox"
+            checked={remember}
+            onChange={(e) => setRemember(e.target.checked)}
+          />
+          <span>계정 정보 저장</span>
+        </div>
 
-        <div className="login-forgot">비밀번호 찾기</div>
+        {/* ✅ 회원가입 + 비밀번호 찾기 순서 변경 */}
+        <div className="login-link-container">
+          <div
+            className="login-signup clickable"
+            onClick={() => navigate("/signup")}
+          >
+            회원가입
+          </div>
+          <div
+            className="login-forgot clickable"
+            onClick={() => alert("비밀번호 찾기 기능 준비 중입니다.")}
+          >
+            비밀번호 찾기
+          </div>
+        </div>
 
         <VariantPrimaryWrapper
           className="login-button"

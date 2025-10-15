@@ -1,0 +1,114 @@
+@import "../login/Login-Variables.css";
+
+.signup-page {
+  max-width: 400px;
+  margin: 80px auto 120px auto;
+  padding: 0 var(--spacing-base);
+  text-align: center;
+}
+
+.signup-title {
+  margin-bottom: var(--spacing-large);
+  font-weight: bold;
+  font-size: var(--font-size-title);
+  color: var(--color-primary);
+}
+
+.signup-box {
+  border: 1px solid var(--color-border);
+  padding: var(--spacing-large) var(--spacing-base);
+  border-radius: var(--border-radius);
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+  background-color: var(--color-background);
+  text-align: left;
+}
+
+/* ✅ 입력 필드 간격 */
+.signup-input {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 16px;
+}
+
+.signup-input label {
+  font-size: var(--font-size-input);
+  margin-bottom: 6px;
+  font-weight: 500;
+}
+
+.signup-input input {
+  width: 100%;
+  height: 44px;
+  padding: 10px 12px;
+  font-size: var(--font-size-input);
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+  transition: border-color 0.2s ease;
+}
+
+.signup-input input:focus {
+  border-color: var(--color-border-focus);
+  outline: none;
+}
+
+/* ✅ 버튼 */
+.signup-button {
+  width: 100%;
+  display: block;
+  padding: 12px 0;
+  font-weight: 600;
+  font-size: var(--font-size-button);
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  border: 1px solid black;
+  background-color: white;
+  color: black;
+  transition: all 0.2s ease;
+}
+
+.signup-button:hover {
+  background-color: black;
+  color: white;
+}
+
+/* ✅ 인풋 + 버튼 나란히 배치 (수직 정렬 개선) */
+.input-with-button {
+  display: flex;
+  align-items: center; /* label 높이 영향 제거 → 가운데 정렬 */
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+/* ✅ InputField 안의 label 제거된 것처럼 보이게 (label 위 여백 최소화) */
+.input-with-button .signup-input {
+  flex: 1;
+  margin-bottom: 0;
+}
+
+.input-with-button label {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  margin: 0;
+}
+
+/* ✅ 작은 버튼 (위치, 크기 고정) */
+.small-btn {
+  height: 44px;
+  padding: 0 12px;
+  font-size: 14px;
+  border: 1px solid #333;
+  border-radius: 4px;
+  background-color: white;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  white-space: nowrap; /* 줄바꿈 방지 */
+  transform: translateY(9px); /* ✅ 버튼 약간 아래로 조정 */
+}
+
+.small-btn:hover {
+  background-color: black;
+  color: white;
+}

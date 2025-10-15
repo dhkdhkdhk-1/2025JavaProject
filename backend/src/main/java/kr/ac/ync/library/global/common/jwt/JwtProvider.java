@@ -106,4 +106,28 @@ public class JwtProvider {
         return authentication;
 
     }
+
+    // ✅ 추가된 부분: JWT 토큰의 유효성을 검사하는 메서드
+    // - 토큰이 만료되었거나 구조가 잘못되었으면 false 반환
+    // - 정상 토큰이면 true 반환
+    public boolean validateToken(String token) {
+        try {
+            Jwts.parser()
+                    .setSigningKey(getSigningKey())
+                    .build()
+                    .parseClaimsJws(token);
+            return true; // ✅ 유효한 토큰
+        } catch (ExpiredJwtException e) {
+            System.out.println("❌ JWT 만료됨");
+        } catch (UnsupportedJwtException e) {
+            System.out.println("❌ 지원되지 않는 JWT 형식");
+        } catch (MalformedJwtException e) {
+            System.out.println("❌ 잘못된 JWT 구조");
+        } catch (SignatureException e) {
+            System.out.println("❌ JWT 서명 불일치");
+        } catch (IllegalArgumentException e) {
+            System.out.println("❌ JWT 값이 비어있음");
+        }
+        return false;
+    }
 }
