@@ -4,7 +4,9 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - deploy-frontend
+      - main
+    paths:
+      - "frontend/**"
 
 jobs:
   deploy:
