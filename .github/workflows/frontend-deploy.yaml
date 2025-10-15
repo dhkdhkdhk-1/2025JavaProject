@@ -35,3 +35,12 @@ jobs:
           SOURCE_DIR: frontend/build # ✅ 업로드할 폴더 경로
         with:
           args: --acl public-read --follow-symlinks --delete # ✅ 퍼블릭 접근 + 기존파일 삭제
+
+      - name: Invalidate CloudFront Cache
+        uses: chetan/invalidate-cloudfront-action@v2
+        env:
+          DISTRIBUTION: ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }}
+          PATHS: "/*"
+          AWS_REGION: ap-northeast-2
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
