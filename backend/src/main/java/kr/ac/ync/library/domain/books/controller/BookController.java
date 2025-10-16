@@ -47,7 +47,7 @@ public class BookController {
     public ResponseEntity<Page<BookResponse>> list(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
-            @RequestParam(required = false) String keyword // 필요 시 서비스에서 사용
+            @RequestParam(required = false) String keyword // 필요 시 서비스에서 사용.
     ) {
         int maxSize = 50;
         int safeSize = Math.min(Math.max(size, 1), maxSize);
