@@ -27,8 +27,8 @@ jobs:
           key: ${{ secrets.EC2_KEY }}
           script_stop: true
           pty: true # ✅ TTY 활성화 (Gradle/Docker 멈춤 방지)
-          timeout: 30m # ✅ 전체 타임아웃 여유
-          command_timeout: 25m # ✅ 개별 명령 타임아웃
+          timeout: 10m # ✅ 전체 타임아웃 여유
+          command_timeout: 5m # ✅ 개별 명령 타임아웃
           script: |
             echo "===== 🚀 Deploy Start $(date) ====="
 
@@ -44,7 +44,7 @@ jobs:
 
             echo "> 🏗️ Build Spring Boot JAR"
             chmod +x ./gradlew
-            ./gradlew clean bootJar -x test
+            ./gradlew clean bootJar -x test --console=plain --no-daemon
 
             echo "> 🐋 Build Docker image"
             docker build -t library-backend .
