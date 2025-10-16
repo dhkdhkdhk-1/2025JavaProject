@@ -48,21 +48,16 @@ const App: React.FC = () => {
         <Route element={<ProtectedLayout />}>
           <Route path="/home" element={<Home />} />
           <Route path="/booklist" element={<BookList />} />
-          <Route path="/book/:id" element={<BookInfo />} /> {/* ✅ 도서 상세 페이지 */}
+          <Route path="/book/:id" element={<BookInfo />} />{" "}
+          {/* ✅ 도서 상세 페이지 */}
         </Route>
 
-<<<<<<< HEAD
         {/* ✅ 관리자 전용 영역 (Protected → AdminLayout 중첩 구조) */}
-=======
-        {/* 관리자 전용 영역 (로그인 + 롤 가드) */}
-        <Route element={<AdminLayoutGuard />} />
-        <Route path="/admin" element={<Dashboard />} />
-        {/* 관리자 영역 */}
->>>>>>> 1fd0c8e03d3d90ff1a82367d15dff10473ee40d2
         <Route element={<ProtectedLayout />}>
           <Route path="/admin" element={<AdminLayoutGuard />}>
             <Route index element={<Dashboard />} /> {/* /admin */}
-            <Route path="books" element={<BookManager />} /> {/* /admin/books */}
+            <Route path="books" element={<BookManager />} />{" "}
+            {/* /admin/books */}
           </Route>
         </Route>
 
