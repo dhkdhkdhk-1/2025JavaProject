@@ -20,7 +20,7 @@ public class QBranchEntity extends EntityPathBase<BranchEntity> {
 
     public static final QBranchEntity branchEntity = new QBranchEntity("branchEntity");
 
-    public final ListPath<kr.ac.ync.library.domain.books.entity.BookEntity, kr.ac.ync.library.domain.books.entity.QBookEntity> books = this.<kr.ac.ync.library.domain.books.entity.BookEntity, kr.ac.ync.library.domain.books.entity.QBookEntity>createList("books", kr.ac.ync.library.domain.books.entity.BookEntity.class, kr.ac.ync.library.domain.books.entity.QBookEntity.class, PathInits.DIRECT2);
+    public final ListPath<kr.ac.ync.library.domain.books.entity.BookBranchEntity, kr.ac.ync.library.domain.books.entity.QBookBranchEntity> bookBranches = this.<kr.ac.ync.library.domain.books.entity.BookBranchEntity, kr.ac.ync.library.domain.books.entity.QBookBranchEntity>createList("bookBranches", kr.ac.ync.library.domain.books.entity.BookBranchEntity.class, kr.ac.ync.library.domain.books.entity.QBookBranchEntity.class, PathInits.DIRECT2);
 
     public final NumberPath<Long> id = createNumber("id", Long.class);
 

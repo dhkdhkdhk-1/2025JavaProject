@@ -1,4 +1,4 @@
-package kr.ac.ync.library.global.config;
+package kr.ac.ync.library.global.security.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,7 +14,7 @@ public class CorsConfigProd {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.addAllowedOriginPattern("https://library-front.s3.ap-southeast-2.amazonaws.com");
+        config.addAllowedOriginPattern("http://ync-library-frontend.s3-website.ap-northeast-2.amazonaws.com");
         config.addAllowedHeader("*");
         config.addAllowedMethod("*");
         config.setAllowCredentials(true);

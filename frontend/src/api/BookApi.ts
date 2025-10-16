@@ -10,6 +10,8 @@ export interface Book {
   available: boolean;
   imageUrl?: string | null;
   description?: string | null;
+  rating?: number; // 평균 평점 추가
+    branchId?: number | null; // ✅ 지점 ID (추가!)
 }
 
 export interface BookDetail extends Book {}

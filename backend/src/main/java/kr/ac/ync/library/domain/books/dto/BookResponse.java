@@ -17,6 +17,7 @@ public class BookResponse {
     private boolean available; // 대여 가능 여부
     private String description; // description 줄거리
     private String imageUrl;    // imageUrl 사진 저장
+    private String branchName; // 지점 이름
     private LocalDateTime createdDateTime; // 등록일
     private LocalDateTime modifiedDateTime;
     private Long branchId;

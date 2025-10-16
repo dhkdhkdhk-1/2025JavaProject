@@ -27,6 +27,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         String path = request.getRequestURI();
 
+        // ✅ (1) Preflight(OPTIONS) 요청은 바로 통과시킨다
+        if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         // ✅ 인증이 필요 없는 경로는 JWT 검사 생략
         if (isExcludedPath(path)) {
             filterChain.doFilter(request, response);
