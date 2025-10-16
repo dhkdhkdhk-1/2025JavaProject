@@ -18,6 +18,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
 
@@ -29,57 +31,52 @@ public class SecurityConfig {
     private final JwtExceptionFilter jwtExceptionFilter;
 
     @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration config = new CorsConfiguration();
+
+        String activeProfile = System.getProperty("spring.profiles.active", "dev");
+        System.out.println("✅ Active Profile: " + activeProfile);
+
+        if ("prod".equalsIgnoreCase(activeProfile)) {
+            config.setAllowedOriginPatterns(Arrays.asList(
+                    "http://ync-library-frontend.s3-website-ap-northeast-2.amazonaws.com",
+                    "https://ync-library-frontend.s3-website-ap-northeast-2.amazonaws.com"
+            ));
+        } else {
+            config.setAllowedOriginPatterns(Arrays.asList("http://localhost:3000"));
+        }
+
+        config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        config.setAllowedHeaders(Arrays.asList("*"));
+        config.setAllowCredentials(true);
+        config.setMaxAge(3600L);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", config);
+        return source;
+    }
+
+    @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                // ✅ 환경별로 CORS 설정
-                .cors(cors -> cors.configurationSource(request -> {
-                    CorsConfiguration config = new CorsConfiguration();
-
-                    String activeProfile = System.getProperty("spring.profiles.active", "dev");
-                    System.out.println("✅ Active Profile: " + activeProfile);
-
-                    if ("prod".equalsIgnoreCase(activeProfile)) {
-                        // ✅ 운영 환경 (S3, CloudFront 포함)
-                        config.setAllowedOriginPatterns(Arrays.asList(
-                                "http://ync-library-frontend.s3-website-ap-northeast-2.amazonaws.com"
-                        ));
-                    } else {
-                        // ✅ 로컬 개발 환경
-                        config.setAllowedOriginPatterns(Arrays.asList(
-                                "http://localhost:3000"
-                        ));
-                    }
-
-                    config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-                    config.setAllowedHeaders(Arrays.asList("*"));
-                    config.setAllowCredentials(true);
-
-                    return config;
-                }))
+                .cors(cors -> cors.configurationSource(corsConfigurationSource())) // ✅ cors 필터 가장 먼저 등록
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        // ✅ Preflight 요청은 전부 허용
-                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-
-                        // ✅ 인증 없이 접근 가능한 엔드포인트
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // ✅ Preflight 무조건 허용
                         .requestMatchers("/auth/**", "/auth").permitAll()
-                        .requestMatchers("/book/**").permitAll()
-                        .requestMatchers("/branch/**").permitAll()
+                        .requestMatchers("/book/**", "/branch/**").permitAll()
                         .requestMatchers("/review/book/**", "/review/list").permitAll()
-
-                        // ✅ 관리자 전용
                         .requestMatchers("/admin/**").hasAnyRole("ADMIN")
-
-                        // ✅ 나머지 요청은 인증 필요
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(handling -> handling
                         .authenticationEntryPoint(jwtAuthenticationEntryPoint())
                         .accessDeniedHandler(jwtAccessDeniedHandler())
                 )
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-                .addFilterBefore(jwtExceptionFilter, JwtAuthenticationFilter.class);
+                // ✅ 필터 순서 보장: ExceptionFilter → JWTFilter → UsernameFilter
+                .addFilterBefore(jwtExceptionFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
