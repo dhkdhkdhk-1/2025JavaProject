@@ -46,8 +46,8 @@ const App: React.FC = () => {
         </Route>
 
         {/* 관리자 전용 영역 (로그인 + 롤 가드) */}
-        <Route element={<AdminLayoutGuard />}>
-          <Route path="/admin" element={<Dashboard />}>
+        <Route element={<AdminLayoutGuard />} />
+        <Route path="/admin" element={<Dashboard />} />
         {/* 관리자 영역 */}
         <Route element={<ProtectedLayout />}>
           <Route path="/admin" element={<AdminLayoutGuard />}>
