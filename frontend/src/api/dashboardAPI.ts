@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const BASE_URL = "http://localhost:8080/api"; // 나중에 Spring 서버 주소로 변경
+const BASE_URL = process.env.REACT_APP_API_BASE_URL; // 나중에 Spring 서버 주소로 변경
 
 export async function fetchDashboardData() {
   try {

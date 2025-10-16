@@ -30,12 +30,13 @@ public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final JwtExceptionFilter jwtExceptionFilter;
+    private final CorsConfigurationSource corsConfigurationSource;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 // ✅ Security 레벨에서 CORS 활성화 (아래 corsConfigurationSource()를 사용)
-                .cors(Customizer.withDefaults())
+                .cors(cors -> cors.configurationSource(corsConfigurationSource))
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
@@ -61,25 +62,6 @@ public class SecurityConfig {
                 .addFilterBefore(jwtExceptionFilter, JwtAuthenticationFilter.class);
 
         return http.build();
-    }
-
-    // ✅ Security가 참조할 CORS 설정 (WebMvcConfigurer만 두는 것보다 확실)
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration config = new CorsConfiguration();
-        // 개발용: http://localhost:3000 허용
-        config.addAllowedOrigin("http://localhost:3000");
-        // 필요 시: 와일드카드 패턴 사용하고 싶다면 대신 아래를 사용
-        // config.addAllowedOriginPattern("*");
-
-        config.setAllowCredentials(true);
-        config.addAllowedHeader("*");
-        config.addAllowedMethod("*"); // GET,POST,PUT,DELETE,OPTIONS 모두
-
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        // 모든 경로에 위 CORS 적용
-        source.registerCorsConfiguration("/**", config);
-        return source;
     }
 
     @Bean
