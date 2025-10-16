@@ -7,6 +7,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
+import java.util.Map;
 
 public interface BookService {
 
@@ -21,4 +22,6 @@ public interface BookService {
     List<BookResponse> getList();
 
     Page<BookResponse> getList(Pageable pageable);
+
+    List<Map<String, Object>> getBookBranchStatus(Long bookId);
 }

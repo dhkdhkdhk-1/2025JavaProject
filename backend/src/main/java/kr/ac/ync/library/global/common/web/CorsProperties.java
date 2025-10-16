@@ -11,5 +11,6 @@ import java.util.List;
 @Configuration
 @ConfigurationProperties(prefix = "cors")
 public class CorsProperties {
-    private List<String> allowedOrigins;
+    // ✅ 기본값을 넣어 null 방지
+    private List<String> allowedOrigins = List.of("http://localhost:3000");
 }
