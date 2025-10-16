@@ -31,29 +31,29 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                // ✅ CORS 설정을 코드 내부에서 환경별로 처리
+                // ✅ 환경별로 CORS 설정
                 .cors(cors -> cors.configurationSource(request -> {
                     CorsConfiguration config = new CorsConfiguration();
 
-                    // 현재 활성화된 profile 확인
                     String activeProfile = System.getProperty("spring.profiles.active", "dev");
                     System.out.println("✅ Active Profile: " + activeProfile);
 
                     if ("prod".equalsIgnoreCase(activeProfile)) {
-                        // 운영 환경용 S3 주소
-                        config.setAllowedOrigins(Arrays.asList(
+                        // ✅ 운영 환경 (S3, CloudFront 포함)
+                        config.setAllowedOriginPatterns(Arrays.asList(
                                 "http://ync-library-frontend.s3-website-ap-northeast-2.amazonaws.com"
                         ));
                     } else {
-                        // 로컬 개발 환경용
-                        config.setAllowedOrigins(Arrays.asList(
+                        // ✅ 로컬 개발 환경
+                        config.setAllowedOriginPatterns(Arrays.asList(
                                 "http://localhost:3000"
                         ));
                     }
 
-                    config.setAllowedHeaders(Arrays.asList("*"));
                     config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+                    config.setAllowedHeaders(Arrays.asList("*"));
                     config.setAllowCredentials(true);
+
                     return config;
                 }))
                 .csrf(AbstractHttpConfigurer::disable)
