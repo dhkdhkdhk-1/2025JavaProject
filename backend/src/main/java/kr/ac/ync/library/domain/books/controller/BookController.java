@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -34,6 +35,12 @@ public class BookController {
     public ResponseEntity<Void> remove(@PathVariable Long id) {
         bookService.remove(id);
         return ResponseEntity.noContent().build();
+    }
+
+    //지점별 책상태 조회
+    @GetMapping("/{id}/branches")
+    public ResponseEntity<List<Map<String, Object>>> getBranchStatus(@PathVariable Long id) {
+        return ResponseEntity.ok(bookService.getBookBranchStatus(id));
     }
 
     // ✅ 숫자만 매칭되게 해서 /book/recent, /book/list 와 충돌 방지

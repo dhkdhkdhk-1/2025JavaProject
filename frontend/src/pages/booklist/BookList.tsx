@@ -249,15 +249,19 @@ const BookList: React.FC = () => {
                   <div className="book-title">{book.title}</div>
                   <div className="book-author">{book.author}</div>
                   <div className="book-rating">
-                    {[...Array(5)].map((_, i) => (
-                      <svg key={i} width="20" height="20" viewBox="0 0 20 20" fill="none">
-                        <path
-                          d="M9.99935 1.66675L12.5743 6.88341L18.3327 7.72508L14.166 11.7834L15.1493 17.5167L9.99935 14.8084L4.84935 17.5167L5.83268 11.7834L1.66602 7.72508L7.42435 6.88341L9.99935 1.66675Z"
-                          stroke="#2C2C2C"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
+                  {[...Array(5)].map((_, i) => (
+                    <svg
+                      key={i}
+                      width="20"
+                      height="20"
+                      viewBox="0 0 20 20"
+                      fill={i < Math.round(book.rating ?? 0) ? "#FFD700" : "none"}
+                      stroke="#2C2C2C"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      >
+                      <path d="M9.99935 1.66675L12.5743 6.88341L18.3327 7.72508L14.166 11.7834L15.1493 17.5167L9.99935 14.8084L4.84935 17.5167L5.83268 11.7834L1.66602 7.72508L7.42435 6.88341L9.99935 1.66675Z" />
                       </svg>
                     ))}
                   </div>
@@ -265,7 +269,6 @@ const BookList: React.FC = () => {
               </div>
             ))}
           </div>
-
           <div className="pagination">
             <div
               className={`pagination-previous ${page === 0 ? "disabled" : ""}`}

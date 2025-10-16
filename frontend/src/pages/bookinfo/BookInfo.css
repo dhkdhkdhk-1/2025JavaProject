@@ -332,3 +332,64 @@
     padding: var(--sds-size-space-600) var(--sds-size-space-400);
   }
 }
+
+/* ⭐ 도서 평균 평점 스타일 */
+.star-rating {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 12px;
+}
+
+.star-rating svg {
+  transition: fill 0.2s ease;
+}
+
+/* =============================
+   추가: 지점 선택 관련 스타일
+============================= */
+
+.branch-select-section {
+  margin-top: 16px;
+  margin-bottom: 24px;
+  max-width: 260px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.location-label {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--sds-color-text-default-default);
+}
+
+.location-select {
+  padding: 10px 12px;
+  border: 1px solid var(--sds-color-border-default-default);
+  border-radius: 8px;
+  font-size: 15px;
+  background: var(--sds-color-background-default-default);
+  color: var(--sds-color-text-default-default);
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+}
+
+.location-select:focus {
+  border-color: #2563eb;
+  outline: none;
+}
+
+.branch-status {
+  margin-top: 4px;
+  font-weight: 600;
+  font-size: 15px;
+}
+
+.branch-status.available {
+  color: #2563eb; /* 파란색 */
+}
+
+.branch-status.unavailable {
+  color: crimson;
+}

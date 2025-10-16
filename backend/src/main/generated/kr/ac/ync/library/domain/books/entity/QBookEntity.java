@@ -18,8 +18,6 @@ public class QBookEntity extends EntityPathBase<BookEntity> {
 
     private static final long serialVersionUID = -438068127L;
 
-    private static final PathInits INITS = PathInits.DIRECT2;
-
     public static final QBookEntity bookEntity = new QBookEntity("bookEntity");
 
     public final kr.ac.ync.library.global.common.entity.QBaseTimeEntity _super = new kr.ac.ync.library.global.common.entity.QBaseTimeEntity(this);
@@ -28,7 +26,7 @@ public class QBookEntity extends EntityPathBase<BookEntity> {
 
     public final BooleanPath available = createBoolean("available");
 
-    public final kr.ac.ync.library.domain.branch.entity.QBranchEntity branch;
+    public final ListPath<BookBranchEntity, QBookBranchEntity> bookBranches = this.<BookBranchEntity, QBookBranchEntity>createList("bookBranches", BookBranchEntity.class, QBookBranchEntity.class, PathInits.DIRECT2);
 
     public final EnumPath<kr.ac.ync.library.domain.books.entity.enums.BookCategory> category = createEnum("category", kr.ac.ync.library.domain.books.entity.enums.BookCategory.class);
 
@@ -46,27 +44,20 @@ public class QBookEntity extends EntityPathBase<BookEntity> {
 
     public final StringPath publisher = createString("publisher");
 
+    public final ListPath<kr.ac.ync.library.domain.reviews.entity.ReviewEntity, kr.ac.ync.library.domain.reviews.entity.QReviewEntity> reviews = this.<kr.ac.ync.library.domain.reviews.entity.ReviewEntity, kr.ac.ync.library.domain.reviews.entity.QReviewEntity>createList("reviews", kr.ac.ync.library.domain.reviews.entity.ReviewEntity.class, kr.ac.ync.library.domain.reviews.entity.QReviewEntity.class, PathInits.DIRECT2);
+
     public final StringPath title = createString("title");
 
     public QBookEntity(String variable) {
-        this(BookEntity.class, forVariable(variable), INITS);
+        super(BookEntity.class, forVariable(variable));
     }
 
     public QBookEntity(Path<? extends BookEntity> path) {
-        this(path.getType(), path.getMetadata(), PathInits.getFor(path.getMetadata(), INITS));
+        super(path.getType(), path.getMetadata());
     }
 
     public QBookEntity(PathMetadata metadata) {
-        this(metadata, PathInits.getFor(metadata, INITS));
-    }
-
-    public QBookEntity(PathMetadata metadata, PathInits inits) {
-        this(BookEntity.class, metadata, inits);
-    }
-
-    public QBookEntity(Class<? extends BookEntity> type, PathMetadata metadata, PathInits inits) {
-        super(type, metadata, inits);
-        this.branch = inits.isInitialized("branch") ? new kr.ac.ync.library.domain.branch.entity.QBranchEntity(forProperty("branch")) : null;
+        super(BookEntity.class, metadata);
     }
 
 }
