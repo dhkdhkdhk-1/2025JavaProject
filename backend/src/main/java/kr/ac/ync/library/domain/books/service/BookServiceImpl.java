@@ -60,7 +60,7 @@ public class BookServiceImpl implements BookService{
 
     }
 
-    // 변경 후 (size 강제 X)
+    // 목록 받아와서 페이지 프론트에서 요청하면 그거대로 나누는 코드
     @Override
     public Page<BookResponse> getList(Pageable pageable) {
         Page<BookEntity> page = bookRepository.findAll(pageable);

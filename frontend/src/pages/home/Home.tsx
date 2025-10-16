@@ -1,3 +1,4 @@
+// src/pages/home/Home.tsx
 import React, { useEffect, useState } from "react";
 import "./Home.css";
 import { getRecentBooks, Book } from "../../api/BookApi";
@@ -10,29 +11,15 @@ export default function Home() {
   const [books, setBooks] = useState<BookCard[]>([]);
 
   const announcements = [
-    "공지사항 1- 테스트용 공지",
-    "공지사항 2- 테스트용 공지",
-    "공지사항 3- 테스트용 공지",
+    "공지사항 1 - 테스트용 공지",
+    "공지사항 2 - 테스트용 공지",
+    "공지사항 3 - 테스트용 공지",
   ];
 
+  // ✅ 최신 도서 불러오기 (API 함수만 사용)
   useEffect(() => {
     getRecentBooks(5)
       .then((data) => setBooks(data))
-      .catch((err) => console.error("❌ 최신 도서 불러오기 오류:", err));
-  }, []);
-  useEffect(() => {
-    fetch("http://localhost:8080/book/recent?size=5") // ★ 최근 5권 엔드포인트
-      .then((res) => res.json())
-      .then((data) => {
-        // recent는 Page가 아니라 배열! content가 아님
-        setBooks(
-          data.map((b: any) => ({
-            ...b,
-            imageUrl: b.imageUrl ?? null,
-            description: b.description ?? null,
-          }))
-        );
-      })
       .catch((err) => console.error("❌ 최신 도서 불러오기 오류:", err));
   }, []);
 
@@ -60,7 +47,7 @@ export default function Home() {
           <div
             key={book.id}
             className="book-card"
-            onClick={() => navigate(`/book/${book.id}`)} // ✅ 클릭 시 상세로
+            onClick={() => navigate(`/book/${book.id}`)} // ✅ 클릭 시 상세 페이지 이동
             style={{ cursor: "pointer" }}
           >
             <img

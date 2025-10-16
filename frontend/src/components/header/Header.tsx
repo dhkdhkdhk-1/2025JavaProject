@@ -5,20 +5,31 @@ import "./Header.css";
 export default function Header() {
   const navigate = useNavigate();
 
+  // ✅ 토큰이 없으면 자동으로 로그인 페이지로 이동
   useEffect(() => {
-    const handleStorageChange = () => {};
+    const token = localStorage.getItem("accessToken");
+    if (!token) {
+      navigate("/login", { replace: true });
+    }
+
+    // ✅ 다른 탭에서 로그아웃하면 즉시 반영되도록
+    const handleStorageChange = () => {
+      if (!localStorage.getItem("accessToken")) {
+        navigate("/login", { replace: true });
+      }
+    };
 
     window.addEventListener("storage", handleStorageChange);
     return () => window.removeEventListener("storage", handleStorageChange);
-  }, []); // setIsLoggedIn은 React가 안정적으로 관리하므로 deps 생략 OK
+  }, [navigate]);
 
-  // src/layout/Header.tsx (핵심만)
+  // ✅ 로그아웃 함수
   const handleLogout = () => {
     localStorage.removeItem("accessToken");
     localStorage.removeItem("refreshToken");
-    localStorage.removeItem("role"); // ✅ 추가
+    localStorage.removeItem("role");
     alert("로그아웃되었습니다.");
-    navigate("/login"); // ✅ 로그인 화면으로
+    navigate("/login", { replace: true });
     window.dispatchEvent(new Event("storage"));
   };
 

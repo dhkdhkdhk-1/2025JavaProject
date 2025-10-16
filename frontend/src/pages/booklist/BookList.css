@@ -409,3 +409,8 @@
   --black-100: #000;
 }
 
+/* 별점 SVG 사이즈/정렬 보정 */
+.star-svg {
+  display: inline-block;
+  vertical-align: middle;
+}
