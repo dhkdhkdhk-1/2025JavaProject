@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import ReviewSection from "../review/reviewsection/ReviewSection";
 import "./BookInfo.css";
 import { getBook, BookDetail } from "../../api/BookApi";
 import axios from "axios";
@@ -27,7 +28,7 @@ const BookInfo: React.FC = () => {
         if (!id) return;
         setLoading(true);
 
-        // ✅ 도서 정보 + 지점별 상태 동시 요청
+        // 도서 정보 + 지점별 상태 동시 요청
         const [bookRes, branchRes] = await Promise.all([
           getBook(Number(id)),
           axios.get<BranchStatus[]>(`http://localhost:8080/book/${id}/branches`),
@@ -60,20 +61,34 @@ const BookInfo: React.FC = () => {
       <section className="product-section">
         <div className="product-container">
           <div className="product-content">
-            {/* 왼쪽 도서 정보 */}
+            {/* 왼쪽: 도서 이미지 */}
+            <div className="product-image-container">
+              <img
+                src={book.imageUrl || placeholder}
+                alt={book.title}
+                className="book-image"
+                onError={(e) =>
+                  ((e.target as HTMLImageElement).src = placeholder)
+                }
+              />
+            </div>
+
+            {/* 오른쪽: 도서 정보 */}
             <div className="product-details">
               <div className="breadcrumb">
                 국내 &gt; {book.category ?? "분류없음"}
               </div>
+
               <div className="title-section">
                 <h1 className="book-title">{book.title}</h1>
                 <div className="genre-tag">{book.category ?? "분류없음"}</div>
               </div>
+
               <div className="author-section">
                 저자: {book.author} | 출판사: {book.publisher}
               </div>
 
-              {/* ✅ 지점 선택 */}
+              {/* 지점 선택 */}
               <div className="branch-select-section">
                 <label className="location-label">지점 선택</label>
                 <select
@@ -98,9 +113,35 @@ const BookInfo: React.FC = () => {
                     {selectedBranch.available ? "대여 가능" : "대여 불가"}
                   </div>
                 )}
+
+                <button
+                  className="rent-button"
+                  disabled={!selectedBranch || !selectedBranch.available}
+                  onClick={() => {
+                    alert(
+                      `지점 ${selectedBranch?.branchName}에서 "${book?.title}" 대여`
+                    );
+                  }}
+                >
+                  대여하기
+                </button>
               </div>
 
-              {/* ⭐ 평균 평점 */}
+              {/* 줄거리 */}
+              <div className="accordion-container">
+                <div className="accordion-item open">
+                  <div className="accordion-header">
+                    <h3 className="accordion-title">책 소개</h3>
+                  </div>
+                  <div className="accordion-content">
+                    <p className="accordion-text">
+                      {book.description ?? "소개/줄거리 정보가 없습니다."}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* 평균 평점 */}
               <div className="star-rating">
                 {[...Array(5)].map((_, i) => (
                   <svg
@@ -121,32 +162,9 @@ const BookInfo: React.FC = () => {
                   {book.rating?.toFixed(1) ?? "0.0"}
                 </span>
               </div>
-
-              {/* 줄거리 */}
-              <div className="accordion-container">
-                <div className="accordion-item open">
-                  <div className="accordion-header">
-                    <h3 className="accordion-title">책 소개</h3>
-                  </div>
-                  <div className="accordion-content">
-                    <p className="accordion-text">
-                      {book.description ?? "소개/줄거리 정보가 없습니다."}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* 오른쪽 이미지 */}
-            <div className="product-image-container">
-              <img
-                src={book.imageUrl || placeholder}
-                alt={book.title}
-                className="book-image"
-                onError={(e) =>
-                  ((e.target as HTMLImageElement).src = placeholder)
-                }
-              />
+              
+              {/* 리뷰 섹션 */}
+              <ReviewSection bookId={Number(id)} limit={2} />
             </div>
           </div>
         </div>
