@@ -20,4 +20,5 @@ public class BookResponse {
     private LocalDateTime createdDateTime; // 등록일
     private LocalDateTime modifiedDateTime;
     private Long branchId;
+    private Double rating; // 평점 추가
 }
