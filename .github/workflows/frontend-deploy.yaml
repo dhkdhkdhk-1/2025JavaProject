@@ -21,10 +21,10 @@ jobs:
         with:
           node-version: 18
 
-      - name: Create .env.production file # 👈 추가
+      - name: Create .env.production file
         run: |
           cd frontend
-          echo "REACT_APP_API_URL=${{ secrets.REACT_APP_API_URL }}" > .env.production
+          echo "REACT_APP_API_BASE_URL=${{ secrets.REACT_APP_API_BASE_URL }}" > .env.production
 
       - name: Install and build
         run: |
@@ -35,13 +35,13 @@ jobs:
       - name: Deploy to S3
         uses: jakejarvis/s3-sync-action@master
         env:
-          AWS_S3_BUCKET: ync-library-frontend # ✅ S3 버킷 이름
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }} # ✅ 깃허브 시크릿
+          AWS_S3_BUCKET: ync-library-frontend
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: ap-northeast-2
-          SOURCE_DIR: frontend/build # ✅ 업로드할 폴더 경로
+          SOURCE_DIR: frontend/build
         with:
-          args: --acl public-read --follow-symlinks --delete # ✅ 퍼블릭 접근 + 기존파일 삭제
+          args: --acl public-read --follow-symlinks --delete
 
       - name: Invalidate CloudFront Cache
         uses: chetan/invalidate-cloudfront-action@v2
