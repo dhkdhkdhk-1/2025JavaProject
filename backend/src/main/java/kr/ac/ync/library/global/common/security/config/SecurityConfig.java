@@ -7,7 +7,7 @@ import kr.ac.ync.library.global.common.security.handler.JwtAuthenticationEntryPo
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpMethod;                                    // ⬅ 추가
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -17,11 +17,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import java.util.Arrays;
+// ⬇ Security에서 사용할 CORS 설정 소스 (권장)
+import org.springframework.web.cors.CorsConfigurationSource;
 
 @RequiredArgsConstructor
 @Configuration
@@ -29,54 +27,36 @@ public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final JwtExceptionFilter jwtExceptionFilter;
-
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration config = new CorsConfiguration();
-
-        String activeProfile = System.getProperty("spring.profiles.active", "dev");
-        System.out.println("✅ Active Profile: " + activeProfile);
-
-        if ("prod".equalsIgnoreCase(activeProfile)) {
-            config.setAllowedOriginPatterns(Arrays.asList(
-                    "http://ync-library-frontend.s3-website.ap-northeast-2.amazonaws.com",
-                    "https://ync-library-frontend.s3-website.ap-northeast-2.amazonaws.com"
-            ));
-        } else {
-            config.setAllowedOriginPatterns(Arrays.asList("http://localhost:3000"));
-        }
-
-        config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        config.setAllowedHeaders(Arrays.asList("*"));
-        config.setAllowCredentials(true);
-        config.setMaxAge(3600L);
-
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", config);
-        return source;
-    }
+    private final CorsConfigurationSource corsConfigurationSource;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .cors(cors -> cors.configurationSource(corsConfigurationSource())) // ✅ cors 필터 가장 먼저 등록
+                // ✅ Security 레벨에서 CORS 활성화 (아래 corsConfigurationSource()를 사용)
+                .cors(cors -> cors.configurationSource(corsConfigurationSource))
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // ✅ Preflight 무조건 허용
-                        .requestMatchers("/auth/**", "/auth").permitAll()
-                        .requestMatchers("/book/**", "/branch/**").permitAll()
-                        .requestMatchers("/review/book/**", "/review/list").permitAll()
+                        // ✅ Preflight 요청은 전부 허용
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+
+                        .requestMatchers("/auth/**").permitAll()
                         .requestMatchers("/admin/**").hasAnyRole("ADMIN")
+                        .requestMatchers("/review/book/**").permitAll()
+                        .requestMatchers("/review/list").permitAll()
+                        .requestMatchers("/review/**").hasAnyRole("USER", "MANAGER", "ADMIN")
+                        .requestMatchers("/book/**").permitAll()
+                        .requestMatchers("/branch/**").permitAll()
+
+                        // 그 외는 인증 필요 (/user/me 포함)
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(handling -> handling
                         .authenticationEntryPoint(jwtAuthenticationEntryPoint())
                         .accessDeniedHandler(jwtAccessDeniedHandler())
                 )
-                // ✅ 필터 순서 보장: ExceptionFilter → JWTFilter → UsernameFilter
-                .addFilterBefore(jwtExceptionFilter, UsernamePasswordAuthenticationFilter.class)
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(jwtExceptionFilter, JwtAuthenticationFilter.class);
 
         return http.build();
     }
