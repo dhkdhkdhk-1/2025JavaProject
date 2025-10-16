@@ -63,7 +63,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
                         // ✅ 인증 없이 접근 가능한 엔드포인트
-                        .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers("/auth/**", "/auth").permitAll()
                         .requestMatchers("/book/**").permitAll()
                         .requestMatchers("/branch/**").permitAll()
                         .requestMatchers("/review/book/**", "/review/list").permitAll()
