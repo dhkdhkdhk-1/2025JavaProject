@@ -7,7 +7,7 @@ export async function fetchDashboardData() {
     const res = await axios.get(`${BASE_URL}/dashboard`);
     return res.data;
   } catch (err) {
-    console.error("대시보드 데이터 불러오기 실패1:", err);
+    console.error("대시보드 데이터 불러오기 실패:", err);
     return null;
   }
 }
