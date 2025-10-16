@@ -2,7 +2,7 @@ import axios, { AxiosError, AxiosRequestConfig } from "axios";
 
 /** ✅ axios 기본 인스턴스 */
 export const api = axios.create({
-  baseURL: "http://localhost:8080",
+  baseURL: process.env.REACT_APP_API_BASE_URL,
 });
 
 /** ✅ 토큰 설정 */
@@ -72,14 +72,18 @@ let queue: Array<{ resolve: () => void; reject: (e?: any) => void }> = [];
 
 async function refreshTokenRequest() {
   if (isRefreshing)
-    return new Promise<void>((res, rej) => queue.push({ resolve: res, reject: rej }));
+    return new Promise<void>((res, rej) =>
+      queue.push({ resolve: res, reject: rej })
+    );
 
   isRefreshing = true;
   try {
     const refreshToken = localStorage.getItem("refreshToken");
     if (!refreshToken) throw new Error("NO_REFRESH_TOKEN");
 
-    const res = await api.post<TokenResponse>("/auth/refresh", { refreshToken });
+    const res = await api.post<TokenResponse>("/auth/refresh", {
+      refreshToken,
+    });
 
     localStorage.setItem("accessToken", res.data.accessToken);
     localStorage.setItem("refreshToken", res.data.refreshToken);
@@ -100,7 +104,9 @@ api.interceptors.response.use(
   (res) => res,
   async (error: AxiosError) => {
     const status = error.response?.status;
-    const original = error.config as (AxiosRequestConfig & { _retry?: boolean }) | undefined;
+    const original = error.config as
+      | (AxiosRequestConfig & { _retry?: boolean })
+      | undefined;
     const url = (original?.url || "").toLowerCase();
     const isAuth = url.startsWith("/auth");
 
@@ -118,11 +124,12 @@ api.interceptors.response.use(
   }
 );
 
-  //여기서부터는 인증 관련 API
-
+//여기서부터는 인증 관련 API
 
 /** ✅ 로그인 API */
-export const login = async (data: LoginRequest): Promise<TokenResponse | null> => {
+export const login = async (
+  data: LoginRequest
+): Promise<TokenResponse | null> => {
   try {
     setAccessToken(null); // 혹시 남은 토큰 제거
     const res = await api.post<TokenResponse>("/auth", data, {

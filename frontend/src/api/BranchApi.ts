@@ -14,7 +14,7 @@ export interface PageResponse<T> {
   number: number;
 }
 
-const BASE_URL = "http://localhost:8080/branch";
+const BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
 export const getBranches = async (
   page: number = 0,
