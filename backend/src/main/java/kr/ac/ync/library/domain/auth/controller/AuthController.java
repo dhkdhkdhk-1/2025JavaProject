@@ -36,13 +36,13 @@ public class AuthController {
     @PostMapping("/signup")
     public ResponseEntity<String> signup(@Valid @RequestBody SignupRequest request) {
         authService.signup(request); // 회원가입 DB 저장
-        return ResponseEntity.ok("회원 가입이 완료되었습니다.");
+        return ResponseEntity.ok("회원가입이 완료되었습니다.");
     }
 
     @DeleteMapping("/withdraw")
     public ResponseEntity<String> withdraw(@Valid @RequestBody WithdrawRequest request) {
         authService.withdraw(request);  // 회원탈퇴 DB 삭제
-        return ResponseEntity.ok("회원 탈퇴가 완료되었습니다.");
+        return ResponseEntity.ok("회원탈퇴가 완료되었습니다.");
     }
 
     // ✅ 추가: 이메일 중복 확인
