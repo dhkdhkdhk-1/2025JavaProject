@@ -39,8 +39,8 @@ public class SecurityConfig {
 
         if ("prod".equalsIgnoreCase(activeProfile)) {
             config.setAllowedOriginPatterns(Arrays.asList(
-                    "http://ync-library-frontend.s3-website-ap-northeast-2.amazonaws.com",
-                    "https://ync-library-frontend.s3-website-ap-northeast-2.amazonaws.com"
+                    "http://ync-library-frontend.s3-website.ap-northeast-2.amazonaws.com",
+                    "https://ync-library-frontend.s3-website.ap-northeast-2.amazonaws.com"
             ));
         } else {
             config.setAllowedOriginPatterns(Arrays.asList("http://localhost:3000"));
