@@ -2,8 +2,8 @@ name: 🚀 Deploy Backend to EC2
 
 on:
   push:
-    branches: ["admin"] # main 브랜치 푸시 시 배포 실행
-  workflow_dispatch: # GitHub Actions에서 수동 실행도 가능
+    branches: ["admin"] # admin 브랜치 푸시 시 자동 배포
+  workflow_dispatch: # 수동 실행 가능
 
 jobs:
   deploy:
@@ -26,14 +26,20 @@ jobs:
           username: ubuntu
           key: ${{ secrets.EC2_KEY }}
           script_stop: true
-          pty: true # ✅ TTY 활성화 (Gradle/Docker 멈춤 방지)
-          timeout: 10m # ✅ 전체 타임아웃 여유
-          command_timeout: 5m # ✅ 개별 명령 타임아웃
+          pty: true
+          timeout: 10m
+          command_timeout: 5m
           script: |
             echo "===== 🚀 Deploy Start $(date) ====="
             source /etc/profile
             source ~/.bashrc
+
             cd /home/ubuntu/app/2025JavaProject/backend
+
+            echo "> 🧭 Fetch latest code from GitHub"
+            git fetch --all
+            git reset --hard origin/admin
+            git pull origin admin
 
             echo "> 🧹 Clean up old containers"
             docker stop library-app || true
