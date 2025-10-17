@@ -2,7 +2,7 @@ name: 🚀 Deploy Backend to EC2
 
 on:
   push:
-    branches: ["main"] # main 브랜치 푸시 시 배포 실행
+    branches: ["admin"] # main 브랜치 푸시 시 배포 실행
   workflow_dispatch: # GitHub Actions에서 수동 실행도 가능
 
 jobs:
