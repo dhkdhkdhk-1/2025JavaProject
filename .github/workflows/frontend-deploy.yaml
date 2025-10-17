@@ -5,8 +5,6 @@ on:
   push:
     branches:
       - admin
-    paths:
-      - "frontend/**"
 
 jobs:
   deploy:
@@ -45,7 +43,7 @@ jobs:
       - name: Deploy to S3
         uses: jakejarvis/s3-sync-action@master
         with:
-          args: --acl public-read --follow-symlinks --delete
+          args: --follow-symlinks --delete
         env:
           AWS_S3_BUCKET: ync-library-front
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
