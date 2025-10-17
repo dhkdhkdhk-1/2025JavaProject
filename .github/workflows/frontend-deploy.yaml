@@ -13,56 +13,66 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # 1️⃣ 코드 체크아웃
       - name: Checkout code
         uses: actions/checkout@v3
 
+      # 2️⃣ Node.js 설정
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 18
 
-      - name: Create .env.production file
+      # 3️⃣ 환경 변수 파일 생성
+      - name: Create .env.production
         run: |
           cd frontend
           echo "REACT_APP_API_BASE_URL=${{ secrets.REACT_APP_API_BASE_URL }}" > .env.production
           cat .env.production
 
-      - name: Install and build
+      # 4️⃣ React 빌드
+      - name: Install dependencies and build
         run: |
           cd frontend
           npm ci
           npm run build
 
+      # 5️⃣ S3 업로드
       - name: Deploy to S3
         uses: jakejarvis/s3-sync-action@master
-        env:
-          AWS_S3_BUCKET: ync-library-frontend
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: ap-northeast-2
-          SOURCE_DIR: frontend/build
         with:
           args: --acl public-read --follow-symlinks --delete
+        env:
+          AWS_S3_BUCKET: ync-library-front
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ap-southeast-2
+          SOURCE_DIR: frontend/build
 
+      # 6️⃣ CloudFront 캐시 무효화 (있을 때만)
       - name: Invalidate CloudFront Cache
+        if: ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID && secrets.CLOUDFRONT_DISTRIBUTION_ID != '' }}
         uses: chetan/invalidate-cloudfront-action@v2
         env:
           DISTRIBUTION: ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }}
           PATHS: "/*"
-          AWS_REGION: ap-northeast-2
+          AWS_REGION: ap-southeast-2
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
+      # 7️⃣ Discord 알림 (성공/실패 + CloudFront 주소 포함)
       - name: Send Discord Notification
         if: always()
         run: |
           if [ "${{ job.status }}" == "success" ]; then
             STATUS="✅ Frontend 배포 성공!"
+            CLOUDFRONT_URL="${{ secrets.CLOUDFRONT_URL }}"
           else
             STATUS="❌ Frontend 배포 실패!"
+            CLOUDFRONT_URL="(확인 필요)"
           fi
 
-          PAYLOAD=$(echo "{\"content\": \"${STATUS}\n브랜치: ${{ github.ref_name }}\n커밋: ${{ github.actor }} - ${{ github.event.head_commit.message }}\"}")
+          PAYLOAD=$(echo "{\"content\": \"${STATUS}\n브랜치: ${{ github.ref_name }}\n커밋: ${{ github.actor }} - ${{ github.event.head_commit.message }}\nCloudFront URL: ${CLOUDFRONT_URL}\"}")
 
           curl -H "Content-Type: application/json" \
               -d "$PAYLOAD" \
