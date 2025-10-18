@@ -96,7 +96,7 @@ const ReviewSection: React.FC<ReviewProps> = ({ bookId, limit }) => {
         {reviews.length > (limit ?? reviews.length) && (
           <div
             className="view-more-reviews"
-            onClick={() => navigate(`/reviews/book/${bookId}`)}
+            onClick={() => navigate(`/review/book/${bookId}`)}
           >
             리뷰 더보기
           </div>
