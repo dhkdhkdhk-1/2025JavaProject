@@ -66,7 +66,7 @@ const BookInfo: React.FC = () => {
               <img
                 src={book.imageUrl || placeholder}
                 alt={book.title}
-                className="book-image"
+                className="book-info-page .book-image"
                 onError={(e) =>
                   ((e.target as HTMLImageElement).src = placeholder)
                 }

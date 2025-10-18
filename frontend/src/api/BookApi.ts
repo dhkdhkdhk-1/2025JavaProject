@@ -31,6 +31,8 @@ export interface BookForm {
   available: boolean;
 }
 
+
+
 // 등록/수정/삭제는 캐시 이슈와 무관
 export const addBook = async (form: BookForm) => {
   const res = await api.post(`/book`, form);

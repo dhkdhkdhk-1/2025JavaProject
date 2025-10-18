@@ -11,6 +11,7 @@ import Login from "./pages/login/Login";
 import Signup from "./pages/signup/Signup";
 import BookList from "./pages/booklist/BookList";
 import BookInfo from "./pages/bookinfo/BookInfo"; // ✅ 도서 상세 페이지 추가
+import TotalReview from "./pages/review/totalreview/TotalReview"; // ✅ 리뷰 전체페이지(게시판)
 
 // 관리자 페이지
 import Dashboard from "./pages/admin/Dashboard";
@@ -49,6 +50,7 @@ const App: React.FC = () => {
           <Route path="/home" element={<Home />} />
           <Route path="/booklist" element={<BookList />} />
           <Route path="/book/:id" element={<BookInfo />} />{" "}
+          <Route path="/review/book/:id" element={<TotalReview />} />{" "}
           {/* ✅ 도서 상세 페이지 */}
         </Route>
 
