@@ -68,3 +68,19 @@ export const getRecentBooks = async (size = 5) => {
   const res = await api.get<Book[]>(`/book/recent?size=${size}&_=${Date.now()}`);
   return res.data;
 };
+
+/** ✅ 도서 찜 추가 */
+export const addFavorite = async (bookId: number): Promise<void> => {
+  await api.post(`/book/favorite/${bookId}`);
+};
+
+/** ✅ 도서 찜 해제 */
+export const removeFavorite = async (bookId: number): Promise<void> => {
+  await api.delete(`/book/favorite/${bookId}`);
+};
+
+/** ✅ 도서 찜 여부 확인 */
+export const checkFavorite = async (bookId: number): Promise<boolean> => {
+  const res = await api.get<boolean>(`/book/favorite/${bookId}/check`);
+  return res.data;
+};

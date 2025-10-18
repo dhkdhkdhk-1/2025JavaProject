@@ -9,13 +9,15 @@ import AdminLayout from "./layout/admin/AdminLayout";
 import Home from "./pages/home/Home";
 import Login from "./pages/login/Login";
 import Signup from "./pages/signup/Signup";
-import BookList from "./pages/booklist/BookList";
-import BookInfo from "./pages/bookinfo/BookInfo"; // ✅ 도서 상세 페이지 추가
-import TotalReview from "./pages/review/totalreview/TotalReview"; // ✅ 리뷰 전체페이지(게시판)
+import BookList from "./pages/booklist/BookList"; // 도서 목록 페이지
+import BookInfo from "./pages/bookinfo/BookInfo"; // 도서 상세 페이지 추가
+import TotalReview from "./pages/review/totalreview/TotalReview"; // 리뷰 전체페이지(게시판)
+import MyPages from "./pages/mypage/MyPage"; // 마이페이지
 
 // 관리자 페이지
 import Dashboard from "./pages/admin/Dashboard";
 import BookManager from "./pages/admin/BookManager";
+import MyPage from "./pages/mypage/MyPage";
 
 /** ✅ 로그인 가드 (일반 사용자용) */
 const ProtectedLayout: React.FC = () => {
@@ -48,6 +50,7 @@ const App: React.FC = () => {
         {/* ✅ 로그인된 사용자 영역 (Layout + Outlet 구조) */}
         <Route element={<ProtectedLayout />}>
           <Route path="/home" element={<Home />} />
+          <Route path="/mypage" element={<MyPage />} />
           <Route path="/booklist" element={<BookList />} />
           <Route path="/book/:id" element={<BookInfo />} />{" "}
           <Route path="/review/book/:id" element={<TotalReview />} />{" "}
