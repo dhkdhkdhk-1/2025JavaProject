@@ -22,10 +22,7 @@ public class BoardController {
 
     private final BoardService boardService;
 
-    /**
-     * ✅ 게시판 전체 목록 (페이징 + ID 내림차순)
-     * 예: /board?page=0&size=10
-     */
+    // ✅ 게시판 목록
     @GetMapping
     public ResponseEntity<Page<BoardResponse>> getAllBoards(
             @RequestParam(value = "page", required = false, defaultValue = "0") int page,
@@ -38,9 +35,7 @@ public class BoardController {
         return ResponseEntity.ok(boardService.getAllBoards(pageable));
     }
 
-    /**
-     * ✅ 게시글 상세 조회
-     */
+    // ✅ 게시글 상세 조회
     @GetMapping("/{id}")
     public ResponseEntity<BoardResponse> getBoard(@PathVariable("id") Long id) {
         BoardResponse board = boardService.getBoard(id);
@@ -50,24 +45,18 @@ public class BoardController {
         return ResponseEntity.ok(board);
     }
 
-    /**
-     * ✅ 게시글 작성 (로그인 필요 — SecurityConfig에서 인증 필수로 설정됨)
-     */
+    // ✅ 게시글 작성 (로그인 필요)
     @PostMapping
     public ResponseEntity<BoardResponse> createBoard(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestBody BoardRequest request
     ) {
-        // ✅ DTO → Entity 변환
         var userEntity = UserMapper.toEntity(userDetails.getUser());
-
         BoardResponse created = boardService.createBoard(request, userEntity);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
-    /**
-     * ✅ 게시글 수정
-     */
+    // ✅ 게시글 수정
     @PutMapping("/{id}")
     public ResponseEntity<BoardResponse> updateBoard(
             @PathVariable("id") Long id,
@@ -77,12 +66,17 @@ public class BoardController {
         return ResponseEntity.ok(updated);
     }
 
-    /**
-     * ✅ 게시글 삭제
-     */
+    // ✅ 게시글 삭제
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteBoard(@PathVariable("id") Long id) {
         boardService.deleteBoard(id);
         return ResponseEntity.noContent().build();
+    }
+
+    // ✅ (신규 추가) 게시글 조회수 증가 API — 비회원 허용
+    @PostMapping("/{id}/view")
+    public ResponseEntity<Void> incrementViewCount(@PathVariable("id") Long id) {
+        boardService.incrementViewCount(id);
+        return ResponseEntity.ok().build();
     }
 }

@@ -16,10 +16,10 @@ const BoardRead: React.FC = () => {
     const fetchBoard = async () => {
       if (!id) return;
       try {
-        // 조회수 증가
+        // ✅ 1️⃣ 조회수 먼저 증가
         await incrementViewCount(Number(id));
 
-        // 글 데이터 가져오기
+        // ✅ 2️⃣ 조회수 증가 후, 글 데이터 불러오기
         const res = await getBoard(Number(id));
         setBoard(res.data);
       } catch (err) {

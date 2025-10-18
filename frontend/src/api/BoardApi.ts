@@ -96,7 +96,13 @@ export const getBoard = async (id: number) =>
 
 // ✅ 조회수 증가 (⚠️ skipAuthInterceptor 제거)
 export const incrementViewCount = async (id: number) =>
-  api.post(`board/${id}/view`, {}); // 인증 포함 → refresh 정상 작동
+  api.post(
+    `board/${id}/view`,
+    {},
+    {
+      headers: { skipAuthInterceptor: "true" }, // ✅ 토큰 붙이지 않음
+    }
+  );
 
 // ✅ 게시글 생성
 export const createBoard = async (data: BoardRequest) =>

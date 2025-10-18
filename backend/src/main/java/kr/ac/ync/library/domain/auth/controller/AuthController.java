@@ -28,8 +28,17 @@ public class AuthController {
         return ResponseEntity.ok(authService.auth(request));
     }
 
+    // ✅ 수정됨: refreshToken 유효성 검증 추가
     @PostMapping("/refresh")
     public ResponseEntity<JsonWebTokenResponse> refresh(@Valid @RequestBody RefreshTokenRequest request) {
+        if (request == null || request.getRefreshToken() == null || request.getRefreshToken().isBlank()) {
+            return ResponseEntity.badRequest().body(
+                    JsonWebTokenResponse.builder()
+                            .accessToken(null)
+                            .refreshToken(null)
+                            .build()
+            );
+        }
         return ResponseEntity.ok(authService.refresh(request.getRefreshToken()));
     }
 
@@ -45,7 +54,7 @@ public class AuthController {
         return ResponseEntity.ok("회원탈퇴가 완료되었습니다.");
     }
 
-    // ✅ 추가: 이메일 중복 확인
+    // ✅ 이메일 중복 확인
     @PostMapping("/check-email")
     public ResponseEntity<?> checkEmail(@RequestBody Map<String, String> request) {
         String email = request.get("email");
@@ -61,7 +70,7 @@ public class AuthController {
         return ResponseEntity.ok(Map.of("message", "사용 가능한 이메일입니다."));
     }
 
-    // ✅ 추가: 휴대폰 인증 (테스트용)
+    // ✅ 휴대폰 인증 (테스트용)
     @PostMapping("/verify-phone")
     public ResponseEntity<?> verifyPhone(@RequestBody Map<String, String> request) {
         String phone = request.get("phone");

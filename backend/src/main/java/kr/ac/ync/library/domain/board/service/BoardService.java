@@ -12,4 +12,7 @@ public interface BoardService {
     BoardResponse createBoard(BoardRequest request, UserEntity user);
     BoardResponse updateBoard(Long id, BoardRequest request);
     void deleteBoard(Long id);
+
+    // ✅ 추가: 조회수 증가용 메서드
+    void incrementViewCount(Long id);
 }

@@ -27,13 +27,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         String path = request.getRequestURI();
 
-        // ✅ (1) Preflight(OPTIONS) 요청은 바로 통과시킨다
+        // ✅ Preflight 요청 통과 (CORS OPTIONS)
         if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        // ✅ 인증이 필요 없는 경로는 JWT 검사 생략
+        // ✅ 인증 제외 경로 (로그인, 회원가입, 책, 지점, 조회수 증가 등)
         if (isExcludedPath(path)) {
             filterChain.doFilter(request, response);
             return;
@@ -47,8 +47,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             token = authorization.substring(7);
         }
 
-        // ✅ 유효한 토큰이면 인증 정보 설정
-        if (token != null && jwtProvider.validateToken(token)) {
+        // ✅ 토큰이 없거나 "Bearer"만 있는 경우는 그냥 통과 (에러 방지)
+        if (!StringUtils.hasText(token) || "Bearer".equals(token)) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        // ✅ 유효한 토큰이면 인증정보 저장
+        if (jwtProvider.validateToken(token)) {
             Authentication authentication = jwtProvider.getAuthentication(token);
             SecurityContextHolder.getContext().setAuthentication(authentication);
         }
@@ -58,10 +64,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     // ✅ 인증 제외 경로 정의
     private boolean isExcludedPath(String path) {
-        return path.startsWith("/auth")   // ✅ 반드시 /auth/ 말고 /auth 로
-                || path.startsWith("/book")
-                || path.startsWith("/branch")
-                || path.equals("/")
-                || path.equals("/error");
+        return path.startsWith("/auth")       // 로그인, 회원가입, 토큰 재발급
+                || path.startsWith("/book")   // 도서 조회 관련
+                || path.startsWith("/branch") // 지점 조회 관련
+                || path.equals("/")           // 홈
+                || path.equals("/error")      // 에러 페이지
+                || path.matches("^/board/\\d+/view$"); // ✅ 게시글 조회수 증가 허용
     }
 }

@@ -25,7 +25,7 @@ public class BoardServiceImpl implements BoardService {
         Pageable sortedPageable = PageRequest.of(
                 pageable.getPageNumber(),
                 pageable.getPageSize(),
-                Sort.by(Sort.Direction.DESC, "id") // ✅ ID 내림차순
+                Sort.by(Sort.Direction.DESC, "id")
         );
 
         return boardRepository.findAll(sortedPageable)
@@ -50,7 +50,6 @@ public class BoardServiceImpl implements BoardService {
         BoardEntity board = BoardEntity.builder()
                 .title(request.getTitle())
                 .content(request.getContent())
-                // ✅ 기본값 지정: type이 null이면 "일반"
                 .type(request.getType() != null ? request.getType() : "일반")
                 .user(user)
                 .viewCount(0L)
@@ -59,6 +58,9 @@ public class BoardServiceImpl implements BoardService {
         return toResponse(boardRepository.save(board));
     }
 
+    /**
+     * ✅ 게시글 수정
+     */
     @Override
     public BoardResponse updateBoard(Long id, BoardRequest request) {
         BoardEntity board = boardRepository.findById(id)
@@ -66,12 +68,10 @@ public class BoardServiceImpl implements BoardService {
 
         board.setTitle(request.getTitle());
         board.setContent(request.getContent());
-        // ✅ 수정 시에도 동일한 기본값 처리
         board.setType(request.getType() != null ? request.getType() : "일반");
 
         return toResponse(boardRepository.save(board));
     }
-
 
     /**
      * ✅ 게시글 삭제
@@ -79,6 +79,17 @@ public class BoardServiceImpl implements BoardService {
     @Override
     public void deleteBoard(Long id) {
         boardRepository.deleteById(id);
+    }
+
+    /**
+     * ✅ 게시글 조회수 증가 (비회원 가능)
+     */
+    @Override
+    public void incrementViewCount(Long id) {
+        BoardEntity board = boardRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("게시글을 찾을 수 없습니다."));
+        board.setViewCount(board.getViewCount() + 1);
+        boardRepository.save(board);
     }
 
     /**
@@ -90,7 +101,6 @@ public class BoardServiceImpl implements BoardService {
                 .title(entity.getTitle())
                 .content(entity.getContent())
                 .type(entity.getType())
-                // ✅ 유저 정보가 없을 때 null 방지
                 .username(entity.getUser() != null ? entity.getUser().getUsername() : "알 수 없음")
                 .viewCount(entity.getViewCount() == null ? 0L : entity.getViewCount())
                 .createdAt(entity.getCreatedDateTime())
