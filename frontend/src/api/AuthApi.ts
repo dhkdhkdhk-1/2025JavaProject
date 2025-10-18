@@ -1,25 +1,14 @@
-import axios, { AxiosError, AxiosRequestConfig } from "axios";
+import axios, { AxiosError } from "axios";
 
 /** ✅ axios 기본 인스턴스 */
 export const api = axios.create({
-  baseURL: process.env.REACT_APP_API_BASE_URL,
+  baseURL: process.env.REACT_APP_API_BASE_URL || "http://localhost:8080",
 });
 
-/** ✅ 토큰 설정 */
+/** ✅ 토큰 설정 함수 */
 export function setAccessToken(token: string | null) {
-  if (token) {
-    api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-  } else {
-    delete api.defaults.headers.common["Authorization"];
-  }
-}
-
-/** ✅ 토큰 제거 (로그아웃/실패 시) */
-export function clearTokens() {
-  localStorage.removeItem("accessToken");
-  localStorage.removeItem("refreshToken");
-  localStorage.removeItem("role");
-  setAccessToken(null);
+  if (token) api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+  else delete api.defaults.headers.common["Authorization"];
 }
 
 /** ✅ DTO 정의 */
@@ -27,7 +16,6 @@ export interface LoginRequest {
   email: string;
   password: string;
 }
-
 export interface SignupRequest {
   email: string;
   username: string;
@@ -35,12 +23,10 @@ export interface SignupRequest {
   passwordCheck: string;
   phone: string;
 }
-
 export interface TokenResponse {
   accessToken: string;
   refreshToken: string;
 }
-
 export interface User {
   id: number;
   username: string;
@@ -49,101 +35,19 @@ export interface User {
   role: string;
 }
 
-/** ✅ 요청 인터셉터: /auth 요청엔 토큰 제외 */
-api.interceptors.request.use((config) => {
-  const url = (config.url || "").toLowerCase();
-  const isAuth = url.startsWith("/auth");
-
-  if (isAuth) {
-    if (config.headers) delete (config.headers as any)["Authorization"];
-  } else {
-    const token = localStorage.getItem("accessToken");
-    if (token && config.headers) {
-      (config.headers as any)["Authorization"] = `Bearer ${token}`;
-    }
-  }
-
-  return config;
-});
-
-/** ✅ 응답 인터셉터: 401 발생 시 자동 토큰 재발급 */
-let isRefreshing = false;
-let queue: Array<{ resolve: () => void; reject: (e?: any) => void }> = [];
-
-async function refreshTokenRequest() {
-  if (isRefreshing)
-    return new Promise<void>((res, rej) =>
-      queue.push({ resolve: res, reject: rej })
-    );
-
-  isRefreshing = true;
-  try {
-    const refreshToken = localStorage.getItem("refreshToken");
-    if (!refreshToken) throw new Error("NO_REFRESH_TOKEN");
-
-    const res = await api.post<TokenResponse>("/auth/refresh", {
-      refreshToken,
-    });
-
-    localStorage.setItem("accessToken", res.data.accessToken);
-    localStorage.setItem("refreshToken", res.data.refreshToken);
-    setAccessToken(res.data.accessToken);
-
-    queue.forEach((p) => p.resolve());
-  } catch (e) {
-    clearTokens();
-    queue.forEach((p) => p.reject(e));
-    throw e;
-  } finally {
-    queue = [];
-    isRefreshing = false;
-  }
-}
-
-api.interceptors.response.use(
-  (res) => res,
-  async (error: AxiosError) => {
-    const status = error.response?.status;
-    const original = error.config as
-      | (AxiosRequestConfig & { _retry?: boolean })
-      | undefined;
-    const url = (original?.url || "").toLowerCase();
-    const isAuth = url.startsWith("/auth");
-
-    if (status === 401 && original && !original._retry && !isAuth) {
-      original._retry = true;
-      try {
-        await refreshTokenRequest();
-        return api(original);
-      } catch {
-        return Promise.reject(error);
-      }
-    }
-
-    return Promise.reject(error);
-  }
-);
-
-//여기서부터는 인증 관련 API
-
 /** ✅ 로그인 API */
 export const login = async (
   data: LoginRequest
 ): Promise<TokenResponse | null> => {
   try {
-    setAccessToken(null); // 혹시 남은 토큰 제거
-    const res = await api.post<TokenResponse>("/auth", data, {
-      headers: { "Content-Type": "application/json" },
-    });
+    const res = await api.post<TokenResponse>("/auth", data);
+    localStorage.setItem("accessToken", res.data.accessToken);
+    localStorage.setItem("refreshToken", res.data.refreshToken);
+    setAccessToken(res.data.accessToken);
     return res.data;
-  } catch (error: any) {
-    const msg =
-      error?.response?.data?.message ||
-      error?.response?.data ||
-      error?.message ||
-      "로그인 실패: 이메일 또는 비밀번호를 확인하세요.";
-    console.error("❌ 로그인 실패:", msg);
-    alert(msg);
+  } catch (error) {
+    console.error("❌ 로그인 실패:", error);
+    alert("로그인 실패: 이메일 또는 비밀번호를 확인하세요.");
     return null;
   }
 };
@@ -151,22 +55,18 @@ export const login = async (
 /** ✅ 회원가입 API */
 export const signup = async (data: SignupRequest): Promise<boolean> => {
   try {
-    const payload = {
-      email: data.email,
-      username: data.username,
-      password: data.password,
-      passwordCheck: data.passwordCheck,
-      phone: data.phone,
-    };
-
-    await axios.post("http://localhost:8080/auth/signup", payload, {
+    await api.post("/auth/signup", data, {
       headers: { "Content-Type": "application/json" },
     });
     alert("회원가입이 완료되었습니다!");
     return true;
-  } catch (error) {
-    console.error("회원가입 실패:", error);
-    alert("회원가입 중 오류가 발생했습니다.");
+  } catch (error: any) {
+    if (axios.isAxiosError(error) && error.response?.status === 409) {
+      alert("이미 사용 중인 이메일입니다.");
+    } else {
+      alert("회원가입 중 서버 오류가 발생했습니다.");
+      console.error("회원가입 실패:", error);
+    }
     return false;
   }
 };
@@ -174,20 +74,17 @@ export const signup = async (data: SignupRequest): Promise<boolean> => {
 /** ✅ 이메일 중복확인 API */
 export const checkEmail = async (email: string): Promise<boolean> => {
   try {
-    const res = await axios.post<{ message: string }>(
-      "http://localhost:8080/auth/check-email",
+    const res = await api.post(
+      "/auth/check-email",
       { email },
-      { headers: { "Content-Type": "application/json" } }
+      { headers: { skipAuthInterceptor: "true" } }
     );
-    alert(res.data?.message || "사용 가능한 이메일입니다.");
-    return true;
+    return res.status === 200;
   } catch (error: any) {
-    console.error("이메일 중복확인 실패:", error);
-    if (error.response?.data?.message) {
-      alert(error.response.data.message);
-    } else {
-      alert("이메일 확인 중 오류가 발생했습니다.");
-    }
+    if (axios.isAxiosError(error) && error.response?.status === 409)
+      alert("이미 등록된 이메일입니다.");
+    else alert("이메일 중복확인 중 오류가 발생했습니다.");
+    console.error("이메일 확인 실패:", error);
     return false;
   }
 };
@@ -195,29 +92,125 @@ export const checkEmail = async (email: string): Promise<boolean> => {
 /** ✅ 휴대폰 인증 API */
 export const verifyPhone = async (phone: string): Promise<boolean> => {
   try {
-    const res = await axios.post<{ message: string }>(
-      "http://localhost:8080/auth/verify-phone",
+    const res = await api.post(
+      "/auth/verify-phone",
       { phone },
-      { headers: { "Content-Type": "application/json" } }
+      { headers: { skipAuthInterceptor: "true" } }
     );
-    alert(res.data?.message || "인증번호가 전송되었습니다.");
-    return true;
+    return res.status === 200;
   } catch (error: any) {
-    console.error("휴대폰 인증 실패:", error);
-    if (error.response?.data?.message) {
-      alert(error.response.data.message);
-    } else {
-      alert("휴대폰 인증 중 오류가 발생했습니다.");
-    }
+    console.error("전화번호 인증 실패:", error);
+    alert("전화번호 인증 중 오류가 발생했습니다.");
     return false;
   }
 };
 
-/** ✅ 로그인된 사용자 정보 조회 */
+/** ✅ 내 정보 조회 */
 export const getMe = async (): Promise<User> => {
   const res = await api.get<User>("/user/me");
   return res.data;
 };
 
-/** ✅ 앱 시작 시 저장된 토큰 다시 세팅 */
+/** ✅ 액세스 토큰 갱신 (백엔드 DTO 맞춰 수정됨 + 디버그 로그 포함) */
+export const refreshAccessToken = async (): Promise<string | null> => {
+  const refreshToken = localStorage.getItem("refreshToken");
+  if (!refreshToken) {
+    console.warn("⚠️ refreshAccessToken(): refreshToken이 없습니다.");
+    return null;
+  }
+
+  try {
+    console.log("🔄 Refresh 요청 시작:", refreshToken.slice(0, 25) + "...");
+
+    // ✅ 수정됨: token → refreshToken
+    const res = await axios.post<{ accessToken: string; refreshToken: string }>(
+      `${
+        process.env.REACT_APP_API_BASE_URL || "http://localhost:8080"
+      }/auth/refresh`,
+      { refreshToken }, // ✅ 백엔드 DTO(RefreshTokenRequest)와 일치
+      {
+        headers: {
+          "Content-Type": "application/json",
+          skipAuthInterceptor: "true",
+        },
+      }
+    );
+
+    console.log("✅ Refresh 응답 성공:", res.status, res.data);
+
+    localStorage.setItem("accessToken", res.data.accessToken);
+    localStorage.setItem("refreshToken", res.data.refreshToken);
+    setAccessToken(res.data.accessToken);
+    return res.data.accessToken;
+  } catch (err: any) {
+    console.error(
+      "❌ Refresh 실패:",
+      err.response?.status,
+      err.response?.data || err.message
+    );
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken");
+    window.location.href = "/login";
+    return null;
+  }
+};
+
+/** ✅ Axios 응답 인터셉터 */
+let isRefreshing = false;
+let failedQueue: {
+  resolve: (token: string) => void;
+  reject: (err: any) => void;
+}[] = [];
+
+const processQueue = (error: any, token: string | null = null) => {
+  failedQueue.forEach((prom) =>
+    error ? prom.reject(error) : prom.resolve(token!)
+  );
+  failedQueue = [];
+};
+
+api.interceptors.response.use(
+  (response) => response,
+  async (error: AxiosError & { config: any }) => {
+    const originalRequest = error.config;
+
+    // ✅ skipAuthInterceptor 헤더가 있으면 인터셉터 무시
+    if (originalRequest.headers?.skipAuthInterceptor === "true") {
+      delete originalRequest.headers.skipAuthInterceptor;
+      return Promise.reject(error);
+    }
+
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      if (isRefreshing) {
+        return new Promise<string>((resolve, reject) =>
+          failedQueue.push({ resolve, reject })
+        ).then((token) => {
+          originalRequest.headers["Authorization"] = `Bearer ${token}`;
+          return api(originalRequest);
+        });
+      }
+
+      originalRequest._retry = true;
+      isRefreshing = true;
+
+      try {
+        const newToken = await refreshAccessToken();
+        if (!newToken) throw new Error("토큰 갱신 실패");
+        originalRequest.headers["Authorization"] = `Bearer ${newToken}`;
+        processQueue(null, newToken);
+        return api(originalRequest);
+      } catch (err) {
+        processQueue(err, null);
+        window.location.href = "/login";
+        return Promise.reject(err);
+      } finally {
+        isRefreshing = false;
+      }
+    }
+
+    return Promise.reject(error);
+  }
+);
+
+/** ✅ 앱 시작 시 저장된 토큰 자동 적용 */
 setAccessToken(localStorage.getItem("accessToken"));

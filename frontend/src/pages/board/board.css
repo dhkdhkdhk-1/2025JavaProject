@@ -1,0 +1,131 @@
+.board-container {
+  max-width: 1000px;
+  margin: 50px auto;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 40px;
+}
+
+.board-title {
+  text-align: center;
+  font-size: 2rem;
+  font-weight: bold;
+  margin-bottom: 40px;
+}
+
+.board-input,
+.board-textarea {
+  width: 100%;
+  padding: 10px;
+  margin-top: 5px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 0.95rem;
+}
+
+.board-button {
+  background-color: #222;
+  color: #fff;
+  padding: 8px 18px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.board-button:hover {
+  background-color: #444;
+}
+
+.board-meta {
+  font-size: 0.9rem;
+  color: #777;
+  margin-bottom: 15px;
+}
+
+.board-meta-left {
+  text-align: left;
+}
+
+.board-meta-right {
+  text-align: right;
+  white-space: nowrap; /* 긴 날짜가 줄 바꿈되지 않도록 */
+}
+
+.board-meta-row {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 4px;
+}
+
+.board-content {
+  background-color: #f9f9f9;
+  padding: 20px;
+  border-radius: 8px;
+  line-height: 1.6;
+  white-space: pre-wrap; /* 기존 줄바꿈 유지 */
+  word-break: break-word; /* 긴 단어도 박스 안에서 줄바꿈 */
+  overflow-wrap: break-word; /* 브라우저 호환용 */
+}
+
+.board-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+.board-table th,
+.board-table td {
+  border-bottom: 1px solid #e5e5e5;
+  padding: 12px;
+  text-align: center;
+}
+
+.board-table th {
+  background-color: #f4f4f4;
+  color: #333;
+}
+
+.board-table tr:hover {
+  background-color: #fafafa;
+  cursor: pointer;
+}
+
+/* 페이지네이션 */
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  margin-top: 25px;
+}
+
+.page-number {
+  border: none;
+  background-color: #eee;
+  border-radius: 6px;
+  padding: 6px 10px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.page-number:hover {
+  background-color: #ddd;
+}
+
+.page-number.active {
+  background-color: #222;
+  color: white;
+  font-weight: bold;
+}
+
+/* 이전 / 다음 버튼 글자색 검정 */
+.pagination .board-button {
+  color: black;
+}
+
+.pagination .board-button:disabled {
+  color: black;
+  opacity: 0.5; /* 비활성화 버튼 투명도 조절 */
+}
