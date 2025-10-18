@@ -1,53 +1,90 @@
 package kr.ac.ync.library.domain.board.controller;
 
-import kr.ac.ync.library.domain.board.entity.BoardEntity;
+import kr.ac.ync.library.domain.board.dto.BoardRequest;
+import kr.ac.ync.library.domain.board.dto.BoardResponse;
 import kr.ac.ync.library.domain.board.service.BoardService;
-import kr.ac.ync.library.domain.users.entity.UserEntity;
+import kr.ac.ync.library.global.common.security.auth.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/boards")
+@RequestMapping("/board")
 public class BoardController {
 
     private final BoardService boardService;
 
+    /**
+     * ✅ 게시판 전체 목록 (페이징 + ID 내림차순)
+     * 예: /board?page=0&size=10
+     * (-parameters 옵션 없이도 안전하게 작동)
+     */
     @GetMapping
-    public ResponseEntity<List<BoardEntity>> getAllBoards() {
-        return ResponseEntity.ok(boardService.getAllBoards());
+    public ResponseEntity<Page<BoardResponse>> getAllBoards(
+            @RequestParam(value = "page", required = false, defaultValue = "0") int page,
+            @RequestParam(value = "size", required = false, defaultValue = "10") int size
+    ) {
+        // ✅ 페이지 크기 제한 (보안 및 성능)
+        if (size > 50) size = 50;
+        if (page < 0) page = 0;
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));
+        return ResponseEntity.ok(boardService.getAllBoards(pageable));
     }
 
+    /**
+     * ✅ 게시글 상세 조회
+     */
     @GetMapping("/{id}")
-    public ResponseEntity<BoardEntity> getBoard(@PathVariable Long id) {
-        return ResponseEntity.ok(boardService.getBoard(id));
+    public ResponseEntity<BoardResponse> getBoard(@PathVariable("id") Long id) {
+        BoardResponse board = boardService.getBoard(id);
+        if (board == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+        return ResponseEntity.ok(board);
     }
 
+    /**
+     * ✅ 게시글 작성 (로그인 필요)
+     */
     @PostMapping
-    public ResponseEntity<BoardEntity> createBoard(@RequestBody BoardEntity board) {
-        return ResponseEntity.ok(boardService.createBoard(board));
+    public ResponseEntity<BoardResponse> createBoard(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestBody BoardRequest request
+    ) {
+        if (userDetails == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build(); // 인증 안 된 경우
+        }
+
+        BoardResponse created = boardService.createBoard(request, userDetails.getUserEntity());
+        return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
+    /**
+     * ✅ 게시글 수정
+     */
     @PutMapping("/{id}")
-    public ResponseEntity<BoardEntity> updateBoard(@PathVariable Long id,
-                                                   @RequestBody BoardEntity updatedBoard,
-                                                   @RequestBody UserEntity currentUser) {
-        return ResponseEntity.ok(boardService.updateBoard(id, updatedBoard, currentUser));
+    public ResponseEntity<BoardResponse> updateBoard(
+            @PathVariable("id") Long id,
+            @RequestBody BoardRequest request
+    ) {
+        BoardResponse updated = boardService.updateBoard(id, request);
+        return ResponseEntity.ok(updated);
     }
 
+    /**
+     * ✅ 게시글 삭제
+     */
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteBoard(@PathVariable Long id, @RequestBody UserEntity currentUser) {
-        boardService.deleteBoard(id, currentUser);
-        return ResponseEntity.ok("게시글이 삭제되었습니다.");
-    }
-
-    @GetMapping("/search")
-    public ResponseEntity<List<BoardEntity>> searchBoards(
-            @RequestParam String type,
-            @RequestParam String title) {
-        return ResponseEntity.ok(boardService.getBoardsByTypeAndTitle(type, title));
+    public ResponseEntity<Void> deleteBoard(@PathVariable("id") Long id) {
+        boardService.deleteBoard(id);
+        return ResponseEntity.noContent().build();
     }
 }
