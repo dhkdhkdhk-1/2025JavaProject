@@ -26,7 +26,7 @@ public class BoardEntity extends BaseTimeEntity {
     private UserEntity user;
 
     @Column(nullable = false)
-    private String type = "일반";
+    private String type;
 
     @Column(nullable = false)
     private String title;

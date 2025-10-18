@@ -50,6 +50,7 @@ public class BoardServiceImpl implements BoardService {
         BoardEntity board = BoardEntity.builder()
                 .title(request.getTitle())
                 .content(request.getContent())
+                // ✅ 기본값 지정: type이 null이면 "일반"
                 .type(request.getType() != null ? request.getType() : "일반")
                 .user(user)
                 .viewCount(0L)
@@ -58,9 +59,6 @@ public class BoardServiceImpl implements BoardService {
         return toResponse(boardRepository.save(board));
     }
 
-    /**
-     * ✅ 게시글 수정
-     */
     @Override
     public BoardResponse updateBoard(Long id, BoardRequest request) {
         BoardEntity board = boardRepository.findById(id)
@@ -68,10 +66,12 @@ public class BoardServiceImpl implements BoardService {
 
         board.setTitle(request.getTitle());
         board.setContent(request.getContent());
+        // ✅ 수정 시에도 동일한 기본값 처리
         board.setType(request.getType() != null ? request.getType() : "일반");
 
         return toResponse(boardRepository.save(board));
     }
+
 
     /**
      * ✅ 게시글 삭제

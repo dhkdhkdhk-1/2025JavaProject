@@ -3,6 +3,7 @@ package kr.ac.ync.library.domain.board.controller;
 import kr.ac.ync.library.domain.board.dto.BoardRequest;
 import kr.ac.ync.library.domain.board.dto.BoardResponse;
 import kr.ac.ync.library.domain.board.service.BoardService;
+import kr.ac.ync.library.domain.users.mapper.UserMapper;
 import kr.ac.ync.library.global.common.security.auth.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -24,14 +25,12 @@ public class BoardController {
     /**
      * ✅ 게시판 전체 목록 (페이징 + ID 내림차순)
      * 예: /board?page=0&size=10
-     * (-parameters 옵션 없이도 안전하게 작동)
      */
     @GetMapping
     public ResponseEntity<Page<BoardResponse>> getAllBoards(
             @RequestParam(value = "page", required = false, defaultValue = "0") int page,
             @RequestParam(value = "size", required = false, defaultValue = "10") int size
     ) {
-        // ✅ 페이지 크기 제한 (보안 및 성능)
         if (size > 50) size = 50;
         if (page < 0) page = 0;
 
@@ -52,18 +51,17 @@ public class BoardController {
     }
 
     /**
-     * ✅ 게시글 작성 (로그인 필요)
+     * ✅ 게시글 작성 (로그인 필요 — SecurityConfig에서 인증 필수로 설정됨)
      */
     @PostMapping
     public ResponseEntity<BoardResponse> createBoard(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestBody BoardRequest request
     ) {
-        if (userDetails == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build(); // 인증 안 된 경우
-        }
+        // ✅ DTO → Entity 변환
+        var userEntity = UserMapper.toEntity(userDetails.getUser());
 
-        BoardResponse created = boardService.createBoard(request, userDetails.getUserEntity());
+        BoardResponse created = boardService.createBoard(request, userEntity);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
