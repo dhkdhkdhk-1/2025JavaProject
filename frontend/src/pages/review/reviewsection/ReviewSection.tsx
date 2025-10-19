@@ -1,25 +1,24 @@
 import React, { useEffect, useState } from "react";
 import "./ReviewSection.css";
 import { getReviewsByBookId, Review } from "../../../api/ReviewApi";
-import { useNavigate } from "react-router-dom";
 
 interface ReviewProps {
   bookId: number;
   limit?: number; // 몇 개만 보여줄지
+  onMoreClick?: () => void; // ✅ 추가 (BookInfo에서 navigate 전달받음)
 }
 
-const ReviewSection: React.FC<ReviewProps> = ({ bookId, limit }) => {
+const ReviewSection: React.FC<ReviewProps> = ({ bookId, limit, onMoreClick }) => {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>("");
-  const navigate = useNavigate();
 
   useEffect(() => {
     async function fetchReviews() {
       try {
         setLoading(true);
         const data = await getReviewsByBookId(bookId);
-        // 최신순으로 정렬
+        // 최신순 정렬
         data.sort(
           (a, b) =>
             new Date(b.createdDateTime).getTime() -
@@ -42,7 +41,6 @@ const ReviewSection: React.FC<ReviewProps> = ({ bookId, limit }) => {
   if (reviews.length === 0)
     return <div style={{ padding: 16 }}>등록된 리뷰가 없습니다.</div>;
 
-  // limit 적용
   const displayedReviews = limit ? reviews.slice(0, limit) : reviews;
 
   return (
@@ -93,11 +91,9 @@ const ReviewSection: React.FC<ReviewProps> = ({ bookId, limit }) => {
           ))}
         </div>
 
-        {reviews.length > (limit ?? reviews.length) && (
-          <div
-            className="view-more-reviews"
-            onClick={() => navigate(`/reviews/book/${bookId}`)}
-          >
+        {/* ✅ 리뷰 더보기 (전체 리뷰 페이지로 이동) */}
+        {onMoreClick && reviews.length > (limit ?? reviews.length) && (
+          <div className="view-more-reviews" onClick={onMoreClick}>
             리뷰 더보기
           </div>
         )}

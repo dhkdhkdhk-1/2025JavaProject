@@ -17,6 +17,7 @@ import Login from "./pages/login/Login";
 import Signup from "./pages/signup/Signup";
 import BookList from "./pages/booklist/BookList";
 import BookInfo from "./pages/bookinfo/BookInfo"; // ✅ 도서 상세 페이지 추가
+import TotalReview from "./pages/review/totalreview/TotalReview"; // 리뷰 전체페이지(게시판)
 
 // ✅ 게시판 페이지
 import BoardList from "./pages/board/BoardList";
@@ -27,6 +28,7 @@ import BoardEdit from "./pages/board/BoardEdit";
 // 관리자 페이지
 import Dashboard from "./pages/admin/Dashboard";
 import BookManager from "./pages/admin/BookManager";
+import MyPage from "./pages/mypage/MyPage";
 
 /** ✅ 로그인 가드 (일반 사용자용) */
 const ProtectedLayout: React.FC = () => {
@@ -78,6 +80,7 @@ const App: React.FC = () => {
         {/* ✅ 로그인된 사용자 영역 (Layout + Outlet 구조) */}
         <Route element={<ProtectedLayout />}>
           <Route path="/home" element={<Home />} />
+
           <Route path="/booklist" element={<BookList />} />
           <Route path="/book/:id" element={<BookInfo />} /> {/* 도서 상세 */}
           {/* ✅ 게시판 영역 */}
@@ -87,6 +90,12 @@ const App: React.FC = () => {
             <Route path="write" element={<BoardWrite />} /> {/* 작성 */}
             <Route path="edit/:id" element={<BoardEdit />} /> {/* 수정 */}
           </Route>
+
+          <Route path="/MyPage" element={<MyPage />} />
+          <Route path="/booklist" element={<BookList />} /> 
+          <Route path="/book/:id" element={<BookInfo />} />{" "}
+          <Route path="/review/book/:id" element={<TotalReview />} />{" "}
+
         </Route>
 
         {/* ✅ 관리자 전용 영역 */}
