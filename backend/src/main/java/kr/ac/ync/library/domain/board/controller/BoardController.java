@@ -31,8 +31,8 @@ public class BoardController {
         if (size > 50) size = 50;
         if (page < 0) page = 0;
 
-        // ✅ 수정: DB 정렬 제거 → 프론트에서 순서 계산
-        Pageable pageable = PageRequest.of(page, size, Sort.unsorted());
+        // 💡 다시 id 내림차순 정렬 복원
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));
 
         Page<BoardResponse> boardPage = boardService.getAllBoards(keyword, searchType, category, pageable);
         long maxId = boardService.getMaxBoardId(); // ✅ 전체 최대 ID

@@ -7,6 +7,7 @@ import "./board.css";
 
 const BoardList: React.FC = () => {
   const [boards, setBoards] = useState<BoardResponse[]>([]);
+  const [allBoards, setAllBoards] = useState<BoardResponse[]>([]); // ✅ 전체 게시글 목록
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [totalElements, setTotalElements] = useState(0);
@@ -20,7 +21,28 @@ const BoardList: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  /** ✅ 게시글 목록 가져오기 */
+  /** ✅ 전체 게시글 불러오기 (모든 페이지 순회해서 전체 데이터 로드) */
+  const fetchAllBoards = useCallback(async () => {
+    try {
+      let all: BoardResponse[] = [];
+      let pageNum = 0;
+      let hasMore = true;
+
+      while (hasMore) {
+        const res = await getBoardList(pageNum, "", "전체", "전체");
+        all = [...all, ...res.data.content];
+        hasMore = pageNum < res.data.totalPages - 1;
+        pageNum++;
+      }
+
+      setAllBoards(all);
+      setTotalElements(all.length);
+    } catch (error) {
+      console.error("전체 게시글 불러오기 실패:", error);
+    }
+  }, []);
+
+  /** ✅ 현재 조건의 게시글 불러오기 */
   const fetchBoards = useCallback(
     async (
       pageNum: number,
@@ -46,7 +68,6 @@ const BoardList: React.FC = () => {
         }
 
         setTotalPages(res.data.totalPages);
-        setTotalElements(res.data.totalElements || 0);
       } catch (error) {
         console.error("게시글 불러오기 실패:", error);
         if (axios.isAxiosError(error) && error.response?.status === 401) {
@@ -62,7 +83,7 @@ const BoardList: React.FC = () => {
     [navigate]
   );
 
-  /** ✅ URL → 상태 반영 + fetchBoards 실행 */
+  /** ✅ URL 변경 시 새 데이터 가져오기 */
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const newSearchType = params.get("searchType") || "전체";
@@ -75,9 +96,9 @@ const BoardList: React.FC = () => {
     setCategory(newCategory);
     setPage(newPage);
 
+    fetchAllBoards(); // ✅ 전체 목록 갱신 (모든 페이지 데이터)
     fetchBoards(newPage, newKeyword, newSearchType, newCategory);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [location.search]);
+  }, [location.search, fetchBoards, fetchAllBoards]);
 
   /** ✅ 검색 실행 */
   const handleSearch = () => {
@@ -89,19 +110,16 @@ const BoardList: React.FC = () => {
     navigate(`/board?${query.toString()}`);
   };
 
-  /** ✅ Enter 키 */
   const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") handleSearch();
   };
 
-  /** ✅ 페이지 변경 */
   const handlePageChange = (newPage: number) => {
     const query = new URLSearchParams(location.search);
     query.set("page", newPage.toString());
     navigate(`/board?${query.toString()}`);
   };
 
-  /** ✅ 분류 변경 */
   const handleCategoryChange = (newCategory: string) => {
     const query = new URLSearchParams(location.search);
     query.set("category", newCategory);
@@ -109,14 +127,12 @@ const BoardList: React.FC = () => {
     navigate(`/board?${query.toString()}`);
   };
 
-  /** ✅ 페이지 번호 계산 */
-  const getPageNumbers = () => {
-    if (totalPages <= 1) return [0];
-    const pages: number[] = [];
-    const start = Math.max(0, page - 2);
-    const end = Math.min(totalPages - 1, page + 2);
-    for (let i = start; i <= end; i++) pages.push(i);
-    return pages;
+  /** ✅ 전체 기준 ID 계산 (1부터 시작, 모든 페이지 기준) */
+  const calculateGlobalId = (boardId: number) => {
+    const index = allBoards.findIndex((b) => b.id === boardId);
+    if (index === -1) return 0;
+    // 전체 목록은 최신순이므로 → 오래된 글이 1번, 최신글이 totalElements번
+    return totalElements - index;
   };
 
   return (
@@ -166,10 +182,9 @@ const BoardList: React.FC = () => {
         <p style={{ textAlign: "center", color: "#999" }}>{errorMsg}</p>
       ) : (
         <BoardTable
-          boards={boards.map((b, i) => ({
+          boards={boards.map((b) => ({
             id: b.id,
-            // ✅ 항상 프론트 기준으로 계산
-            displayId: totalElements - (page * 10 + i),
+            displayId: calculateGlobalId(b.id), // ✅ 전체 목록 기준 ID 표시
             title: b.title,
             type: b.type,
             username: b.username,
@@ -190,7 +205,7 @@ const BoardList: React.FC = () => {
             ← 이전
           </button>
 
-          {getPageNumbers().map((num) => (
+          {[...Array(totalPages)].map((_, num) => (
             <button
               key={num}
               onClick={() => handlePageChange(num)}

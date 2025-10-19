@@ -11,6 +11,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -22,11 +24,11 @@ public class BoardServiceImpl implements BoardService {
     @Override
     public Page<BoardResponse> getAllBoards(String keyword, String searchType, String category, Pageable pageable) {
 
-        // ✅ 수정: DB 정렬 제거 → 프론트에서만 번호 계산
-        Pageable unsortedPageable = PageRequest.of(
+        // ✅ 명시적으로 DB 정렬을 "id DESC"로 고정
+        Pageable sortedPageable = PageRequest.of(
                 pageable.getPageNumber(),
                 pageable.getPageSize(),
-                Sort.unsorted()
+                Sort.by(Sort.Direction.DESC, "id")
         );
 
         Page<BoardEntity> pageResult;
@@ -35,24 +37,25 @@ public class BoardServiceImpl implements BoardService {
 
         if (hasKeyword && hasCategory) {
             if ("제목".equals(searchType)) {
-                pageResult = boardRepository.findByTypeAndTitleContaining(category, keyword, unsortedPageable);
+                pageResult = boardRepository.findByTypeAndTitleContaining(category, keyword, sortedPageable);
             } else {
                 pageResult = boardRepository.findByTypeAndTitleContainingOrTypeAndContentContaining(
-                        category, keyword, category, keyword, unsortedPageable
+                        category, keyword, category, keyword, sortedPageable
                 );
             }
         } else if (hasKeyword) {
             if ("제목".equals(searchType)) {
-                pageResult = boardRepository.findByTitleContaining(keyword, unsortedPageable);
+                pageResult = boardRepository.findByTitleContaining(keyword, sortedPageable);
             } else {
-                pageResult = boardRepository.findByTitleContainingOrContentContaining(keyword, keyword, unsortedPageable);
+                pageResult = boardRepository.findByTitleContainingOrContentContaining(keyword, keyword, sortedPageable);
             }
         } else if (hasCategory) {
-            pageResult = boardRepository.findByType(category, unsortedPageable);
+            pageResult = boardRepository.findByType(category, sortedPageable);
         } else {
-            pageResult = boardRepository.findAll(unsortedPageable);
+            pageResult = boardRepository.findAll(sortedPageable);
         }
 
+        // ✅ 그대로 반환 (정렬된 상태 유지)
         return pageResult.map(this::toResponse);
     }
 
