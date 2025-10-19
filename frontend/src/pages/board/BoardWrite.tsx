@@ -11,8 +11,13 @@ const BoardWrite: React.FC = () => {
     type: "일반",
   });
 
+  // ✅ 타입 유연하게 수정
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e:
+      | React.ChangeEvent<
+          HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+        >
+      | { target: { name: string; value: string } }
   ) => {
     const { name, value } = e.target;
     setForm({ ...form, [name]: value });

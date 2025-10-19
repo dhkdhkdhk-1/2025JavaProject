@@ -4,6 +4,7 @@ import "../board.css";
 interface Props {
   boards: {
     id: number;
+    displayId?: number; // ✅ 화면용 번호
     title: string;
     type: string;
     username: string;
@@ -25,15 +26,23 @@ const BoardTable: React.FC<Props> = ({ boards, onSelect }) => {
         </tr>
       </thead>
       <tbody>
-        {boards.map((b) => (
-          <tr key={b.id} onClick={() => onSelect(b.id)}>
-            <td>{b.id}</td>
-            <td>{b.type}</td>
-            <td style={{ textAlign: "left" }}>{b.title}</td>
-            <td>{b.username}</td>
-            <td>{b.viewCount}</td>
+        {boards.length > 0 ? (
+          boards.map((b) => (
+            <tr key={b.id} onClick={() => onSelect(b.id)}>
+              <td>{b.displayId ?? b.id}</td>
+              <td>{b.type}</td>
+              <td style={{ textAlign: "left" }}>{b.title}</td>
+              <td>{b.username}</td>
+              <td>{b.viewCount}</td>
+            </tr>
+          ))
+        ) : (
+          <tr>
+            <td colSpan={5} style={{ textAlign: "center", color: "#888" }}>
+              게시글이 없습니다.
+            </td>
           </tr>
-        ))}
+        )}
       </tbody>
     </table>
   );

@@ -6,6 +6,7 @@ import kr.ac.ync.library.domain.board.dto.BoardResponse;
 import kr.ac.ync.library.domain.board.entity.BoardEntity;
 import kr.ac.ync.library.domain.board.repository.BoardRepository;
 import kr.ac.ync.library.domain.users.entity.UserEntity;
+import kr.ac.ync.library.domain.users.entity.enums.UserRole;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
@@ -17,24 +18,44 @@ public class BoardServiceImpl implements BoardService {
 
     private final BoardRepository boardRepository;
 
-    /**
-     * ✅ 게시판 전체 목록 (페이징 + ID 내림차순)
-     */
+    /** ✅ 검색, 분류, 페이징 */
     @Override
-    public Page<BoardResponse> getAllBoards(Pageable pageable) {
-        Pageable sortedPageable = PageRequest.of(
+    public Page<BoardResponse> getAllBoards(String keyword, String searchType, String category, Pageable pageable) {
+
+        // ✅ 수정: DB 정렬 제거 → 프론트에서만 번호 계산
+        Pageable unsortedPageable = PageRequest.of(
                 pageable.getPageNumber(),
                 pageable.getPageSize(),
-                Sort.by(Sort.Direction.DESC, "id")
+                Sort.unsorted()
         );
 
-        return boardRepository.findAll(sortedPageable)
-                .map(this::toResponse);
+        Page<BoardEntity> pageResult;
+        boolean hasKeyword = keyword != null && !keyword.trim().isEmpty();
+        boolean hasCategory = category != null && !"전체".equals(category);
+
+        if (hasKeyword && hasCategory) {
+            if ("제목".equals(searchType)) {
+                pageResult = boardRepository.findByTypeAndTitleContaining(category, keyword, unsortedPageable);
+            } else {
+                pageResult = boardRepository.findByTypeAndTitleContainingOrTypeAndContentContaining(
+                        category, keyword, category, keyword, unsortedPageable
+                );
+            }
+        } else if (hasKeyword) {
+            if ("제목".equals(searchType)) {
+                pageResult = boardRepository.findByTitleContaining(keyword, unsortedPageable);
+            } else {
+                pageResult = boardRepository.findByTitleContainingOrContentContaining(keyword, keyword, unsortedPageable);
+            }
+        } else if (hasCategory) {
+            pageResult = boardRepository.findByType(category, unsortedPageable);
+        } else {
+            pageResult = boardRepository.findAll(unsortedPageable);
+        }
+
+        return pageResult.map(this::toResponse);
     }
 
-    /**
-     * ✅ 게시글 단건 조회
-     */
     @Override
     public BoardResponse getBoard(Long id) {
         BoardEntity entity = boardRepository.findById(id)
@@ -42,9 +63,6 @@ public class BoardServiceImpl implements BoardService {
         return toResponse(entity);
     }
 
-    /**
-     * ✅ 게시글 작성
-     */
     @Override
     public BoardResponse createBoard(BoardRequest request, UserEntity user) {
         BoardEntity board = BoardEntity.builder()
@@ -54,36 +72,38 @@ public class BoardServiceImpl implements BoardService {
                 .user(user)
                 .viewCount(0L)
                 .build();
-
         return toResponse(boardRepository.save(board));
     }
 
-    /**
-     * ✅ 게시글 수정
-     */
     @Override
-    public BoardResponse updateBoard(Long id, BoardRequest request) {
+    public BoardResponse updateBoard(Long id, BoardRequest request, UserEntity user) {
         BoardEntity board = boardRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("게시글을 찾을 수 없습니다."));
+
+        if (!board.getUser().getId().equals(user.getId()) &&
+                user.getRole() != UserRole.MANAGER &&
+                user.getRole() != UserRole.ADMIN) {
+            throw new RuntimeException("수정 권한이 없습니다.");
+        }
 
         board.setTitle(request.getTitle());
         board.setContent(request.getContent());
         board.setType(request.getType() != null ? request.getType() : "일반");
-
         return toResponse(boardRepository.save(board));
     }
 
-    /**
-     * ✅ 게시글 삭제
-     */
     @Override
-    public void deleteBoard(Long id) {
-        boardRepository.deleteById(id);
+    public void deleteBoard(Long id, UserEntity user) {
+        BoardEntity board = boardRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("게시글을 찾을 수 없습니다."));
+        if (!board.getUser().getId().equals(user.getId()) &&
+                user.getRole() != UserRole.MANAGER &&
+                user.getRole() != UserRole.ADMIN) {
+            throw new RuntimeException("삭제 권한이 없습니다.");
+        }
+        boardRepository.delete(board);
     }
 
-    /**
-     * ✅ 게시글 조회수 증가 (비회원 가능)
-     */
     @Override
     public void incrementViewCount(Long id) {
         BoardEntity board = boardRepository.findById(id)
@@ -92,9 +112,14 @@ public class BoardServiceImpl implements BoardService {
         boardRepository.save(board);
     }
 
-    /**
-     * ✅ Entity → DTO 변환
-     */
+    /** ✅ 전체 게시글 중 가장 큰 ID 반환 */
+    @Override
+    public long getMaxBoardId() {
+        return boardRepository.findTopByOrderByIdDesc()
+                .map(BoardEntity::getId)
+                .orElse(0L);
+    }
+
     private BoardResponse toResponse(BoardEntity entity) {
         return BoardResponse.builder()
                 .id(entity.getId())

@@ -4,10 +4,9 @@ import { getBoard, updateBoard } from "../../api/BoardApi";
 import BoardForm from "./components/BoardForm";
 
 const BoardEdit: React.FC = () => {
-  const { id } = useParams();
+  const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
-  // ✅ category → type 으로 변경
   const [form, setForm] = useState({
     title: "",
     content: "",
@@ -15,35 +14,45 @@ const BoardEdit: React.FC = () => {
   });
 
   useEffect(() => {
-    if (id) {
-      getBoard(Number(id)).then((res) => {
-        // ✅ 백엔드에서 가져온 데이터 중 type만 사용
+    const fetchBoard = async () => {
+      if (!id) return;
+      try {
+        const res = await getBoard(Number(id));
+        const data = res.data;
         setForm({
-          title: res.data.title || "",
-          content: res.data.content || "",
-          type: res.data.type || "일반",
+          title: data.title || "",
+          content: data.content || "",
+          type: data.type || "일반",
         });
-      });
-    }
+      } catch (err) {
+        console.error("게시글 불러오기 실패:", err);
+      }
+    };
+
+    fetchBoard();
   }, [id]);
 
+  // ✅ 타입 수정 (BoardForm과 호환)
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e:
+      | React.ChangeEvent<
+          HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+        >
+      | { target: { name: string; value: string } }
   ) => {
     const { name, value } = e.target;
     setForm({ ...form, [name]: value });
   };
 
   const handleSubmit = async () => {
-    if (id) {
-      try {
-        await updateBoard(Number(id), form);
-        alert("게시글이 수정되었습니다.");
-        navigate(`/board/${id}`);
-      } catch (err) {
-        console.error(err);
-        alert("게시글 수정 중 오류가 발생했습니다.");
-      }
+    if (!id) return;
+    try {
+      await updateBoard(Number(id), form);
+      alert("게시글이 수정되었습니다.");
+      navigate("/board");
+    } catch (err) {
+      console.error("게시글 수정 중 오류:", err);
+      alert("수정 중 오류가 발생했습니다.");
     }
   };
 

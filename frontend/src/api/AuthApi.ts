@@ -111,23 +111,17 @@ export const getMe = async (): Promise<User> => {
   return res.data;
 };
 
-/** ✅ 액세스 토큰 갱신 (백엔드 DTO 맞춰 수정됨 + 디버그 로그 포함) */
+/** ✅ 액세스 토큰 갱신 */
 export const refreshAccessToken = async (): Promise<string | null> => {
   const refreshToken = localStorage.getItem("refreshToken");
-  if (!refreshToken) {
-    console.warn("⚠️ refreshAccessToken(): refreshToken이 없습니다.");
-    return null;
-  }
+  if (!refreshToken) return null;
 
   try {
-    console.log("🔄 Refresh 요청 시작:", refreshToken.slice(0, 25) + "...");
-
-    // ✅ 수정됨: token → refreshToken
     const res = await axios.post<{ accessToken: string; refreshToken: string }>(
       `${
         process.env.REACT_APP_API_BASE_URL || "http://localhost:8080"
       }/auth/refresh`,
-      { refreshToken }, // ✅ 백엔드 DTO(RefreshTokenRequest)와 일치
+      { refreshToken },
       {
         headers: {
           "Content-Type": "application/json",
@@ -136,18 +130,18 @@ export const refreshAccessToken = async (): Promise<string | null> => {
       }
     );
 
-    console.log("✅ Refresh 응답 성공:", res.status, res.data);
-
     localStorage.setItem("accessToken", res.data.accessToken);
     localStorage.setItem("refreshToken", res.data.refreshToken);
+
+    // ✅ 새 토큰을 전역 Axios에 반영
+    api.defaults.headers.common[
+      "Authorization"
+    ] = `Bearer ${res.data.accessToken}`;
     setAccessToken(res.data.accessToken);
+
     return res.data.accessToken;
-  } catch (err: any) {
-    console.error(
-      "❌ Refresh 실패:",
-      err.response?.status,
-      err.response?.data || err.message
-    );
+  } catch (err) {
+    console.error("❌ 토큰 갱신 실패:", err);
     localStorage.removeItem("accessToken");
     localStorage.removeItem("refreshToken");
     window.location.href = "/login";
@@ -155,7 +149,7 @@ export const refreshAccessToken = async (): Promise<string | null> => {
   }
 };
 
-/** ✅ Axios 응답 인터셉터 */
+/** ✅ Axios 인터셉터 */
 let isRefreshing = false;
 let failedQueue: {
   resolve: (token: string) => void;
@@ -174,7 +168,6 @@ api.interceptors.response.use(
   async (error: AxiosError & { config: any }) => {
     const originalRequest = error.config;
 
-    // ✅ skipAuthInterceptor 헤더가 있으면 인터셉터 무시
     if (originalRequest.headers?.skipAuthInterceptor === "true") {
       delete originalRequest.headers.skipAuthInterceptor;
       return Promise.reject(error);
@@ -196,7 +189,8 @@ api.interceptors.response.use(
       try {
         const newToken = await refreshAccessToken();
         if (!newToken) throw new Error("토큰 갱신 실패");
-        originalRequest.headers["Authorization"] = `Bearer ${newToken}`;
+
+        api.defaults.headers.common["Authorization"] = `Bearer ${newToken}`;
         processQueue(null, newToken);
         return api(originalRequest);
       } catch (err) {
@@ -212,5 +206,5 @@ api.interceptors.response.use(
   }
 );
 
-/** ✅ 앱 시작 시 저장된 토큰 자동 적용 */
+/** ✅ 앱 시작 시 저장된 토큰 적용 */
 setAccessToken(localStorage.getItem("accessToken"));

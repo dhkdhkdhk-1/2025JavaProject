@@ -1,10 +1,13 @@
+// src/pages/board/components/BoardForm.tsx
 import React from "react";
 import "../board.css";
 
 interface Props {
   form: { title: string; content: string; type: string };
   onChange: (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e:
+      | React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+      | { target: { name: string; value: string } }
   ) => void;
   onSubmit: () => void;
   isEdit?: boolean;
@@ -29,9 +32,7 @@ const BoardForm: React.FC<Props> = ({ form, onChange, onSubmit, isEdit }) => {
         {["일반", "질문", "요청"].map((t) => (
           <button
             key={t}
-            onClick={() =>
-              onChange({ target: { name: "type", value: t } } as any)
-            }
+            onClick={() => onChange({ target: { name: "type", value: t } })}
             className={`board-button ${form.type === t ? "active" : ""}`}
             style={{ marginRight: "5px" }}
             type="button"

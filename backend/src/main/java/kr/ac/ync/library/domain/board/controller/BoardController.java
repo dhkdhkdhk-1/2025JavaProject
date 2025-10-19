@@ -6,14 +6,11 @@ import kr.ac.ync.library.domain.board.service.BoardService;
 import kr.ac.ync.library.domain.users.mapper.UserMapper;
 import kr.ac.ync.library.global.common.security.auth.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.data.domain.*;
+import org.springframework.http.*;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import java.util.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -22,30 +19,40 @@ public class BoardController {
 
     private final BoardService boardService;
 
-    // ✅ 게시판 목록
+    /** ✅ 검색 + 분류 + 페이징 + maxId 포함 */
     @GetMapping
-    public ResponseEntity<Page<BoardResponse>> getAllBoards(
+    public ResponseEntity<Map<String, Object>> getAllBoards(
             @RequestParam(value = "page", required = false, defaultValue = "0") int page,
-            @RequestParam(value = "size", required = false, defaultValue = "10") int size
+            @RequestParam(value = "size", required = false, defaultValue = "10") int size,
+            @RequestParam(value = "keyword", required = false) String keyword,
+            @RequestParam(value = "searchType", required = false, defaultValue = "전체") String searchType,
+            @RequestParam(value = "category", required = false, defaultValue = "전체") String category
     ) {
         if (size > 50) size = 50;
         if (page < 0) page = 0;
 
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));
-        return ResponseEntity.ok(boardService.getAllBoards(pageable));
+        // ✅ 수정: DB 정렬 제거 → 프론트에서 순서 계산
+        Pageable pageable = PageRequest.of(page, size, Sort.unsorted());
+
+        Page<BoardResponse> boardPage = boardService.getAllBoards(keyword, searchType, category, pageable);
+        long maxId = boardService.getMaxBoardId(); // ✅ 전체 최대 ID
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("content", boardPage.getContent());
+        result.put("totalPages", boardPage.getTotalPages());
+        result.put("totalElements", boardPage.getTotalElements());
+        result.put("maxId", maxId);
+
+        return ResponseEntity.ok(result);
     }
 
-    // ✅ 게시글 상세 조회
     @GetMapping("/{id}")
     public ResponseEntity<BoardResponse> getBoard(@PathVariable("id") Long id) {
         BoardResponse board = boardService.getBoard(id);
-        if (board == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
+        if (board == null) return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         return ResponseEntity.ok(board);
     }
 
-    // ✅ 게시글 작성 (로그인 필요)
     @PostMapping
     public ResponseEntity<BoardResponse> createBoard(
             @AuthenticationPrincipal CustomUserDetails userDetails,
@@ -56,24 +63,27 @@ public class BoardController {
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
-    // ✅ 게시글 수정
     @PutMapping("/{id}")
     public ResponseEntity<BoardResponse> updateBoard(
             @PathVariable("id") Long id,
+            @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestBody BoardRequest request
     ) {
-        BoardResponse updated = boardService.updateBoard(id, request);
+        var userEntity = UserMapper.toEntity(userDetails.getUser());
+        BoardResponse updated = boardService.updateBoard(id, request, userEntity);
         return ResponseEntity.ok(updated);
     }
 
-    // ✅ 게시글 삭제
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteBoard(@PathVariable("id") Long id) {
-        boardService.deleteBoard(id);
+    public ResponseEntity<Void> deleteBoard(
+            @PathVariable("id") Long id,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        var userEntity = UserMapper.toEntity(userDetails.getUser());
+        boardService.deleteBoard(id, userEntity);
         return ResponseEntity.noContent().build();
     }
 
-    // ✅ (신규 추가) 게시글 조회수 증가 API — 비회원 허용
     @PostMapping("/{id}/view")
     public ResponseEntity<Void> incrementViewCount(@PathVariable("id") Long id) {
         boardService.incrementViewCount(id);

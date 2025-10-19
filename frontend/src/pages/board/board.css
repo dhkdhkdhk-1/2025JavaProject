@@ -50,7 +50,7 @@
 
 .board-meta-right {
   text-align: right;
-  white-space: nowrap; /* 긴 날짜가 줄 바꿈되지 않도록 */
+  white-space: nowrap;
 }
 
 .board-meta-row {
@@ -64,9 +64,9 @@
   padding: 20px;
   border-radius: 8px;
   line-height: 1.6;
-  white-space: pre-wrap; /* 기존 줄바꿈 유지 */
-  word-break: break-word; /* 긴 단어도 박스 안에서 줄바꿈 */
-  overflow-wrap: break-word; /* 브라우저 호환용 */
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 
 .board-table {
@@ -120,12 +120,81 @@
   font-weight: bold;
 }
 
-/* 이전 / 다음 버튼 글자색 검정 */
 .pagination .board-button {
   color: black;
 }
 
 .pagination .board-button:disabled {
   color: black;
-  opacity: 0.5; /* 비활성화 버튼 투명도 조절 */
+  opacity: 0.5;
+}
+
+/* ✅ 검색창 영역 */
+.board-search-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 25px;
+  gap: 8px;
+}
+
+/* ✅ 카테고리 드롭다운 */
+.board-category-select {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 20px;
+  background-color: #f9f9f9;
+  font-size: 0.95rem;
+  cursor: pointer;
+  outline: none;
+}
+
+/* ✅ 검색 타입 드롭다운 */
+.board-search-select {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 20px;
+  font-size: 0.95rem;
+  background-color: #f9f9f9;
+  cursor: pointer;
+  outline: none;
+}
+
+.board-search-input {
+  flex: 1;
+  max-width: 300px;
+  padding: 8px 14px;
+  border: 1px solid #ddd;
+  border-radius: 20px;
+  font-size: 0.95rem;
+  transition: 0.2s ease;
+}
+
+.board-search-input:focus {
+  border-color: #1a73e8;
+  outline: none;
+  box-shadow: 0 0 4px rgba(26, 115, 232, 0.3);
+}
+
+.board-search-button {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  color: #555;
+  transition: color 0.2s;
+}
+
+.board-search-button:hover {
+  color: #000;
+}
+
+/* ✅ 깜빡임 최소화 효과 */
+.fade-in {
+  opacity: 1;
+  transition: opacity 0.25s ease-in;
+}
+.fade-out {
+  opacity: 0.6;
+  transition: opacity 0.25s ease-out;
 }
