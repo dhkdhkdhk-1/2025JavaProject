@@ -1,0 +1,211 @@
+/* =========================================================
+   🔷 1. 전체 레이아웃 컨테이너
+   ========================================================= */
+.review-board-container {
+  position: relative;
+  width: 1920px;              /* 화면 너비 고정 */
+  height: 1080px;             /* 화면 높이 고정 */
+  margin: 0 auto;
+  background: #f5f5f5;
+  overflow: hidden;           /* 창이 작아지면 내용이 잘림 */
+}
+
+/* =========================================================
+   🔷 2. 메인 카드 영역
+   ========================================================= */
+.review-board-card {
+  position: absolute;
+  top: 160px;
+  left: 160px;
+  width: 1600px;
+  height: 850px;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  padding: 34px 56px 15px;
+  box-sizing: border-box;
+  overflow: hidden;           /* 내부 스크롤 없이 잘림 */
+}
+
+/* =========================================================
+   🔷 3. 상단 제목 및 버튼
+   ========================================================= */
+
+/* 제목 (페이지 상단 중앙 고정) */
+.board-title {
+  position: absolute;
+  top: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: #000;
+  font-family: Montserrat, -apple-system, Roboto, Helvetica, sans-serif;
+  font-size: 60px;
+  font-weight: 400;
+  line-height: 140%;
+  text-align: center;
+  margin: 0;
+}
+
+/* 작성 버튼 (오른쪽 상단 고정) */
+.write-btn {
+  position: absolute;
+  top: 34px;
+  right: 56px;
+  width: 120px;
+  height: 42px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 8px;
+  border: 1px solid #2c2c2c;
+  background: #f5f5f5;
+  color: #151619;
+  font-family: Inter, -apple-system, Roboto, Helvetica, sans-serif;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.write-btn:hover {
+  background: #e5e5e5;
+}
+
+/* =========================================================
+   🔷 4. 테이블 영역
+   ========================================================= */
+.table-container {
+  position: absolute;
+  top: 180px;
+  left: 120px;
+  width: 1360px;
+  height: 560px;
+  overflow: hidden; /* 고정된 영역 안에서만 표시 */
+}
+
+/* 테이블 헤더 */
+.table-header {
+  display: flex;
+  align-items: center;
+  height: 42px;
+  border-bottom: 1px solid #000;
+}
+
+.header-cell {
+  color: #000;
+  font-family: Montserrat, -apple-system, Roboto, Helvetica, sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  text-align: center;
+}
+
+/* 테이블 본문 */
+.table-body {
+  display: flex;
+  flex-direction: column;
+}
+
+.table-row {
+  display: flex;
+  align-items: center;
+  height: 68px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.table-cell {
+  color: #151619;
+  font-family: Montserrat, -apple-system, Roboto, Helvetica, sans-serif;
+  font-size: 16px;
+  text-align: center;
+}
+
+/* 컬럼 폭 고정 */
+.col-number {
+  width: 80px;
+}
+.col-title {
+  width: 600px;
+  text-align: left;
+  padding-left: 20px;
+}
+.col-author {
+  width: 160px;
+}
+.col-views {
+  width: 120px;
+}
+.col-date {
+  width: 180px;
+}
+
+/* =========================================================
+   🔷 5. 페이지네이션 (카드 하단 내부 고정)
+   ========================================================= */
+.pagination-container {
+  position: absolute;           /* ✅ 카드 내부 기준 */
+  bottom: 30px;                 /* 카드 하단에서 30px 위 */
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: row;          /* 가로 정렬 고정 */
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  height: 50px;
+  background: rgba(255, 255, 255, 0.95);
+  padding: 10px 24px;
+  border-radius: 12px;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+  white-space: nowrap;          /* 줄바꿈 방지 */
+  overflow: hidden;             /* 카드 밖 넘치면 숨김 */
+}
+
+/* 페이지 버튼 및 화살표 버튼 공통 스타일 */
+.pagination-btn,
+.pagination-page {
+  width: 45px;
+  height: 38px;
+  min-width: 45px;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  background: #fff;
+  color: #1e1e1e;
+  font-family: Inter, -apple-system, Roboto, Helvetica, sans-serif;
+  font-size: 15px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+/* 비활성화 버튼 */
+.pagination-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* 활성화된 현재 페이지 */
+.pagination-page.active {
+  background: #2c2c2c;
+  color: #fff;
+  border: 1px solid #2c2c2c;
+}
+
+/* 호버 효과 */
+.pagination-btn:hover:not(:disabled),
+.pagination-page:hover:not(.active) {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+/* =========================================================
+   🔷 6. 기타 구분선 등
+   ========================================================= */
+.footer-divider {
+  position: absolute;
+  bottom: 140px;
+  left: 100px;
+  width: 1400px;
+  height: 1px;
+  background: #000;
+}
