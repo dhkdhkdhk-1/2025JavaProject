@@ -1,6 +1,12 @@
 // src/App.tsx
 import React from "react";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  Navigate,
+  Outlet,
+} from "react-router-dom";
 
 import Layout from "./layout/Layout";
 import AdminLayout from "./layout/admin/AdminLayout";
@@ -13,6 +19,12 @@ import BookList from "./pages/booklist/BookList";
 import BookInfo from "./pages/bookinfo/BookInfo"; // ✅ 도서 상세 페이지 추가
 import TotalReview from "./pages/review/totalreview/TotalReview"; // 리뷰 전체페이지(게시판)
 
+// ✅ 게시판 페이지
+import BoardList from "./pages/board/BoardList";
+import BoardRead from "./pages/board/BoardRead";
+import BoardWrite from "./pages/board/BoardWrite";
+import BoardEdit from "./pages/board/BoardEdit";
+
 // 관리자 페이지
 import Dashboard from "./pages/admin/Dashboard";
 import BookManager from "./pages/admin/BookManager";
@@ -20,9 +32,29 @@ import MyPage from "./pages/mypage/MyPage";
 
 /** ✅ 로그인 가드 (일반 사용자용) */
 const ProtectedLayout: React.FC = () => {
-  const token = localStorage.getItem("accessToken");
-  if (!token) return <Navigate to="/login" replace />;
-  // ✅ 로그인 시 Layout 렌더링
+  // ✅ 수정된 부분: 인증 상태를 안전하게 확인
+  const [isChecking, setIsChecking] = React.useState(true);
+  const [isAuthenticated, setIsAuthenticated] = React.useState(false);
+
+  React.useEffect(() => {
+    const token = localStorage.getItem("accessToken");
+    if (!token) {
+      setIsAuthenticated(false);
+      setIsChecking(false);
+      return;
+    }
+
+    // ✅ 토큰이 있으면 실제로 유효한지 서버에서 검증
+    import("./api/AuthApi").then(({ getMe }) =>
+      getMe()
+        .then(() => setIsAuthenticated(true))
+        .catch(() => setIsAuthenticated(false))
+        .finally(() => setIsChecking(false))
+    );
+  }, []);
+
+  if (isChecking) return <div>🔄 인증 확인 중...</div>;
+  if (!isAuthenticated) return <Navigate to="/login" replace />;
   return <Layout />;
 };
 
@@ -33,7 +65,6 @@ const AdminLayoutGuard: React.FC = () => {
 
   if (!token) return <Navigate to="/login" replace />;
   if (role !== "ADMIN") return <Navigate to="/home" replace />;
-  // ✅ 관리자 전용 Layout 렌더링
   return <AdminLayout />;
 };
 
@@ -49,13 +80,25 @@ const App: React.FC = () => {
         {/* ✅ 로그인된 사용자 영역 (Layout + Outlet 구조) */}
         <Route element={<ProtectedLayout />}>
           <Route path="/home" element={<Home />} />
+
+          <Route path="/booklist" element={<BookList />} />
+          <Route path="/book/:id" element={<BookInfo />} /> {/* 도서 상세 */}
+          {/* ✅ 게시판 영역 */}
+          <Route path="/board" element={<Outlet />}>
+            <Route index element={<BoardList />} /> {/* 목록 */}
+            <Route path=":id" element={<BoardRead />} /> {/* 상세 */}
+            <Route path="write" element={<BoardWrite />} /> {/* 작성 */}
+            <Route path="edit/:id" element={<BoardEdit />} /> {/* 수정 */}
+          </Route>
+
           <Route path="/MyPage" element={<MyPage />} />
           <Route path="/booklist" element={<BookList />} /> 
           <Route path="/book/:id" element={<BookInfo />} />{" "}
           <Route path="/review/book/:id" element={<TotalReview />} />{" "}
+
         </Route>
 
-        {/* ✅ 관리자 전용 영역 (Protected → AdminLayout 중첩 구조) */}
+        {/* ✅ 관리자 전용 영역 */}
         <Route element={<ProtectedLayout />}>
           <Route path="/admin" element={<AdminLayoutGuard />}>
             <Route index element={<Dashboard />} /> {/* /admin */}
