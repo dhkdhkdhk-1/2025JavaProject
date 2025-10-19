@@ -1,0 +1,160 @@
+/* ===== 페이지 전체 영역 ===== */
+.rental-list-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 32px 24px 48px;
+  background: var(--sds-color-background-default-default, #ffffff);
+  font-family: Inter, -apple-system, Roboto, Helvetica, sans-serif;
+}
+
+/* 페이지 타이틀 */
+.page-title {
+  margin-bottom: 24px;
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--sds-color-text-default-default, #1e1e1e);
+  text-align: center;
+}
+
+/* ===== 테이블 ===== */
+.rental-table {
+  width: 100%;
+  border-collapse: collapse;
+  border-spacing: 0;
+  background: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+/* 테이블 헤더 */
+.rental-table thead {
+  background: var(--sds-color-background-default-secondary, #f5f5f5);
+}
+
+.rental-table th {
+  padding: 14px 10px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--sds-color-text-default-default, #1e1e1e);
+  border-bottom: 1px solid var(--sds-color-border-default-default, #d9d9d9);
+  text-align: center;
+}
+
+/* 테이블 셀 */
+.rental-table td {
+  padding: 12px 10px;
+  font-size: 14px;
+  color: var(--sds-color-text-default-secondary, #333);
+  border-bottom: 1px solid var(--sds-color-border-default-default, #e0e0e0);
+  text-align: center;
+  background: #fff;
+}
+
+/* 짝수 행 배경 */
+.rental-table tbody tr:nth-child(even) {
+  background: #fafafa;
+}
+
+/* 마우스 hover 효과 */
+.rental-table tbody tr:hover {
+  background: #f0f0f0;
+}
+
+/* ===== 상태 표시 색상 ===== */
+.status-rented {
+  color: #e67e22;
+  font-weight: 600;
+}
+
+.status-returned {
+  color: #27ae60;
+  font-weight: 600;
+}
+
+/* ===== 버튼 스타일 ===== */
+.return-btn {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  background: var(--sds-color-background-brand-default, #2c2c2c);
+  color: var(--sds-color-text-brand-on-brand, #ffffff);
+}
+
+.return-btn:hover {
+  background: #444;
+}
+
+.return-btn.done {
+  background: #999;
+  cursor: not-allowed;
+  color: #f5f5f5;
+}
+
+/* ===== 반응형 ===== */
+@media (max-width: 1024px) {
+  .rental-table th,
+  .rental-table td {
+    padding: 10px 8px;
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 768px) {
+  .rental-list-page {
+    padding: 16px;
+  }
+
+  .rental-table {
+    font-size: 13px;
+  }
+
+  .rental-table th:nth-child(1),
+  .rental-table td:nth-child(1),
+  .rental-table th:nth-child(8),
+  .rental-table td:nth-child(8) {
+    display: none; /* 번호 / 관리 컬럼 숨김 */
+  }
+}
+
+/* ===== 로딩 & 에러 ===== */
+.loading-message,
+.error-message {
+  text-align: center;
+  margin-top: 24px;
+  font-size: 15px;
+}
+
+.error-message {
+  color: crimson;
+  font-weight: 600;
+}
+
+/* ===== 관리 버튼 그룹 ===== */
+.rental-btn-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: center;
+}
+
+/* ===== 리뷰 작성 버튼 ===== */
+.review-btn {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  background: #3b82f6;
+  color: #fff;
+}
+
+.review-btn:hover {
+  background: #2563eb;
+}

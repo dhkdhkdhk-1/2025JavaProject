@@ -9,6 +9,7 @@ import {
   deleteWishlist,
   isWishlisted,
 } from "../../api/WishlistApi";
+import { registerRental } from "../../api/RentalApi"; // ✅ 추가
 
 interface BranchStatus {
   branchId: number;
@@ -37,7 +38,6 @@ const BookInfo: React.FC = () => {
         if (!id) return;
         setLoading(true);
 
-        // 도서 정보 + 지점별 상태 병렬 요청
         const [bookRes, branchRes] = await Promise.all([
           getBook(Number(id)),
           axios.get<BranchStatus[]>(`http://localhost:8080/book/${id}/branches`),
@@ -46,7 +46,7 @@ const BookInfo: React.FC = () => {
         setBook(bookRes);
         setBranches(branchRes.data);
 
-        // 기본 선택 (대여 가능한 지점)
+        // ✅ 기본 선택 (대여 가능한 지점 자동 선택)
         const matchedBranch = branchRes.data.find((b) => b.available);
         setSelectedBranchId(matchedBranch?.branchId ?? "");
 
@@ -76,8 +76,35 @@ const BookInfo: React.FC = () => {
         setWished(true);
         alert("찜 목록에 추가되었습니다!");
       }
-    } catch (e) {
+    } catch {
       alert("로그인이 필요합니다.");
+    }
+  };
+
+  /** ✅ 도서 대여 */
+  const handleRent = async () => {
+    if (!id || !selectedBranchId) {
+      alert("지점을 선택해주세요.");
+      return;
+    }
+
+    try {
+      await registerRental({
+        bookId: Number(id),
+        branchId: Number(selectedBranchId),
+      });
+
+      alert(`"${book?.title}" 도서를 성공적으로 대여했습니다!`);
+      navigate("/rental");
+    } catch (error: any) {
+      if (error.response?.status === 400) {
+        alert("이미 대여 중이거나 대여할 수 없는 도서입니다.");
+      } else if (error.response?.status === 401) {
+        alert("로그인이 필요합니다.");
+        navigate("/login");
+      } else {
+        alert("대여 중 오류가 발생했습니다.");
+      }
     }
   };
 
@@ -150,11 +177,7 @@ const BookInfo: React.FC = () => {
                   <button
                     className="rent-button"
                     disabled={!selectedBranch || !selectedBranch.available}
-                    onClick={() => {
-                      alert(
-                        `지점 ${selectedBranch?.branchName}에서 "${book?.title}" 대여`
-                      );
-                    }}
+                    onClick={handleRent}
                   >
                     대여하기
                   </button>
@@ -205,7 +228,7 @@ const BookInfo: React.FC = () => {
                 </span>
               </div>
 
-              {/* ✅ 리뷰 섹션 (리뷰 더보기 클릭 시 TotalReview로 이동) */}
+              {/* ✅ 리뷰 섹션 */}
               <ReviewSection
                 bookId={Number(id)}
                 limit={2}

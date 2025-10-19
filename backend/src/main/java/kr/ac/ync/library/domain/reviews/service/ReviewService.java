@@ -22,4 +22,6 @@ public interface ReviewService {
     List<ReviewResponse> getList();
 
     Page<ReviewResponse> getList(Pageable pageable);
+
+    List<ReviewResponse> findByUserId(Long userId);
 }

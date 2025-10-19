@@ -52,7 +52,6 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public JsonWebTokenResponse refresh(String token) {
-
         Jws<Claims> claims = jwtProvider.getClaims(token);
         if (jwtProvider.isWrongType(claims, JwtType.REFRESH)) {
             throw TokenTypeException.EXCEPTION;
@@ -60,7 +59,8 @@ public class AuthServiceImpl implements AuthService {
 
         String email = claims.getPayload().getSubject();
         return JsonWebTokenResponse.builder()
-                .accessToken((jwtProvider.generateRefreshToken(email)))
+                .accessToken(jwtProvider.generateAccessToken(email))   // ✅ accessToken 재발급
+                .refreshToken(jwtProvider.generateRefreshToken(email)) // ✅ refreshToken도 재발급 (옵션)
                 .build();
     }
 
