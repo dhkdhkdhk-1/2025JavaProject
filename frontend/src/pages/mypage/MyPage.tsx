@@ -15,23 +15,31 @@ const MyPage: React.FC = () => {
           <div className="mypage-card">
             <h3>대여 이력</h3>
             <p>내가 빌린 도서의 이력을 확인하세요.</p>
-            <button
-              className="mypage-btn"
-              onClick={() => navigate("/rental")}>확인하기</button>
+            <button className="mypage-btn" onClick={() => navigate("/rental")}>
+              확인하기
+            </button>
           </div>
 
           <div className="mypage-card">
             <h3>관심 도서</h3>
             <p>찜한 도서 목록을 관리할 수 있습니다.</p>
-            <button className="mypage-btn"
-            onClick={() => navigate("/wishlist")}>보러가기</button>
+            <button
+              className="mypage-btn"
+              onClick={() => navigate("/wishlist")}
+            >
+              보러가기
+            </button>
           </div>
 
           <div className="mypage-card">
             <h3>리뷰 관리</h3>
             <p>작성한 도서 리뷰를 수정하거나 삭제하세요.</p>
-            <button className="mypage-btn"
-            onClick={() => navigate("/reviewlist")}>관리하기</button>
+            <button
+              className="mypage-btn"
+              onClick={() => navigate("/reviewlist")}
+            >
+              관리하기
+            </button>
           </div>
 
           <div className="mypage-card">
@@ -41,9 +49,9 @@ const MyPage: React.FC = () => {
           </div>
 
           <div className="mypage-card">
-            <h3>설정</h3>
-            <p>알림, 보안 등 개인 설정을 변경합니다.</p>
-            <button className="mypage-btn">변경하기</button>
+            <h3>회원 탈퇴</h3>
+            <p>회원을 탈퇴합니다.</p>
+            <button className="mypage-btn">탈퇴하기</button>
           </div>
         </div>
       </main>
