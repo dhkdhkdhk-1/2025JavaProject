@@ -106,4 +106,13 @@ public class ReviewServiceImpl implements ReviewService {
         // Page<ReviewResponse> 반환
         return new PageImpl<>(responses, fixedPageable, page.getTotalElements());
     }
+
+    @Override
+    public List<ReviewResponse> findByUserId(Long userId) {
+        return reviewRepository.findByUserId(userId)
+                .stream()
+                .map(ReviewMapper::toResponse)
+                .toList();
+    }
+
 }

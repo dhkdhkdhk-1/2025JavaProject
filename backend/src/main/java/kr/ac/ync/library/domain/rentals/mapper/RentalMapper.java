@@ -1,0 +1,58 @@
+package kr.ac.ync.library.domain.rentals.mapper;
+
+import kr.ac.ync.library.domain.books.entity.BookEntity;
+import kr.ac.ync.library.domain.branch.entity.BranchEntity;
+import kr.ac.ync.library.domain.rentals.dto.Rental;
+import kr.ac.ync.library.domain.rentals.dto.RentalResponse;
+import kr.ac.ync.library.domain.rentals.entity.RentalEntity;
+import kr.ac.ync.library.domain.users.entity.UserEntity;
+
+import java.time.LocalDateTime;
+
+public class RentalMapper
+{
+
+    public static RentalEntity toEntity(UserEntity user, BookEntity book, BranchEntity branch) {
+        return RentalEntity.builder()
+                .user(user)
+                .book(book)
+                .branch(branch)
+                .rentalDate(LocalDateTime.now())
+                .dueDate(LocalDateTime.now().plusDays(7))
+                .status("대여중")
+                .returned(false)
+                .build();
+    }
+
+    public static RentalResponse toResponse(RentalEntity entity) {
+        return RentalResponse.builder()
+                .id(entity.getId())
+                .bookId(entity.getBook().getId())
+                .bookTitle(entity.getBook().getTitle())
+                .username(entity.getUser().getUsername())
+                .branchName(entity.getBranch().getName())
+                .rentalDate(entity.getRentalDate())
+                .dueDate(entity.getDueDate())
+                .returnDate(entity.getReturnDate())
+                .status(entity.getStatus())
+                .returned(entity.isReturned())
+                .build();
+    }
+
+    public static Rental toDTO(RentalEntity entity) {
+        return Rental.builder()
+                .id(entity.getId())
+                .userId(entity.getUser().getId())
+                .username(entity.getUser().getUsername())
+                .bookId(entity.getBook().getId())
+                .bookTitle(entity.getBook().getTitle())
+                .branchId(entity.getBranch().getId())
+                .branchName(entity.getBranch().getName())
+                .rentalDate(entity.getRentalDate())
+                .dueDate(entity.getDueDate())
+                .returnDate(entity.getReturnDate())
+                .status(entity.getStatus())
+                .returned(entity.isReturned())
+                .build();
+    }
+}

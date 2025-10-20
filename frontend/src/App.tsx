@@ -1,4 +1,7 @@
 // src/App.tsx
+import React, { useEffect } from "react";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { setAccessToken } from "./api/AuthApi"; // ✅ 추가
 import React from "react";
 import {
   BrowserRouter,
@@ -8,17 +11,23 @@ import {
   Outlet,
 } from "react-router-dom";
 
+// ✅ Layouts
 import Layout from "./layout/Layout";
 import AdminLayout from "./layout/admin/AdminLayout";
 
-// 사용자 페이지
+// ✅ 사용자 페이지
 import Home from "./pages/home/Home";
 import Login from "./pages/login/Login";
 import Signup from "./pages/signup/Signup";
 import BookList from "./pages/booklist/BookList";
-import BookInfo from "./pages/bookinfo/BookInfo"; // ✅ 도서 상세 페이지 추가
-import TotalReview from "./pages/review/totalreview/TotalReview"; // 리뷰 전체페이지(게시판)
+import BookInfo from "./pages/bookinfo/BookInfo";
+import TotalReview from "./pages/review/totalreview/TotalReview";
+import RentalList from "./pages/rental/RentalList";
+import WishList from "./pages/wishlist/WishList";
+import ReviewList from "./pages/review/reviewlist/ReviewList";
+import WriteReview from "./pages/review/writereview/WriteReview"; // ✅ 추가
 
+// ✅ 관리자 페이지
 // ✅ 게시판 페이지
 import BoardList from "./pages/board/BoardList";
 import BoardRead from "./pages/board/BoardRead";
@@ -32,6 +41,8 @@ import MyPage from "./pages/mypage/MyPage";
 
 /** ✅ 로그인 가드 (일반 사용자용) */
 const ProtectedLayout: React.FC = () => {
+  const token = localStorage.getItem("accessToken");
+  if (!token) return <Navigate to="/login" replace />;
   // ✅ 수정된 부분: 인증 상태를 안전하게 확인
   const [isChecking, setIsChecking] = React.useState(true);
   const [isAuthenticated, setIsAuthenticated] = React.useState(false);
@@ -70,14 +81,22 @@ const AdminLayoutGuard: React.FC = () => {
 
 /** ✅ App */
 const App: React.FC = () => {
+  // ✅ 앱이 실행될 때 항상 토큰을 axios에 세팅 (로그인 유지 보장)
+  useEffect(() => {
+    const token = localStorage.getItem("accessToken");
+    if (token) {
+      setAccessToken(token);
+    }
+  }, []);
+
   return (
     <BrowserRouter>
       <Routes>
-        {/* ✅ 비로그인 접근 가능 영역 */}
+        {/* ✅ 비로그인 접근 가능 */}
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
 
-        {/* ✅ 로그인된 사용자 영역 (Layout + Outlet 구조) */}
+        {/* ✅ 로그인된 사용자 영역 */}
         <Route element={<ProtectedLayout />}>
           <Route path="/home" element={<Home />} />
 
@@ -92,6 +111,22 @@ const App: React.FC = () => {
           </Route>
 
           <Route path="/MyPage" element={<MyPage />} />
+
+          {/* ✅ 도서 목록 및 상세 */}
+          <Route path="/booklist" element={<BookList />} />
+          <Route path="/book/:id" element={<BookInfo />} />
+
+          {/* ✅ 리뷰 관련 */}
+          <Route path="/review/book/:id" element={<TotalReview />} />
+
+          {/* ✅ 내가 쓴 리뷰 목록 페이지 */}
+          <Route path="/reviewlist" element={<ReviewList />} /> 
+
+          <Route path="/review/write/:id" element={<WriteReview />} />
+
+          {/* ✅ 대여 및 찜 목록 */}
+          <Route path="/rental" element={<RentalList />} />
+          <Route path="/wishlist" element={<WishList />} />
           <Route path="/booklist" element={<BookList />} /> 
           <Route path="/book/:id" element={<BookInfo />} />{" "}
           <Route path="/review/book/:id" element={<TotalReview />} />{" "}
@@ -101,9 +136,8 @@ const App: React.FC = () => {
         {/* ✅ 관리자 전용 영역 */}
         <Route element={<ProtectedLayout />}>
           <Route path="/admin" element={<AdminLayoutGuard />}>
-            <Route index element={<Dashboard />} /> {/* /admin */}
-            <Route path="books" element={<BookManager />} />{" "}
-            {/* /admin/books */}
+            <Route index element={<Dashboard />} />
+            <Route path="books" element={<BookManager />} />
           </Route>
         </Route>
 

@@ -83,4 +83,17 @@ public class ReviewController {
 
         reviewService.remove(id);
     }
+
+    // ✅ 내가 쓴 리뷰 조회
+    @GetMapping("/my")
+    public ResponseEntity<List<ReviewResponse>> getMyReviews() {
+        // 로그인된 사용자 정보 가져오기
+        User user = userSecurity.getUser();
+
+        // 서비스에서 userId 기준으로 조회
+        List<ReviewResponse> myReviews = reviewService.findByUserId(user.getId());
+
+        return ResponseEntity.ok(myReviews);
+    }
+
 }

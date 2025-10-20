@@ -73,8 +73,8 @@ public class AuthServiceImpl implements AuthService {
         String email = claims.getPayload().getSubject();
 
         return JsonWebTokenResponse.builder()
-                .accessToken(jwtProvider.generateAccessToken(email))
-                .refreshToken(jwtProvider.generateRefreshToken(email))
+                .accessToken(jwtProvider.generateAccessToken(email))   // ✅ accessToken 재발급
+                .refreshToken(jwtProvider.generateRefreshToken(email)) // ✅ refreshToken도 재발급 (옵션)
                 .build();
     }
 
