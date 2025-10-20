@@ -1,19 +1,14 @@
 package kr.ac.ync.library.domain.users.dto;
 
 import kr.ac.ync.library.domain.users.entity.enums.UserRole;
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
 
 @Getter
 @Setter
-@Builder
-@AllArgsConstructor
-@NoArgsConstructor
-public class User
-{
-
-    private Long id;
+public class AdminUserUpdateRequest {
     private String username;
     private String email;
-    private String password;
     private UserRole role;
 }
+

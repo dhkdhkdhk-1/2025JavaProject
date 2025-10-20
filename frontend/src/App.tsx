@@ -30,6 +30,7 @@ import Dashboard from "./pages/admin/dashboard/Dashboard";
 import BookManager from "./pages/admin/bookmanager/BookManager";
 import MyPage from "./pages/mypage/MyPage";
 import Catalog from "./pages/admin/catalog/Catalog";
+import Users from "./pages/admin/user/Users";
 // ✅ 게시판 페이지
 import BoardList from "./pages/board/BoardList";
 import BoardRead from "./pages/board/BoardRead";
@@ -124,6 +125,7 @@ const App: React.FC = () => {
           <Route index element={<Dashboard />} />
           <Route path="books" element={<BookManager />} />
           <Route path="catalog" element={<Catalog />} />
+          <Route path="users" element={<Users />} />
         </Route>
 
         {/* ✅ 기본 및 잘못된 경로 처리 */}

@@ -6,9 +6,9 @@ import {
   deleteBook,
   Book,
 } from "../../../api/BookApi";
-import AddBookModal from "../../../components/modal/AddBookModal";
-import UpdateBookModal from "../../../components/modal/UpdateBookModal";
-import DeleteBookModal from "../../../components/modal/DeleteBookModal";
+import AddBookModal from "../../../components/modal/bookmodal/AddBookModal";
+import UpdateBookModal from "../../../components/modal/bookmodal/UpdateBookModal";
+import DeleteBookModal from "../../../components/modal/bookmodal/DeleteBookModal";
 import "./BookManager.css";
 
 const BookManager: React.FC = () => {

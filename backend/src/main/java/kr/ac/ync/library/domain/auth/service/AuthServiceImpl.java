@@ -9,6 +9,7 @@ import kr.ac.ync.library.domain.auth.dto.response.JsonWebTokenResponse;
 import kr.ac.ync.library.domain.users.dto.User;
 import kr.ac.ync.library.domain.users.entity.UserEntity;
 import kr.ac.ync.library.domain.users.entity.enums.UserRole;
+import kr.ac.ync.library.domain.users.exception.InvalidPasswordException;
 import kr.ac.ync.library.domain.users.repository.UserRepository;
 import kr.ac.ync.library.global.common.jwt.JwtProvider;
 import kr.ac.ync.library.global.common.jwt.enums.JwtType;
@@ -86,7 +87,7 @@ public class AuthServiceImpl implements AuthService {
         }
 
         if (!request.getPassword().equals(request.getPasswordCheck())) {
-            throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
+            throw InvalidPasswordException.EXCEPTION;
         }
 
         if (userRepository.existsByUsername(request.getUsername())) {

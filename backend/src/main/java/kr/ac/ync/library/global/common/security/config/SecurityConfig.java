@@ -45,9 +45,9 @@ public class SecurityConfig {
                         // ✅ 관리자
                         .requestMatchers("/admin/**").hasAnyRole("ADMIN")
 
+                        .requestMatchers("/user/list/**").hasAnyRole("ADMIN")
                         // ✅ 나머지 게시판 API는 로그인 필요
                         .requestMatchers("/board/**").authenticated()
-
                         // ✅ 리뷰, 책, 지점
                         .requestMatchers("/review/book/**").permitAll()
                         .requestMatchers("/review/list").permitAll()
