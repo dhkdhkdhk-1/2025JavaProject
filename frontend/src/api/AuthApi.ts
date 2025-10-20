@@ -54,25 +54,36 @@ export const login = async (
   }
 };
 
-/** ✅ 회원가입 API */
-export const signup = async (data: SignupRequest): Promise<boolean> => {
+/** ✅ 회원가입 API (재가입 로직 반영) */
+export const signup = async (
+  data: SignupRequest
+): Promise<"OK" | "REJOIN" | "FAIL"> => {
   try {
-    await api.post("/auth/signup", data, {
+    const res = await api.post("/auth/signup", data, {
       headers: {
         "Content-Type": "application/json",
         skipAuthInterceptor: "true",
       },
     });
-    alert("회원가입이 완료되었습니다!");
-    return true;
-  } catch (error: any) {
-    if (axios.isAxiosError(error) && error.response?.status === 409) {
-      alert("이미 사용 중인 이메일입니다.");
-    } else {
-      alert("회원가입 중 서버 오류가 발생했습니다.");
-      console.error("회원가입 실패:", error);
+
+    // ✅ 서버가 재가입 신호 반환한 경우
+    if (res.data === "REJOIN") {
+      return "REJOIN";
     }
-    return false;
+
+    alert("회원가입이 완료되었습니다!");
+    return "OK";
+  } catch (error: any) {
+    if (axios.isAxiosError(error)) {
+      if (error.response?.status === 409) {
+        alert("이미 사용 중인 이메일 또는 전화번호입니다.");
+      } else if (error.response?.data?.message?.includes("재가입")) {
+        return "REJOIN";
+      }
+    }
+    console.error("회원가입 실패:", error);
+    alert("회원가입 중 오류가 발생했습니다.");
+    return "FAIL";
   }
 };
 
@@ -103,7 +114,7 @@ export const verifyPhone = async (phone: string): Promise<boolean> => {
       { phone },
       { headers: { skipAuthInterceptor: "true" } }
     );
-    alert("✅ 사용 가능한 전화번호입니다."); // ✅ 문구 변경됨
+    alert("✅ 사용 가능한 전화번호입니다.");
     return res.status === 200;
   } catch (error: any) {
     if (axios.isAxiosError(error) && error.response?.status === 409) {
@@ -159,7 +170,7 @@ export const refreshAccessToken = async (): Promise<string | null> => {
   }
 };
 
-/** ✅ 요청 인터셉터 추가 */
+/** ✅ 요청 인터셉터 */
 api.interceptors.request.use((config) => {
   if (config.headers?.skipAuthInterceptor === "true") {
     delete config.headers.skipAuthInterceptor;
@@ -172,7 +183,7 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-/** ✅ 응답 인터셉터 */
+/** ✅ 응답 인터셉터 (토큰 만료 자동 갱신) */
 let isRefreshing = false;
 let failedQueue: {
   resolve: (token: string) => void;

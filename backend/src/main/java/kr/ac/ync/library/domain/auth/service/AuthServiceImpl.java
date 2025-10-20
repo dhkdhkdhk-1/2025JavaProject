@@ -2,11 +2,11 @@ package kr.ac.ync.library.domain.auth.service;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
+import jakarta.transaction.Transactional;
 import kr.ac.ync.library.domain.auth.dto.request.AuthenticationRequest;
 import kr.ac.ync.library.domain.auth.dto.request.SignupRequest;
 import kr.ac.ync.library.domain.auth.dto.request.WithdrawRequest;
 import kr.ac.ync.library.domain.auth.dto.response.JsonWebTokenResponse;
-import kr.ac.ync.library.domain.users.dto.User;
 import kr.ac.ync.library.domain.users.entity.UserEntity;
 import kr.ac.ync.library.domain.users.entity.enums.UserRole;
 import kr.ac.ync.library.domain.users.repository.UserRepository;
@@ -20,7 +20,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -31,13 +32,19 @@ public class AuthServiceImpl implements AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
+    /** ✅ 로그인 */
     @Override
     public JsonWebTokenResponse auth(AuthenticationRequest request) {
+        // deleted=false 인 유저만 로그인 가능
+        UserEntity userEntity = userRepository.findByEmail(request.getEmail())
+                .filter(u -> !u.isDeleted())
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않거나 탈퇴한 계정입니다."));
+
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
         );
 
-        User user = ((CustomUserDetails) authentication.getPrincipal()).getUser();
+        var user = ((CustomUserDetails) authentication.getPrincipal()).getUser();
 
         return JsonWebTokenResponse.builder()
                 .accessToken(jwtProvider.generateAccessToken(user.getEmail()))
@@ -45,71 +52,76 @@ public class AuthServiceImpl implements AuthService {
                 .build();
     }
 
-    // ✅ 수정됨: 비어있는 / 잘못된 RefreshToken 방어 + JWT 파싱 예외 처리
+    /** ✅ 토큰 재발급 */
     @Override
     public JsonWebTokenResponse refresh(String token) {
-        // 1️⃣ 비어있거나 잘못된 토큰 방어
-        if (token == null || token.isBlank()) {
-            throw new IllegalArgumentException("❌ Refresh token is missing or empty");
-        }
-        if (!token.contains(".")) { // JWT는 최소 2개의 '.' 포함해야 함
-            throw new IllegalArgumentException("❌ Invalid refresh token format");
+        if (token == null || token.isBlank() || !token.contains(".")) {
+            throw new IllegalArgumentException("❌ 잘못된 Refresh token 형식");
         }
 
-        // 2️⃣ 안전하게 파싱 (예외 캐치)
         Jws<Claims> claims;
         try {
             claims = jwtProvider.getClaims(token);
         } catch (Exception e) {
-            throw new IllegalArgumentException("❌ Failed to parse refresh token: " + e.getMessage());
+            throw new IllegalArgumentException("❌ Refresh token 파싱 실패: " + e.getMessage());
         }
 
-        // 3️⃣ 토큰 타입 확인 (REFRESH 전용)
         if (jwtProvider.isWrongType(claims, JwtType.REFRESH)) {
             throw TokenTypeException.EXCEPTION;
         }
 
-        // 4️⃣ 이메일 추출 후 새 토큰 발급
         String email = claims.getPayload().getSubject();
 
         return JsonWebTokenResponse.builder()
-                .accessToken(jwtProvider.generateAccessToken(email))   // ✅ accessToken 재발급
-                .refreshToken(jwtProvider.generateRefreshToken(email)) // ✅ refreshToken도 재발급 (옵션)
+                .accessToken(jwtProvider.generateAccessToken(email))
+                .refreshToken(jwtProvider.generateRefreshToken(email))
                 .build();
     }
 
+    /** ✅ 회원가입 (재가입 체크 포함) */
     @Override
     @Transactional
     public void signup(SignupRequest request) {
-        if (userRepository.existsByEmail(request.getEmail())) {
-            throw new IllegalArgumentException("이미 등록된 이메일입니다.");
+        Optional<UserEntity> existingUser = userRepository.findByEmail(request.getEmail());
+
+        if (existingUser.isPresent()) {
+            UserEntity user = existingUser.get();
+
+            // 동일 이메일+전화번호가 있고 탈퇴 상태면 재가입 처리
+            if (user.isDeleted() && user.getPhone().equals(request.getPhone())) {
+                user.setDeleted(false);
+                user.setUsername(request.getUsername());
+                user.setPassword(passwordEncoder.encode(request.getPassword()));
+                userRepository.save(user);
+                return;
+            }
+
+            // 이미 활성 상태
+            throw new IllegalArgumentException("이미 사용 중인 이메일입니다.");
         }
 
+        // 신규 회원가입
         if (!request.getPassword().equals(request.getPasswordCheck())) {
             throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
         }
 
-        if (userRepository.existsByUsername(request.getUsername())) {
-            throw new IllegalArgumentException("이미 존재하는 닉네임입니다.");
-        }
-
         if (userRepository.existsByPhone(request.getPhone())) {
-            throw new IllegalArgumentException("이미 존재하는 번호입니다.");
+            throw new IllegalArgumentException("이미 등록된 전화번호입니다.");
         }
-
-        String encodedPassword = passwordEncoder.encode(request.getPassword());
 
         UserEntity user = UserEntity.builder()
                 .email(request.getEmail())
                 .username(request.getUsername())
-                .password(encodedPassword)
+                .password(passwordEncoder.encode(request.getPassword()))
                 .phone(request.getPhone())
                 .role(UserRole.USER)
+                .deleted(false)
                 .build();
 
         userRepository.save(user);
     }
 
+    /** ✅ 회원탈퇴 (DB에서 삭제 대신 deleted=true 처리) */
     @Override
     @Transactional
     public void withdraw(WithdrawRequest request) {
@@ -120,6 +132,7 @@ public class AuthServiceImpl implements AuthService {
             throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
         }
 
-        userRepository.delete(user);
+        user.setDeleted(true); // ❗ 실제 삭제 X, 비활성 처리
+        userRepository.save(user);
     }
 }

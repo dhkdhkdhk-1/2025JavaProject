@@ -4,6 +4,8 @@ import kr.ac.ync.library.domain.board.entity.BoardEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+
 import java.util.Optional;
 
 public interface BoardRepository extends JpaRepository<BoardEntity, Long> {
@@ -35,4 +37,8 @@ public interface BoardRepository extends JpaRepository<BoardEntity, Long> {
 
     // ✅ 추가: 전체 게시글 중 가장 큰 id 조회
     Optional<BoardEntity> findTopByOrderByIdDesc();
+
+    // ✅ NEW: 탈퇴회원 글 제외 전용 조회 (페이지 계산 정확)
+    @Query("SELECT b FROM BoardEntity b WHERE b.user.deleted = false")
+    Page<BoardEntity> findAllActive(Pageable pageable);
 }

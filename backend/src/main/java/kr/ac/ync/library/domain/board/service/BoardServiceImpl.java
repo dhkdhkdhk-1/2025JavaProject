@@ -12,6 +12,8 @@ import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -22,7 +24,6 @@ public class BoardServiceImpl implements BoardService {
     /** ✅ 검색, 분류, 페이징 */
     @Override
     public Page<BoardResponse> getAllBoards(String keyword, String searchType, String category, Pageable pageable) {
-
         Pageable sortedPageable = PageRequest.of(
                 pageable.getPageNumber(),
                 pageable.getPageSize(),
@@ -65,16 +66,29 @@ public class BoardServiceImpl implements BoardService {
         } else if (hasCategory) {
             pageResult = boardRepository.findByType(category, sortedPageable);
         } else {
-            pageResult = boardRepository.findAll(sortedPageable);
+            // ✅ 탈퇴회원 글 제외된 게시글만 DB에서 바로 페이징
+            pageResult = boardRepository.findAllActive(sortedPageable);
         }
 
-        return pageResult.map(this::toResponse);
+        // ✅ Stream으로 변환 (응답 DTO)
+        List<BoardResponse> responseList = pageResult
+                .getContent().stream()
+                .map(this::toResponse)
+                .toList();
+
+        return new PageImpl<>(responseList, pageable, pageResult.getTotalElements());
     }
 
     @Override
     public BoardResponse getBoard(Long id) {
         BoardEntity entity = boardRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("게시글을 찾을 수 없습니다."));
+
+        // ✅ 탈퇴 유저의 게시글 접근 차단
+        if (entity.getUser() != null && entity.getUser().isDeleted()) {
+            throw new RuntimeException("탈퇴한 회원의 게시글은 볼 수 없습니다.");
+        }
+
         return toResponse(entity);
     }
 

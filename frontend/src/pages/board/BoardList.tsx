@@ -107,9 +107,13 @@ const BoardList: React.FC = () => {
     if (e.key === "Enter") handleSearch();
   };
 
+  /** ✅ 페이지 변경 시 URL 갱신 */
   const handlePageChange = (newPage: number) => {
-    const query = new URLSearchParams(location.search);
-    query.set("page", newPage.toString());
+    const query = new URLSearchParams();
+    if (keyword.trim()) query.append("keyword", keyword);
+    if (searchType !== "제목+내용") query.append("searchType", searchType);
+    if (category !== "전체") query.append("category", category);
+    query.append("page", newPage.toString());
     navigate(`/board?${query.toString()}`);
   };
 
@@ -126,10 +130,21 @@ const BoardList: React.FC = () => {
 
       {/* ✅ 검색 바 */}
       <div className="board-search-bar">
+        {/* ✅ 카테고리 변경 시 즉시 navigate */}
         <select
           className="board-category-select"
           value={category}
-          onChange={(e) => handlePageChange(0)}
+          onChange={(e) => {
+            const newCategory = e.target.value;
+            setCategory(newCategory);
+            const query = new URLSearchParams();
+            if (keyword.trim()) query.append("keyword", keyword);
+            if (searchType !== "제목+내용")
+              query.append("searchType", searchType);
+            if (newCategory !== "전체") query.append("category", newCategory);
+            query.append("page", "0");
+            navigate(`/board?${query.toString()}`);
+          }}
         >
           <option value="전체">전체</option>
           <option value="일반">일반</option>
@@ -179,7 +194,7 @@ const BoardList: React.FC = () => {
         />
       )}
 
-      {/* ✅ 페이지네이션 항상 표시 */}
+      {/* ✅ 페이지네이션 */}
       <div className="pagination">
         <button
           className="board-button"
