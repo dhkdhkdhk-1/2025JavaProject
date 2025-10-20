@@ -7,21 +7,22 @@ import "./board.css";
 
 const BoardList: React.FC = () => {
   const [boards, setBoards] = useState<BoardResponse[]>([]);
-  const [allBoards, setAllBoards] = useState<BoardResponse[]>([]); // ✅ 전체 게시글 목록
+  const [allBoards, setAllBoards] = useState<BoardResponse[]>([]);
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [totalElements, setTotalElements] = useState(0);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
 
-  const [searchType, setSearchType] = useState("전체");
+  // ✅ 기본 검색 조건을 "제목+내용"으로 설정
+  const [searchType, setSearchType] = useState("제목+내용");
   const [keyword, setKeyword] = useState("");
   const [category, setCategory] = useState("전체");
 
   const navigate = useNavigate();
   const location = useLocation();
 
-  /** ✅ 전체 게시글 불러오기 (모든 페이지 순회해서 전체 데이터 로드) */
+  /** ✅ 전체 게시글 불러오기 */
   const fetchAllBoards = useCallback(async () => {
     try {
       let all: BoardResponse[] = [];
@@ -29,7 +30,7 @@ const BoardList: React.FC = () => {
       let hasMore = true;
 
       while (hasMore) {
-        const res = await getBoardList(pageNum, "", "전체", "전체");
+        const res = await getBoardList(pageNum, "", "제목+내용", "전체");
         all = [...all, ...res.data.content];
         hasMore = pageNum < res.data.totalPages - 1;
         pageNum++;
@@ -86,7 +87,7 @@ const BoardList: React.FC = () => {
   /** ✅ URL 변경 시 새 데이터 가져오기 */
   useEffect(() => {
     const params = new URLSearchParams(location.search);
-    const newSearchType = params.get("searchType") || "전체";
+    const newSearchType = params.get("searchType") || "제목+내용";
     const newKeyword = params.get("keyword") || "";
     const newCategory = params.get("category") || "전체";
     const newPage = parseInt(params.get("page") || "0", 10);
@@ -96,7 +97,7 @@ const BoardList: React.FC = () => {
     setCategory(newCategory);
     setPage(newPage);
 
-    fetchAllBoards(); // ✅ 전체 목록 갱신 (모든 페이지 데이터)
+    fetchAllBoards();
     fetchBoards(newPage, newKeyword, newSearchType, newCategory);
   }, [location.search, fetchBoards, fetchAllBoards]);
 
@@ -104,7 +105,7 @@ const BoardList: React.FC = () => {
   const handleSearch = () => {
     const query = new URLSearchParams();
     if (keyword.trim()) query.append("keyword", keyword);
-    if (searchType !== "전체") query.append("searchType", searchType);
+    if (searchType !== "제목+내용") query.append("searchType", searchType);
     if (category !== "전체") query.append("category", category);
     query.append("page", "0");
     navigate(`/board?${query.toString()}`);
@@ -127,11 +128,10 @@ const BoardList: React.FC = () => {
     navigate(`/board?${query.toString()}`);
   };
 
-  /** ✅ 전체 기준 ID 계산 (1부터 시작, 모든 페이지 기준) */
+  /** ✅ 전체 기준 ID 계산 */
   const calculateGlobalId = (boardId: number) => {
     const index = allBoards.findIndex((b) => b.id === boardId);
     if (index === -1) return 0;
-    // 전체 목록은 최신순이므로 → 오래된 글이 1번, 최신글이 totalElements번
     return totalElements - index;
   };
 
@@ -152,14 +152,15 @@ const BoardList: React.FC = () => {
           <option value="질문">질문</option>
         </select>
 
+        {/* ✅ 검색 조건 - 제목+내용 기본, 제목 / 작성자 추가 */}
         <select
           className="board-search-select"
           value={searchType}
           onChange={(e) => setSearchType(e.target.value)}
         >
-          <option value="전체">전체</option>
-          <option value="제목">제목</option>
           <option value="제목+내용">제목 + 내용</option>
+          <option value="제목">제목</option>
+          <option value="작성자">작성자</option>
         </select>
 
         <input
@@ -184,7 +185,7 @@ const BoardList: React.FC = () => {
         <BoardTable
           boards={boards.map((b) => ({
             id: b.id,
-            displayId: calculateGlobalId(b.id), // ✅ 전체 목록 기준 ID 표시
+            displayId: calculateGlobalId(b.id),
             title: b.title,
             type: b.type,
             username: b.username,

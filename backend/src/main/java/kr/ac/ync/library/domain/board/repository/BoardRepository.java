@@ -27,6 +27,12 @@ public interface BoardRepository extends JpaRepository<BoardEntity, Long> {
             Pageable pageable
     );
 
+    // ✅ 추가: 작성자 검색
+    Page<BoardEntity> findByUser_UsernameContaining(String username, Pageable pageable);
+
+    // ✅ 추가: 카테고리 + 작성자 검색
+    Page<BoardEntity> findByTypeAndUser_UsernameContaining(String type, String username, Pageable pageable);
+
     // ✅ 추가: 전체 게시글 중 가장 큰 id 조회
     Optional<BoardEntity> findTopByOrderByIdDesc();
 }

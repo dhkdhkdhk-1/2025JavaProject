@@ -11,8 +11,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -24,7 +22,6 @@ public class BoardServiceImpl implements BoardService {
     @Override
     public Page<BoardResponse> getAllBoards(String keyword, String searchType, String category, Pageable pageable) {
 
-        // ✅ 명시적으로 DB 정렬을 "id DESC"로 고정
         Pageable sortedPageable = PageRequest.of(
                 pageable.getPageNumber(),
                 pageable.getPageSize(),
@@ -35,19 +32,34 @@ public class BoardServiceImpl implements BoardService {
         boolean hasKeyword = keyword != null && !keyword.trim().isEmpty();
         boolean hasCategory = category != null && !"전체".equals(category);
 
+        // ✅ 검색 조건 분기
         if (hasKeyword && hasCategory) {
-            if ("제목".equals(searchType)) {
-                pageResult = boardRepository.findByTypeAndTitleContaining(category, keyword, sortedPageable);
-            } else {
-                pageResult = boardRepository.findByTypeAndTitleContainingOrTypeAndContentContaining(
-                        category, keyword, category, keyword, sortedPageable
-                );
+            switch (searchType) {
+                case "제목":
+                    pageResult = boardRepository.findByTypeAndTitleContaining(category, keyword, sortedPageable);
+                    break;
+                case "작성자":
+                    pageResult = boardRepository.findByTypeAndUser_UsernameContaining(category, keyword, sortedPageable);
+                    break;
+                case "제목+내용":
+                default:
+                    pageResult = boardRepository.findByTypeAndTitleContainingOrTypeAndContentContaining(
+                            category, keyword, category, keyword, sortedPageable
+                    );
+                    break;
             }
         } else if (hasKeyword) {
-            if ("제목".equals(searchType)) {
-                pageResult = boardRepository.findByTitleContaining(keyword, sortedPageable);
-            } else {
-                pageResult = boardRepository.findByTitleContainingOrContentContaining(keyword, keyword, sortedPageable);
+            switch (searchType) {
+                case "제목":
+                    pageResult = boardRepository.findByTitleContaining(keyword, sortedPageable);
+                    break;
+                case "작성자":
+                    pageResult = boardRepository.findByUser_UsernameContaining(keyword, sortedPageable);
+                    break;
+                case "제목+내용":
+                default:
+                    pageResult = boardRepository.findByTitleContainingOrContentContaining(keyword, keyword, sortedPageable);
+                    break;
             }
         } else if (hasCategory) {
             pageResult = boardRepository.findByType(category, sortedPageable);
@@ -55,7 +67,6 @@ public class BoardServiceImpl implements BoardService {
             pageResult = boardRepository.findAll(sortedPageable);
         }
 
-        // ✅ 그대로 반환 (정렬된 상태 유지)
         return pageResult.map(this::toResponse);
     }
 
