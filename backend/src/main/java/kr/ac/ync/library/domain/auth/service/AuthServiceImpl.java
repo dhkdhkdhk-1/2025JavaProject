@@ -35,7 +35,6 @@ public class AuthServiceImpl implements AuthService {
     /** ✅ 로그인 */
     @Override
     public JsonWebTokenResponse auth(AuthenticationRequest request) {
-        // deleted=false 인 유저만 로그인 가능
         UserEntity userEntity = userRepository.findByEmail(request.getEmail())
                 .filter(u -> !u.isDeleted())
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않거나 탈퇴한 계정입니다."));
@@ -56,14 +55,14 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public JsonWebTokenResponse refresh(String token) {
         if (token == null || token.isBlank() || !token.contains(".")) {
-            throw new IllegalArgumentException("❌ 잘못된 Refresh token 형식");
+            throw new IllegalArgumentException("잘못된 Refresh token 형식입니다.");
         }
 
         Jws<Claims> claims;
         try {
             claims = jwtProvider.getClaims(token);
         } catch (Exception e) {
-            throw new IllegalArgumentException("❌ Refresh token 파싱 실패: " + e.getMessage());
+            throw new IllegalArgumentException("Refresh token 파싱 실패: " + e.getMessage());
         }
 
         if (jwtProvider.isWrongType(claims, JwtType.REFRESH)) {
@@ -78,7 +77,7 @@ public class AuthServiceImpl implements AuthService {
                 .build();
     }
 
-    /** ✅ 회원가입 (재가입 체크 포함) */
+    /** ✅ 회원가입 (탈퇴 계정 복구 가능) */
     @Override
     @Transactional
     public void signup(SignupRequest request) {
@@ -87,8 +86,7 @@ public class AuthServiceImpl implements AuthService {
         if (existingUser.isPresent()) {
             UserEntity user = existingUser.get();
 
-            // 동일 이메일+전화번호가 있고 탈퇴 상태면 재가입 처리
-            if (user.isDeleted() && user.getPhone().equals(request.getPhone())) {
+            if (user.isDeleted()) {
                 user.setDeleted(false);
                 user.setUsername(request.getUsername());
                 user.setPassword(passwordEncoder.encode(request.getPassword()));
@@ -96,24 +94,17 @@ public class AuthServiceImpl implements AuthService {
                 return;
             }
 
-            // 이미 활성 상태
             throw new IllegalArgumentException("이미 사용 중인 이메일입니다.");
         }
 
-        // 신규 회원가입
         if (!request.getPassword().equals(request.getPasswordCheck())) {
             throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
-        }
-
-        if (userRepository.existsByPhone(request.getPhone())) {
-            throw new IllegalArgumentException("이미 등록된 전화번호입니다.");
         }
 
         UserEntity user = UserEntity.builder()
                 .email(request.getEmail())
                 .username(request.getUsername())
                 .password(passwordEncoder.encode(request.getPassword()))
-                .phone(request.getPhone())
                 .role(UserRole.USER)
                 .deleted(false)
                 .build();
@@ -121,18 +112,23 @@ public class AuthServiceImpl implements AuthService {
         userRepository.save(user);
     }
 
-    /** ✅ 회원탈퇴 (DB에서 삭제 대신 deleted=true 처리) */
+    /** ✅ 회원탈퇴 (DB에 남기고 deleted=true 처리) */
     @Override
     @Transactional
     public void withdraw(WithdrawRequest request) {
         UserEntity user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
 
-        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+        // ✅ 비밀번호 확인 추가
+        if (!request.getPassword().equals(request.getPasswordCheck())) {
             throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
         }
 
-        user.setDeleted(true); // ❗ 실제 삭제 X, 비활성 처리
+        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+            throw new IllegalArgumentException("비밀번호가 올바르지 않습니다.");
+        }
+
+        user.setDeleted(true);
         userRepository.save(user);
     }
 }

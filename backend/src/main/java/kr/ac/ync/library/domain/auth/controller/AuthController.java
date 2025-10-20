@@ -46,14 +46,14 @@ public class AuthController {
     /** ✅ 회원가입 */
     @PostMapping("/signup")
     public ResponseEntity<String> signup(@Valid @RequestBody SignupRequest request) {
-        authService.signup(request); // 회원가입 DB 저장
+        authService.signup(request);
         return ResponseEntity.ok("회원가입이 완료되었습니다.");
     }
 
     /** ✅ 회원탈퇴 */
-    @DeleteMapping("/withdraw")
+    @PostMapping("/withdraw")
     public ResponseEntity<String> withdraw(@Valid @RequestBody WithdrawRequest request) {
-        authService.withdraw(request);  // 회원탈퇴 DB 삭제
+        authService.withdraw(request);
         return ResponseEntity.ok("회원탈퇴가 완료되었습니다.");
     }
 
@@ -72,24 +72,5 @@ public class AuthController {
         }
 
         return ResponseEntity.ok(Map.of("message", "사용 가능한 이메일입니다."));
-    }
-
-    /** ✅ 휴대폰 인증 (중복 체크 + 문구 변경 완료) */
-    @PostMapping("/verify-phone")
-    public ResponseEntity<?> verifyPhone(@RequestBody Map<String, String> request) {
-        String phone = request.get("phone");
-        if (phone == null || phone.trim().isEmpty()) {
-            return ResponseEntity.badRequest().body(Map.of("message", "전화번호를 입력해주세요."));
-        }
-
-        // ✅ 휴대폰 번호 중복 체크 추가
-        boolean exists = userRepository.existsByPhone(phone);
-        if (exists) {
-            return ResponseEntity.status(HttpStatus.CONFLICT)
-                    .body(Map.of("message", "이미 등록된 전화번호입니다."));
-        }
-
-        // ✅ 중복이 아닐 경우 문구 변경
-        return ResponseEntity.ok(Map.of("message", "사용 가능한 전화번호입니다."));
     }
 }

@@ -51,7 +51,12 @@ const MyPage: React.FC = () => {
           <div className="mypage-card">
             <h3>회원 탈퇴</h3>
             <p>회원을 탈퇴합니다.</p>
-            <button className="mypage-btn">탈퇴하기</button>
+            <button
+              className="mypage-btn"
+              onClick={() => navigate("/withdraw")}
+            >
+              탈퇴하기
+            </button>
           </div>
         </div>
       </main>

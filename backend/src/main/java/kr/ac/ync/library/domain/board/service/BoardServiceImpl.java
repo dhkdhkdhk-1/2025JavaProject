@@ -21,7 +21,7 @@ public class BoardServiceImpl implements BoardService {
 
     private final BoardRepository boardRepository;
 
-    /** ✅ 검색, 분류, 페이징 */
+    /** ✅ 검색, 분류, 페이징 (탈퇴회원 / 삭제글 제외) */
     @Override
     public Page<BoardResponse> getAllBoards(String keyword, String searchType, String category, Pageable pageable) {
         Pageable sortedPageable = PageRequest.of(
@@ -66,33 +66,32 @@ public class BoardServiceImpl implements BoardService {
         } else if (hasCategory) {
             pageResult = boardRepository.findByType(category, sortedPageable);
         } else {
-            // ✅ 탈퇴회원 글 제외된 게시글만 DB에서 바로 페이징
-            pageResult = boardRepository.findAllActive(sortedPageable);
+            pageResult = boardRepository.findAll(sortedPageable);
         }
 
-        // ✅ Stream으로 변환 (응답 DTO)
-        List<BoardResponse> responseList = pageResult
-                .getContent().stream()
+        // ✅ 탈퇴회원 및 삭제된 글 제외
+        List<BoardResponse> filteredList = pageResult.getContent().stream()
+                .filter(board -> board.getUser() != null && !board.getUser().isDeleted() && !board.isDeleted())
                 .map(this::toResponse)
                 .toList();
 
-        return new PageImpl<>(responseList, pageable, pageResult.getTotalElements());
+        return new PageImpl<>(filteredList, pageable, filteredList.size());
     }
 
+    /** ✅ 게시글 상세 조회 (탈퇴회원 글 접근 차단) */
     @Override
     public BoardResponse getBoard(Long id) {
         BoardEntity entity = boardRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("게시글을 찾을 수 없습니다."));
 
-        // ✅ 탈퇴 유저의 게시글 접근 차단
-        if (entity.getUser() != null && entity.getUser().isDeleted()) {
-            throw new RuntimeException("탈퇴한 회원의 게시글은 볼 수 없습니다.");
+        if (entity.isDeleted() || (entity.getUser() != null && entity.getUser().isDeleted())) {
+            throw new RuntimeException("삭제되었거나 탈퇴한 회원의 게시글은 볼 수 없습니다.");
         }
 
         return toResponse(entity);
     }
 
-    /** ✅ 제목·내용 검증 추가 */
+    /** ✅ 게시글 생성 */
     @Override
     public BoardResponse createBoard(BoardRequest request, UserEntity user) {
         if (!StringUtils.hasText(request.getTitle()) || !StringUtils.hasText(request.getContent())) {
@@ -105,12 +104,13 @@ public class BoardServiceImpl implements BoardService {
                 .type(request.getType() != null ? request.getType() : "일반")
                 .user(user)
                 .viewCount(0L)
+                .deleted(false)
                 .build();
 
         return toResponse(boardRepository.save(board));
     }
 
-    /** ✅ 수정 시에도 검증 추가 */
+    /** ✅ 수정 */
     @Override
     public BoardResponse updateBoard(Long id, BoardRequest request, UserEntity user) {
         BoardEntity board = boardRepository.findById(id)
@@ -133,18 +133,24 @@ public class BoardServiceImpl implements BoardService {
         return toResponse(boardRepository.save(board));
     }
 
+    /** ✅ soft delete 적용 */
     @Override
     public void deleteBoard(Long id, UserEntity user) {
         BoardEntity board = boardRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("게시글을 찾을 수 없습니다."));
+
         if (!board.getUser().getId().equals(user.getId()) &&
                 user.getRole() != UserRole.MANAGER &&
                 user.getRole() != UserRole.ADMIN) {
             throw new RuntimeException("삭제 권한이 없습니다.");
         }
-        boardRepository.delete(board);
+
+        // ✅ 실제 삭제 대신 soft delete
+        board.setDeleted(true);
+        boardRepository.save(board);
     }
 
+    /** ✅ 조회수 증가 */
     @Override
     public void incrementViewCount(Long id) {
         BoardEntity board = boardRepository.findById(id)
@@ -161,6 +167,7 @@ public class BoardServiceImpl implements BoardService {
                 .orElse(0L);
     }
 
+    /** ✅ DTO 변환 */
     private BoardResponse toResponse(BoardEntity entity) {
         return BoardResponse.builder()
                 .id(entity.getId())

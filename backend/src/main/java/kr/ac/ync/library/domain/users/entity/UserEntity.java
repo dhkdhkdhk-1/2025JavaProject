@@ -27,13 +27,10 @@ public class UserEntity extends BaseTimeEntity {
     @Column(nullable = false)
     private String password;
 
-    @Column(nullable = false)
-    private String phone;
-
     @Enumerated(value = EnumType.STRING)
     private UserRole role;
 
     @Column(nullable = false)
-    private boolean deleted;
+    private boolean deleted = false;
 
 }

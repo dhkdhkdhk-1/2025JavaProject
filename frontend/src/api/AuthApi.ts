@@ -1,4 +1,4 @@
-import axios, { AxiosError } from "axios";
+import axios from "axios";
 
 /** ✅ axios 기본 인스턴스 */
 export const api = axios.create({
@@ -21,7 +21,7 @@ export interface SignupRequest {
   username: string;
   password: string;
   passwordCheck: string;
-  phone: string;
+  // ❌ phone 제거
 }
 export interface TokenResponse {
   accessToken: string;
@@ -31,8 +31,8 @@ export interface User {
   id: number;
   username: string;
   email: string;
-  phone: string;
   role: string;
+  deleted: boolean; // ✅ 추가
 }
 
 /** ✅ 로그인 API */
@@ -47,14 +47,20 @@ export const login = async (
     localStorage.setItem("refreshToken", res.data.refreshToken);
     setAccessToken(res.data.accessToken);
     return res.data;
-  } catch (error) {
-    console.error("❌ 로그인 실패:", error);
-    alert("로그인 실패: 이메일 또는 비밀번호를 확인하세요.");
+  } catch (error: any) {
+    if (
+      axios.isAxiosError(error) &&
+      error.response?.data?.message?.includes("탈퇴")
+    ) {
+      alert("탈퇴된 계정입니다. 재가입 후 이용해주세요."); // ✅ 추가
+    } else {
+      alert("로그인 실패: 이메일 또는 비밀번호를 확인하세요.");
+    }
     return null;
   }
 };
 
-/** ✅ 회원가입 API (재가입 로직 반영) */
+/** ✅ 회원가입 API (재가입 포함) */
 export const signup = async (
   data: SignupRequest
 ): Promise<"OK" | "REJOIN" | "FAIL"> => {
@@ -66,21 +72,11 @@ export const signup = async (
       },
     });
 
-    // ✅ 서버가 재가입 신호 반환한 경우
-    if (res.data === "REJOIN") {
-      return "REJOIN";
-    }
+    if (res.data === "REJOIN") return "REJOIN"; // ✅ 추가
 
     alert("회원가입이 완료되었습니다!");
     return "OK";
   } catch (error: any) {
-    if (axios.isAxiosError(error)) {
-      if (error.response?.status === 409) {
-        alert("이미 사용 중인 이메일 또는 전화번호입니다.");
-      } else if (error.response?.data?.message?.includes("재가입")) {
-        return "REJOIN";
-      }
-    }
     console.error("회원가입 실패:", error);
     alert("회원가입 중 오류가 발생했습니다.");
     return "FAIL";
@@ -102,27 +98,6 @@ export const checkEmail = async (email: string): Promise<boolean> => {
       alert("이미 등록된 이메일입니다.");
     else alert("이메일 중복확인 중 오류가 발생했습니다.");
     console.error("이메일 확인 실패:", error);
-    return false;
-  }
-};
-
-/** ✅ 휴대폰 인증(중복확인) API */
-export const verifyPhone = async (phone: string): Promise<boolean> => {
-  try {
-    const res = await api.post(
-      "/auth/verify-phone",
-      { phone },
-      { headers: { skipAuthInterceptor: "true" } }
-    );
-    alert("✅ 사용 가능한 전화번호입니다.");
-    return res.status === 200;
-  } catch (error: any) {
-    if (axios.isAxiosError(error) && error.response?.status === 409) {
-      alert("이미 등록된 전화번호입니다.");
-      return false;
-    }
-    console.error("전화번호 인증 실패:", error);
-    alert("전화번호 인증 중 오류가 발생했습니다.");
     return false;
   }
 };
@@ -154,10 +129,6 @@ export const refreshAccessToken = async (): Promise<string | null> => {
 
     localStorage.setItem("accessToken", res.data.accessToken);
     localStorage.setItem("refreshToken", res.data.refreshToken);
-
-    api.defaults.headers.common[
-      "Authorization"
-    ] = `Bearer ${res.data.accessToken}`;
     setAccessToken(res.data.accessToken);
 
     return res.data.accessToken;
@@ -182,63 +153,6 @@ api.interceptors.request.use((config) => {
   if (token) config.headers.Authorization = `Bearer ${token}`;
   return config;
 });
-
-/** ✅ 응답 인터셉터 (토큰 만료 자동 갱신) */
-let isRefreshing = false;
-let failedQueue: {
-  resolve: (token: string) => void;
-  reject: (err: any) => void;
-}[] = [];
-
-const processQueue = (error: any, token: string | null = null) => {
-  failedQueue.forEach((prom) =>
-    error ? prom.reject(error) : prom.resolve(token!)
-  );
-  failedQueue = [];
-};
-
-api.interceptors.response.use(
-  (response) => response,
-  async (error: AxiosError & { config: any }) => {
-    const originalRequest = error.config;
-
-    if (originalRequest.headers?.skipAuthInterceptor === "true") {
-      delete originalRequest.headers.skipAuthInterceptor;
-      return Promise.reject(error);
-    }
-
-    if (error.response?.status === 401 && !originalRequest._retry) {
-      if (isRefreshing) {
-        return new Promise<string>((resolve, reject) =>
-          failedQueue.push({ resolve, reject })
-        ).then((token) => {
-          originalRequest.headers["Authorization"] = `Bearer ${token}`;
-          return api(originalRequest);
-        });
-      }
-
-      originalRequest._retry = true;
-      isRefreshing = true;
-
-      try {
-        const newToken = await refreshAccessToken();
-        if (!newToken) throw new Error("토큰 갱신 실패");
-
-        api.defaults.headers.common["Authorization"] = `Bearer ${newToken}`;
-        processQueue(null, newToken);
-        return api(originalRequest);
-      } catch (err) {
-        processQueue(err, null);
-        window.location.href = "/login";
-        return Promise.reject(err);
-      } finally {
-        isRefreshing = false;
-      }
-    }
-
-    return Promise.reject(error);
-  }
-);
 
 /** ✅ 앱 시작 시 저장된 토큰 적용 */
 setAccessToken(localStorage.getItem("accessToken"));

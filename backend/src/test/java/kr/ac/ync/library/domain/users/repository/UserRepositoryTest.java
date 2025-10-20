@@ -29,7 +29,6 @@ class UserRepositoryTest
                     String email = "user" + i + "@aaa.com";
                     UserEntity userEntity = UserEntity.builder()
                             .email(email)
-                            .phone("010-"+i)
                             .password(passwordEncoder.encode("1111"))
                             .username("USER" + i)
                             .role(UserRole.USER)

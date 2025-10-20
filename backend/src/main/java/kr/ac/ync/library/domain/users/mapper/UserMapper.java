@@ -10,7 +10,6 @@ public class UserMapper {
                 .username(entity.getUsername())
                 .email(entity.getEmail())
                 .password(entity.getPassword())
-                .phone(entity.getPhone())
                 .role(entity.getRole())
                 .build();
     }
@@ -21,7 +20,6 @@ public class UserMapper {
                 .username(user.getUsername())
                 .email(user.getEmail())
                 .password(user.getPassword())
-                .phone(user.getPhone())
                 .role(user.getRole())
                 .build();
     }

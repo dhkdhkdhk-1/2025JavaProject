@@ -16,6 +16,7 @@ export interface BoardResponse {
   viewCount: number;
   createdAt: string;
   modifiedAt: string;
+  deleted: boolean; // ✅ soft delete 플래그 추가
 }
 
 // ✅ maxId 포함
@@ -46,13 +47,11 @@ api.interceptors.response.use(
   async (error: AxiosError & { config: any }) => {
     const originalRequest = error.config;
 
-    // 인증 예외
     if (originalRequest.headers?.skipAuthInterceptor === "true") {
       delete originalRequest.headers.skipAuthInterceptor;
       return Promise.reject(error);
     }
 
-    // 토큰 만료 (401)
     if (error.response?.status === 401 && !originalRequest._retry) {
       if (isRefreshing) {
         return new Promise<string>((resolve, reject) =>
@@ -140,6 +139,6 @@ export const updateBoard = async (id: number, data: BoardRequest) =>
     headers: { "Content-Type": "application/json" },
   });
 
-/** ✅ 게시글 삭제 */
+/** ✅ 게시글 삭제 (soft delete) */
 export const deleteBoard = async (id: number) =>
   api.delete<void>(`/board/${id}`);

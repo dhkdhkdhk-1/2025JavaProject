@@ -22,6 +22,4 @@ public class SignupRequest { //회원가입
     @NotBlank(message = "비밀번호를 한번 더 입력해주십시오")
     private String passwordCheck;
 
-    @NotBlank(message = "전화번호를 입력해주세요.")
-    private String phone;
 }

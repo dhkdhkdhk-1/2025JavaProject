@@ -7,7 +7,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class WithdrawRequest { //회원 탈퇴
+public class WithdrawRequest {
 
     @NotBlank(message = "아이디(이메일)를 입력해주세요.")
     @Email(message = "아이디는 이메일 형식이어야 합니다.")
@@ -18,5 +18,4 @@ public class WithdrawRequest { //회원 탈퇴
 
     @NotBlank(message = "비밀번호를 한번 더 입력해주세요.")
     private String passwordCheck;
-
 }

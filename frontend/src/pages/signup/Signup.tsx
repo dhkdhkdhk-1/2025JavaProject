@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { InputField } from "../login/components/InputField";
 import { VariantPrimaryWrapper } from "../login/components/VariantPrimaryWrapper";
 import { TextContentTitle } from "../login/components/TextContentTitle";
-import { signup, checkEmail, verifyPhone } from "../../api/AuthApi";
+import { signup, checkEmail } from "../../api/AuthApi";
 import "./Signup-Variables.css";
 import "./Signup-Style.css";
 
@@ -12,13 +12,11 @@ const Signup: React.FC = () => {
   const [password, setPassword] = useState("");
   const [passwordCheck, setPasswordCheck] = useState("");
   const [username, setUsername] = useState("");
-  const [phone, setPhone] = useState("");
   const [isEmailChecked, setIsEmailChecked] = useState(false);
   const navigate = useNavigate();
 
   const emailRegex = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
 
-  /** ✅ 이메일 중복확인 */
   const handleEmailCheck = async () => {
     if (!email) {
       alert("이메일을 입력해주세요.");
@@ -32,18 +30,8 @@ const Signup: React.FC = () => {
     if (success) setIsEmailChecked(true);
   };
 
-  /** ✅ 휴대폰 중복확인 */
-  const handlePhoneAuth = async () => {
-    if (!phone) {
-      alert("휴대폰 번호를 입력해주세요.");
-      return;
-    }
-    await verifyPhone(phone);
-  };
-
-  /** ✅ 회원가입 처리 */
   const handleSignup = async () => {
-    if (!email || !password || !passwordCheck || !username || !phone) {
+    if (!email || !password || !passwordCheck || !username) {
       alert("모든 정보를 입력해주세요.");
       return;
     }
@@ -59,10 +47,6 @@ const Signup: React.FC = () => {
       alert("비밀번호가 일치하지 않습니다.");
       return;
     }
-    if (!/^\d{10,11}$/.test(phone)) {
-      alert("전화번호는 숫자만 입력해주세요. (10~11자리)");
-      return;
-    }
 
     try {
       const result = await signup({
@@ -70,26 +54,26 @@ const Signup: React.FC = () => {
         password,
         passwordCheck,
         username,
-        phone,
       });
 
+      // ✅ 추가: 재가입 처리
       if (result === "REJOIN") {
         const confirmRejoin = window.confirm(
-          "이 계정은 이전에 탈퇴한 기록이 있습니다.\n재가입하시겠습니까?"
+          "이전에 탈퇴한 계정입니다. 재가입하시겠습니까?"
         );
-        if (confirmRejoin) {
-          await signup({
-            email,
-            password,
-            passwordCheck,
-            username,
-            phone,
-          });
-          alert("재가입이 완료되었습니다!");
-          navigate("/login");
-        } else {
+        if (!confirmRejoin) {
           alert("재가입이 취소되었습니다.");
+          return;
         }
+
+        const showPosts = window.confirm(
+          "이전 게시글을 다시 표시할까요?\n예: 게시판에 다시 표시 / 아니오: 숨김 유지"
+        );
+
+        if (showPosts) alert("게시글이 복구됩니다.");
+        else alert("게시글은 숨겨진 상태로 유지됩니다.");
+
+        navigate("/login");
         return;
       }
 
@@ -114,7 +98,6 @@ const Signup: React.FC = () => {
       />
 
       <div className="signup-box">
-        {/* 이메일 + 중복확인 */}
         <div className="input-with-button">
           <InputField
             label="Email"
@@ -150,18 +133,6 @@ const Signup: React.FC = () => {
           valueType="value"
           onChange={(e) => setUsername(e.target.value)}
         />
-
-        <div className="input-with-button">
-          <InputField
-            label="Phone"
-            value={phone}
-            valueType="value"
-            onChange={(e) => setPhone(e.target.value)}
-          />
-          <button className="small-btn" onClick={handlePhoneAuth}>
-            중복확인
-          </button>
-        </div>
 
         <VariantPrimaryWrapper
           className="signup-button"
