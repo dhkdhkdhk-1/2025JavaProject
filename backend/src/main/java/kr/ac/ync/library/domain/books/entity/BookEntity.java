@@ -41,6 +41,7 @@ public class BookEntity extends BaseTimeEntity {
     /** ✅ Book ↔ BookBranch (1:N 관계) */
     @OneToMany(mappedBy = "book", cascade = CascadeType.ALL, orphanRemoval = true)
     @ToString.Exclude
+    @Builder.Default
     private List<BookBranchEntity> bookBranches = new ArrayList<>();
 
     /** ✅ 리뷰 관계 */

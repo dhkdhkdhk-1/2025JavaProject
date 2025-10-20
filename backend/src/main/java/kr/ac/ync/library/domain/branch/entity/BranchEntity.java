@@ -29,6 +29,7 @@ public class BranchEntity {
     /** ✅ Branch ↔ BookBranch (1:N 관계) */
     @OneToMany(mappedBy = "branch", cascade = CascadeType.ALL, orphanRemoval = true)
     @ToString.Exclude
+    @Builder.Default
     private List<BookBranchEntity> bookBranches = new ArrayList<>();
 
     // ====== 편의 메서드 ======

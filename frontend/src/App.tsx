@@ -1,8 +1,6 @@
 // src/App.tsx
 import React, { useEffect } from "react";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { setAccessToken } from "./api/AuthApi"; // ✅ 추가
-import React from "react";
 import {
   BrowserRouter,
   Routes,
@@ -41,9 +39,6 @@ import MyPage from "./pages/mypage/MyPage";
 
 /** ✅ 로그인 가드 (일반 사용자용) */
 const ProtectedLayout: React.FC = () => {
-  const token = localStorage.getItem("accessToken");
-  if (!token) return <Navigate to="/login" replace />;
-  // ✅ 수정된 부분: 인증 상태를 안전하게 확인
   const [isChecking, setIsChecking] = React.useState(true);
   const [isAuthenticated, setIsAuthenticated] = React.useState(false);
 
@@ -99,7 +94,6 @@ const App: React.FC = () => {
         {/* ✅ 로그인된 사용자 영역 */}
         <Route element={<ProtectedLayout />}>
           <Route path="/home" element={<Home />} />
-
           <Route path="/booklist" element={<BookList />} />
           <Route path="/book/:id" element={<BookInfo />} /> {/* 도서 상세 */}
           {/* ✅ 게시판 영역 */}
@@ -109,36 +103,27 @@ const App: React.FC = () => {
             <Route path="write" element={<BoardWrite />} /> {/* 작성 */}
             <Route path="edit/:id" element={<BoardEdit />} /> {/* 수정 */}
           </Route>
-
           <Route path="/MyPage" element={<MyPage />} />
-
           {/* ✅ 도서 목록 및 상세 */}
           <Route path="/booklist" element={<BookList />} />
           <Route path="/book/:id" element={<BookInfo />} />
-
           {/* ✅ 리뷰 관련 */}
           <Route path="/review/book/:id" element={<TotalReview />} />
-
           {/* ✅ 내가 쓴 리뷰 목록 페이지 */}
-          <Route path="/reviewlist" element={<ReviewList />} /> 
-
+          <Route path="/reviewlist" element={<ReviewList />} />
           <Route path="/review/write/:id" element={<WriteReview />} />
-
           {/* ✅ 대여 및 찜 목록 */}
           <Route path="/rental" element={<RentalList />} />
           <Route path="/wishlist" element={<WishList />} />
-          <Route path="/booklist" element={<BookList />} /> 
+          <Route path="/booklist" element={<BookList />} />
           <Route path="/book/:id" element={<BookInfo />} />{" "}
           <Route path="/review/book/:id" element={<TotalReview />} />{" "}
-
         </Route>
 
         {/* ✅ 관리자 전용 영역 */}
-        <Route element={<ProtectedLayout />}>
-          <Route path="/admin" element={<AdminLayoutGuard />}>
-            <Route index element={<Dashboard />} />
-            <Route path="books" element={<BookManager />} />
-          </Route>
+        <Route path="/admin" element={<AdminLayoutGuard />}>
+          <Route index element={<Dashboard />} />
+          <Route path="books" element={<BookManager />} />
         </Route>
 
         {/* ✅ 기본 및 잘못된 경로 처리 */}
