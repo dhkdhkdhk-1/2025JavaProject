@@ -1,112 +1,192 @@
-import React, { useState } from 'react';
-import './TotalReview.css';
+import React, { useEffect, useState, useCallback } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import axios from "axios";
+import "./TotalReview.css";
 
-interface ReviewItem {
+interface ReviewResponse {
   id: number;
-  category: string;
+  bookId: number;
+  bookTitle: string;
+  userId: number;
+  username: string;
   title: string;
-  date: string;
-  author: string;
-  views: number;
+  comment: string;
+  rating: number;
+  createdDateTime: string;
 }
 
+// ✅ 특정 책(bookId)의 리뷰 리스트 API
+const getReviewsByBookId = async (bookId: number) => {
+  const res = await axios.get<ReviewResponse[]>(
+    `http://localhost:8080/review/book/${bookId}`
+  );
+  return res.data;
+};
+
 const TotalReview: React.FC = () => {
-  const [searchValue, setSearchValue] = useState('');
-  
-  const reviewData: ReviewItem[] = [
-    { id: 24, category: '공지', title: '도서 관리 프로그램', date: '2024 - 04 - 05', author: '관리자', views: 12342513 },
-    { id: 23, category: '공지', title: '영남이공대학교', date: '2024 - 04 - 01', author: '관리자', views: 1213 },
-    { id: 22, category: '공지', title: '소프트웨어 콘텐츠', date: '2024 - 03 - 27', author: '관리자', views: 513 },
-    { id: 21, category: '공지', title: '공지사항입니다.', date: '2024 - 03 - 21', author: '관리자', views: 13 },
-    { id: 20, category: '행사', title: '기타', date: '2024 - 02 - 21', author: '관리자', views: 626576838 },
-    { id: 19, category: '입고', title: '새로운 책이 입고 되었습니다.', date: '2024 - 02 - 20', author: '관리자', views: 9 },
-    { id: 18, category: '공지', title: '공지 게시판 1', date: '2024 - 02 - 19', author: '관리자', views: 8764 },
-    { id: 17, category: '공지', title: '공지 게시판입니다.', date: '2024 - 02 - 17', author: '관리자', views: 13546 },
-  ];
+  const { id } = useParams<{ id: string }>();
+  const [reviews, setReviews] = useState<ReviewResponse[]>([]);
+  const [page, setPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+
+  const PAGE_SIZE = 6;
+  const PAGE_GROUP_SIZE = 9; // ✅ 한 번에 표시할 페이지 버튼 개수
+
+  const fetchReviews = useCallback(async () => {
+    if (!id) return;
+    try {
+      setLoading(true);
+      const data = await getReviewsByBookId(Number(id));
+
+      // ✅ 최신순 정렬
+      const sortedData = [...data].sort(
+        (a, b) =>
+          new Date(b.createdDateTime).getTime() -
+          new Date(a.createdDateTime).getTime()
+      );
+
+      setReviews(sortedData);
+      setTotalPages(Math.ceil(sortedData.length / PAGE_SIZE));
+    } catch (error: unknown) {
+      console.error("리뷰 불러오기 실패:", error);
+      if (axios.isAxiosError(error) && error.response?.status === 401) {
+        alert("로그인이 필요합니다.");
+        navigate("/login");
+      }
+    } finally {
+      setLoading(false);
+    }
+  }, [id, navigate]);
+
+  useEffect(() => {
+    const token = localStorage.getItem("accessToken");
+    if (!token) {
+      alert("로그인이 필요합니다.");
+      navigate("/login");
+      return;
+    }
+    fetchReviews();
+  }, [fetchReviews, navigate]);
+
+  // ✅ 현재 페이지 그룹 계산
+  const currentGroup = Math.floor(page / PAGE_GROUP_SIZE);
+  const startPage = currentGroup * PAGE_GROUP_SIZE;
+  const endPage = Math.min(startPage + PAGE_GROUP_SIZE - 1, totalPages - 1);
+
+  const getPageNumbers = () => {
+    const pages: number[] = [];
+    for (let i = startPage; i <= endPage; i++) pages.push(i);
+    return pages;
+  };
+
+  // ✅ 현재 페이지에 표시할 리뷰
+  const startIdx = page * PAGE_SIZE;
+  const displayedReviews = reviews.slice(startIdx, startIdx + PAGE_SIZE);
 
   return (
     <div className="review-board-container">
       <div className="review-board-card">
-        <h1 className="board-title">공지사항</h1>
-        
-        <div className="board-controls">
-          <div className="filter-dropdown">
-            <span className="filter-label">전체</span>
-            <svg className="chevron-icon" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M5 7.5L10 12.5L15 7.5" stroke="#1E1E1E" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-          </div>
-          
-          <div className="search-container">
-            <input 
-              type="text" 
-              className="search-input" 
-              placeholder="제목을 입력하십시오."
-              value={searchValue}
-              onChange={(e) => setSearchValue(e.target.value)}
-            />
-            <svg className="search-icon" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M14 14L11.1 11.1M12.6667 7.33333C12.6667 10.2789 10.2789 12.6667 7.33333 12.6667C4.38781 12.6667 2 10.2789 2 7.33333C2 4.38781 4.38781 2 7.33333 2C10.2789 2 12.6667 4.38781 12.6667 7.33333Z" stroke="#1E1E1E" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-          </div>
-        </div>
+        <h1 className="board-title">
+          📖 {displayedReviews[0]?.bookTitle ?? "리뷰"} 리뷰
+        </h1>
 
-        <div className="table-container">
-          <div className="table-header">
-            <div className="header-cell col-number">번호</div>
-            <div className="header-cell col-category">분류</div>
-            <div className="header-cell col-title">제목</div>
-            <div className="header-cell col-date">작성일</div>
-            <div className="header-cell col-author">작성자</div>
-            <div className="header-cell col-views">조회수</div>
+        {loading ? (
+          <p style={{ textAlign: "center", color: "#777" }}>불러오는 중...</p>
+        ) : reviews.length === 0 ? (
+          <p style={{ textAlign: "center", color: "#999" }}>
+            아직 등록된 리뷰가 없습니다.
+          </p>
+        ) : (
+          <div className="table-container">
+            <div className="table-header">
+              <div className="header-cell col-number">번호</div>
+              <div className="header-cell col-title">리뷰 제목</div>
+              <div className="header-cell col-author">작성자</div>
+              <div className="header-cell col-views">별점</div>
+              <div className="header-cell col-date">작성일</div>
+            </div>
+            <div className="table-divider"></div>
+
+            <div className="table-body">
+              {displayedReviews.map((r, index) => (
+                <div
+                  key={r.id}
+                  className="table-row"
+                  onClick={() => navigate(`/book/${r.bookId}`)}
+                  style={{ cursor: "pointer" }}
+                >
+                  <div className="table-cell col-number">
+                    {reviews.length - (startIdx + index)}
+                  </div>
+                  <div className="table-cell col-title">{r.title}</div>
+                  <div className="table-cell col-author">{r.username}</div>
+                  <div className="table-cell col-views">
+                    {"⭐".repeat(Number(r.rating))}
+                  </div>
+                  <div className="table-cell col-date">
+                    {new Date(r.createdDateTime).toLocaleDateString()}
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
+        )}
 
-          <div className="table-divider"></div>
-
-          <div className="table-body">
-            {reviewData.map((item) => (
-              <div key={item.id} className="table-row">
-                <div className="table-cell col-number">{item.id}</div>
-                <div className="table-cell col-category">{item.category}</div>
-                <div className="table-cell col-title">{item.title}</div>
-                <div className="table-cell col-date">{item.date}</div>
-                <div className="table-cell col-author">{item.author}</div>
-                <div className="table-cell col-views">{item.views}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="board-footer">
-          <div className="footer-divider"></div>
-          
+        {/* ✅ 페이지네이션 */}
+        {reviews.length > PAGE_SIZE && (
           <div className="pagination-container">
-            <button className="pagination-btn pagination-previous" disabled>
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M12.6673 7.99992H3.33398M3.33398 7.99992L8.00065 12.6666M3.33398 7.99992L8.00065 3.33325" stroke="#1E1E1E" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-              <span>Previous</span>
+            {/* 이전 그룹 */}
+            <button
+              className="pagination-btn"
+              onClick={() => setPage(Math.max(startPage - 1, 0))}
+              disabled={currentGroup === 0}
+            >
+              «
             </button>
 
+            {/* 이전 페이지 */}
+            <button
+              className="pagination-btn"
+              onClick={() => setPage((p) => Math.max(p - 1, 0))}
+              disabled={page === 0}
+            >
+              ←
+            </button>
+
+            {/* 페이지 번호 */}
             <div className="pagination-pages">
-              <button className="pagination-page">1</button>
-              <button className="pagination-page">2</button>
-              <button className="pagination-page active">3</button>
-              <span className="pagination-gap">...</span>
-              <button className="pagination-page">67</button>
-              <button className="pagination-page">68</button>
+              {getPageNumbers().map((num) => (
+                <button
+                  key={num}
+                  onClick={() => setPage(num)}
+                  className={`pagination-page ${num === page ? "active" : ""}`}
+                >
+                  {num + 1}
+                </button>
+              ))}
             </div>
 
-            <button className="pagination-btn pagination-next">
-              <span>Next</span>
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M3.33398 7.99992H12.6673M12.6673 7.99992L8.00065 3.33325M12.6673 7.99992L8.00065 12.6666" stroke="#1E1E1E" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
+            {/* 다음 페이지 */}
+            <button
+              className="pagination-btn"
+              onClick={() => setPage((p) => Math.min(p + 1, totalPages - 1))}
+              disabled={page >= totalPages - 1}
+            >
+              →
             </button>
 
-            <button className="write-btn">글쓰기</button>
+            {/* 다음 그룹 */}
+            <button
+              className="pagination-btn"
+              onClick={() => setPage(Math.min(endPage + 1, totalPages - 1))}
+              disabled={endPage >= totalPages - 1}
+            >
+              »
+            </button>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );

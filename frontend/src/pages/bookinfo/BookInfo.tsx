@@ -1,9 +1,15 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import ReviewSection from "../review/reviewsection/ReviewSection";
 import "./BookInfo.css";
 import { getBook, BookDetail } from "../../api/BookApi";
 import axios from "axios";
+import {
+  addWishlist,
+  deleteWishlist,
+  isWishlisted,
+} from "../../api/WishlistApi";
+import { registerRental } from "../../api/RentalApi"; // ✅ 추가
 
 interface BranchStatus {
   branchId: number;
@@ -14,32 +20,41 @@ interface BranchStatus {
 
 const BookInfo: React.FC = () => {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+
   const [book, setBook] = useState<BookDetail | null>(null);
   const [branches, setBranches] = useState<BranchStatus[]>([]);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState<string>("");
   const [selectedBranchId, setSelectedBranchId] = useState<number | "">("");
+  const [wished, setWished] = useState(false);
 
   const placeholder = "https://via.placeholder.com/357x492?text=No+Image";
 
+  /** ✅ 도서 + 지점 + 찜 여부 불러오기 */
   useEffect(() => {
     async function fetchData() {
       try {
         if (!id) return;
         setLoading(true);
 
-        // 도서 정보 + 지점별 상태 동시 요청
         const [bookRes, branchRes] = await Promise.all([
           getBook(Number(id)),
-          axios.get<BranchStatus[]>(`http://localhost:8080/book/${id}/branches`),
+          axios.get<BranchStatus[]>(
+            `http://localhost:8080/book/${id}/branches`
+          ),
         ]);
 
         setBook(bookRes);
         setBranches(branchRes.data);
 
-        // 기본 선택: 실제로 책이 있는 지점 중 하나
+        // ✅ 기본 선택 (대여 가능한 지점 자동 선택)
         const matchedBranch = branchRes.data.find((b) => b.available);
         setSelectedBranchId(matchedBranch?.branchId ?? "");
+
+        // ✅ 찜 여부 확인
+        const wishStatus = await isWishlisted(Number(id));
+        setWished(wishStatus);
       } catch (e) {
         setErr("도서 정보를 불러오지 못했어요.");
       } finally {
@@ -49,6 +64,51 @@ const BookInfo: React.FC = () => {
 
     fetchData();
   }, [id]);
+
+  /** ✅ 찜하기/취소 */
+  const handleWishlist = async () => {
+    if (!id) return;
+    try {
+      if (wished) {
+        await deleteWishlist(Number(id));
+        setWished(false);
+        alert("찜이 취소되었습니다.");
+      } else {
+        await addWishlist(Number(id));
+        setWished(true);
+        alert("찜 목록에 추가되었습니다!");
+      }
+    } catch {
+      alert("로그인이 필요합니다.");
+    }
+  };
+
+  /** ✅ 도서 대여 */
+  const handleRent = async () => {
+    if (!id || !selectedBranchId) {
+      alert("지점을 선택해주세요.");
+      return;
+    }
+
+    try {
+      await registerRental({
+        bookId: Number(id),
+        branchId: Number(selectedBranchId),
+      });
+
+      alert(`"${book?.title}" 도서를 성공적으로 대여했습니다!`);
+      navigate("/rental");
+    } catch (error: any) {
+      if (error.response?.status === 400) {
+        alert("이미 대여 중이거나 대여할 수 없는 도서입니다.");
+      } else if (error.response?.status === 401) {
+        alert("로그인이 필요합니다.");
+        navigate("/login");
+      } else {
+        alert("대여 중 오류가 발생했습니다.");
+      }
+    }
+  };
 
   if (loading) return <div style={{ padding: 16 }}>불러오는 중...</div>;
   if (err) return <div style={{ padding: 16, color: "crimson" }}>{err}</div>;
@@ -66,7 +126,7 @@ const BookInfo: React.FC = () => {
               <img
                 src={book.imageUrl || placeholder}
                 alt={book.title}
-                className="book-info-page .book-image"
+                className=".book-info-page .book-image"
                 onError={(e) =>
                   ((e.target as HTMLImageElement).src = placeholder)
                 }
@@ -88,7 +148,7 @@ const BookInfo: React.FC = () => {
                 저자: {book.author} | 출판사: {book.publisher}
               </div>
 
-              {/* 지점 선택 */}
+              {/* ✅ 지점 선택 */}
               <div className="branch-select-section">
                 <label className="location-label">지점 선택</label>
                 <select
@@ -114,20 +174,27 @@ const BookInfo: React.FC = () => {
                   </div>
                 )}
 
-                <button
-                  className="rent-button"
-                  disabled={!selectedBranch || !selectedBranch.available}
-                  onClick={() => {
-                    alert(
-                      `지점 ${selectedBranch?.branchName}에서 "${book?.title}" 대여`
-                    );
-                  }}
-                >
-                  대여하기
-                </button>
+                <div>
+                  {/* ✅ 대여 버튼 */}
+                  <button
+                    className="rent-button"
+                    disabled={!selectedBranch || !selectedBranch.available}
+                    onClick={handleRent}
+                  >
+                    대여하기
+                  </button>
+
+                  {/* ✅ 찜 버튼 */}
+                  <button
+                    className={`rent-button ${wished ? "wish-active" : ""}`}
+                    onClick={handleWishlist}
+                  >
+                    {wished ? "💖 찜됨" : "🤍 찜하기"}
+                  </button>
+                </div>
               </div>
 
-              {/* 줄거리 */}
+              {/* ✅ 책 소개 */}
               <div className="accordion-container">
                 <div className="accordion-item open">
                   <div className="accordion-header">
@@ -141,7 +208,7 @@ const BookInfo: React.FC = () => {
                 </div>
               </div>
 
-              {/* 평균 평점 */}
+              {/* ✅ 평균 평점 */}
               <div className="star-rating">
                 {[...Array(5)].map((_, i) => (
                   <svg
@@ -162,9 +229,13 @@ const BookInfo: React.FC = () => {
                   {book.rating?.toFixed(1) ?? "0.0"}
                 </span>
               </div>
-              
-              {/* 리뷰 섹션 */}
-              <ReviewSection bookId={Number(id)} limit={2} />
+
+              {/* ✅ 리뷰 섹션 */}
+              <ReviewSection
+                bookId={Number(id)}
+                limit={2}
+                onMoreClick={() => navigate(`/review/book/${id}`)}
+              />
             </div>
           </div>
         </div>

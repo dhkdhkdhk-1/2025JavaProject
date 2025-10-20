@@ -11,21 +11,20 @@ type UiBook = Book & {
 const BookList: React.FC = () => {
   const navigate = useNavigate();
 
-  const [selectedFilters, setSelectedFilters] = useState<string[]>(["소설"]);
+  const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
   const [genreFilters, setGenreFilters] = useState<Record<string, boolean>>({
-    소설: true,
-    에세이: false,
+    NOVEL: false,
+    ESSAY: false,
     IT: false,
-    역사: false,
-    과학: false,
-    그외: false,
+    HISTORY: false,
+    SCIENCE: false,
+    OTHER: false,
   });
-  const [sortOrder, setSortOrder] =
-    useState<"최신순" | "인기순" | "평점순">("최신순");
+  const [sortOrder, setSortOrder] = useState<"최신순" | "평점순">("최신순");
 
   const [keyword, setKeyword] = useState<string>("");
   const [page, setPage] = useState<number>(0);
-  const [size] = useState<number>(9); // 3x3
+  const [size] = useState<number>(9);
   const [loading, setLoading] = useState<boolean>(false);
   const [errorMsg, setErrorMsg] = useState<string>("");
 
@@ -36,29 +35,53 @@ const BookList: React.FC = () => {
     number: 0,
   });
 
+  // ✅ 필터 제거
   const removeFilter = (filter: string) => {
     setSelectedFilters((prev) => prev.filter((f) => f !== filter));
   };
+
+  // ✅ 장르 토글
   const toggleGenreFilter = (genre: string) => {
-    setGenreFilters((prev) => ({ ...prev, [genre]: !prev[genre] }));
+    setGenreFilters((prev) => {
+      const newFilters = { ...prev, [genre]: !prev[genre] };
+      setPage(0);
+      return newFilters;
+    });
   };
+
+  // ✅ 장르 체크 상태 변경 시 selectedFilters 자동 업데이트
+  useEffect(() => {
+    const activeGenres = Object.keys(genreFilters).filter((g) => genreFilters[g]);
+    setSelectedFilters(activeGenres);
+  }, [genreFilters]);
 
   const placeholder = useMemo(
     () => "https://via.placeholder.com/148x206?text=No+Image",
     []
   );
 
+  // ✅ 장르 + 검색어 + 정렬 반영된 목록 가져오기
   useEffect(() => {
     let cancelled = false;
+
     async function fetchData() {
       try {
         setLoading(true);
         setErrorMsg("");
-        const res = await getBooks(page, size, keyword.trim());
+
+        const selectedGenres = Object.keys(genreFilters).filter((g) => genreFilters[g]);
+        const res = await getBooks(page, size, keyword.trim(), selectedGenres);
+
+        // ✅ 정렬 적용 (프론트 단)
+        let sortedContent = [...res.content];
+        if (sortOrder === "평점순") {
+          sortedContent.sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0));
+        }
+
         if (!cancelled) {
           setData({
             ...res,
-            content: res.content.map((b) => ({
+            content: sortedContent.map((b) => ({
               ...b,
               imageUrl: b.imageUrl ?? null,
               description: b.description ?? null,
@@ -71,11 +94,12 @@ const BookList: React.FC = () => {
         if (!cancelled) setLoading(false);
       }
     }
+
     fetchData();
     return () => {
       cancelled = true;
     };
-  }, [page, size, keyword]);
+  }, [page, size, keyword, genreFilters, sortOrder]);
 
   const onSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") setPage(0);
@@ -104,9 +128,10 @@ const BookList: React.FC = () => {
       <h2 className="page-title">도서목록</h2>
 
       <div className="book-list-layout">
+        {/* ✅ 왼쪽 필터 메뉴 */}
         <aside className="filter-menu">
           <div className="filter-section">
-            <div className="section-title">선택</div>
+            <div className="section-title">선택된 장르</div>
             <div className="keyword-list">
               {selectedFilters.map((filter, index) => (
                 <div
@@ -166,8 +191,10 @@ const BookList: React.FC = () => {
           </div>
         </aside>
 
+        {/* ✅ 오른쪽 메인 목록 */}
         <section className="main-content">
           <div className="filter-bar">
+            {/* 검색창 */}
             <div className="search-filter">
               <div className="search-input">
                 <input
@@ -195,13 +222,13 @@ const BookList: React.FC = () => {
               </div>
             </div>
 
+            {/* 정렬 버튼 */}
             <div className="sort-toggles">
-              {(["최신순", "인기순", "평점순"] as const).map((option) => (
+              {(["최신순", "평점순"] as const).map((option) => (
                 <div
                   key={option}
                   className={`sort-toggle ${sortOrder === option ? "active" : ""}`}
                   onClick={() => setSortOrder(option)}
-                  title="(TODO) 백엔드 정렬 파라미터 붙이기"
                 >
                   {sortOrder === option && (
                     <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
@@ -220,20 +247,20 @@ const BookList: React.FC = () => {
             </div>
           </div>
 
+          {/* 상태 표시 */}
           {loading && <div style={{ padding: 8 }}>불러오는 중...</div>}
-          {errorMsg && (
-            <div style={{ padding: 8, color: "crimson" }}>{errorMsg}</div>
-          )}
+          {errorMsg && <div style={{ padding: 8, color: "crimson" }}>{errorMsg}</div>}
           {!loading && data.totalElements === 0 && (
             <div style={{ padding: 8 }}>검색 결과가 없습니다.</div>
           )}
 
+          {/* 도서 목록 */}
           <div className="books-grid">
             {data.content.map((book) => (
               <div
                 key={book.id}
                 className="book-card"
-                onClick={() => navigate(`/book/${book.id}`)} // ✅ 클릭 시 상세로
+                onClick={() => navigate(`/book/${book.id}`)}
                 style={{ cursor: "pointer" }}
               >
                 <div className="book-image">
@@ -249,19 +276,19 @@ const BookList: React.FC = () => {
                   <div className="book-title">{book.title}</div>
                   <div className="book-author">{book.author}</div>
                   <div className="book-rating">
-                  {[...Array(5)].map((_, i) => (
-                    <svg
-                      key={i}
-                      width="20"
-                      height="20"
-                      viewBox="0 0 20 20"
-                      fill={i < Math.round(book.rating ?? 0) ? "#FFD700" : "none"}
-                      stroke="#2C2C2C"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
+                    {[...Array(5)].map((_, i) => (
+                      <svg
+                        key={i}
+                        width="20"
+                        height="20"
+                        viewBox="0 0 20 20"
+                        fill={i < Math.round(book.rating ?? 0) ? "#FFD700" : "none"}
+                        stroke="#2C2C2C"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
                       >
-                      <path d="M9.99935 1.66675L12.5743 6.88341L18.3327 7.72508L14.166 11.7834L15.1493 17.5167L9.99935 14.8084L4.84935 17.5167L5.83268 11.7834L1.66602 7.72508L7.42435 6.88341L9.99935 1.66675Z" />
+                        <path d="M9.99935 1.66675L12.5743 6.88341L18.3327 7.72508L14.166 11.7834L15.1493 17.5167L9.99935 14.8084L4.84935 17.5167L5.83268 11.7834L1.66602 7.72508L7.42435 6.88341L9.99935 1.66675Z" />
                       </svg>
                     ))}
                   </div>
@@ -269,6 +296,8 @@ const BookList: React.FC = () => {
               </div>
             ))}
           </div>
+
+          {/* 페이지네이션 */}
           <div className="pagination">
             <div
               className={`pagination-previous ${page === 0 ? "disabled" : ""}`}

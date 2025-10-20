@@ -1,5 +1,6 @@
 package kr.ac.ync.library.domain.board.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import kr.ac.ync.library.domain.users.entity.UserEntity;
 import kr.ac.ync.library.global.common.entity.BaseTimeEntity;
@@ -11,8 +12,11 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
+@Setter
 @ToString
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class BoardEntity extends BaseTimeEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -31,5 +35,4 @@ public class BoardEntity extends BaseTimeEntity {
     private String content;
 
     private Long viewCount;
-
 }

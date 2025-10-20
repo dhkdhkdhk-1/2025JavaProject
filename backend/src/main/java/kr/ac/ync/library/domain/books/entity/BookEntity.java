@@ -41,6 +41,7 @@ public class BookEntity extends BaseTimeEntity {
     /** ✅ Book ↔ BookBranch (1:N 관계) */
     @OneToMany(mappedBy = "book", cascade = CascadeType.ALL, orphanRemoval = true)
     @ToString.Exclude
+    @Builder.Default
     private List<BookBranchEntity> bookBranches = new ArrayList<>();
 
     /** ✅ 리뷰 관계 */
@@ -62,5 +63,14 @@ public class BookEntity extends BaseTimeEntity {
 
     public void removeBranchRelation(BookBranchEntity relation) {
         this.bookBranches.remove(relation);
+    }
+
+    // BookEntity.java 하단부 (기존 uptTitle, uptAuthor 바로 아래에 추가)
+    public void uptDescription(String description) {
+        this.description = description;
+    }
+
+    public void uptImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 }
