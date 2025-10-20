@@ -10,6 +10,7 @@ import kr.ac.ync.library.domain.users.entity.enums.UserRole;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 @Service
 @RequiredArgsConstructor
@@ -77,18 +78,25 @@ public class BoardServiceImpl implements BoardService {
         return toResponse(entity);
     }
 
+    /** ✅ 제목·내용 검증 추가 */
     @Override
     public BoardResponse createBoard(BoardRequest request, UserEntity user) {
+        if (!StringUtils.hasText(request.getTitle()) || !StringUtils.hasText(request.getContent())) {
+            throw new IllegalArgumentException("제목과 내용을 모두 입력해야 합니다.");
+        }
+
         BoardEntity board = BoardEntity.builder()
-                .title(request.getTitle())
-                .content(request.getContent())
+                .title(request.getTitle().trim())
+                .content(request.getContent().trim())
                 .type(request.getType() != null ? request.getType() : "일반")
                 .user(user)
                 .viewCount(0L)
                 .build();
+
         return toResponse(boardRepository.save(board));
     }
 
+    /** ✅ 수정 시에도 검증 추가 */
     @Override
     public BoardResponse updateBoard(Long id, BoardRequest request, UserEntity user) {
         BoardEntity board = boardRepository.findById(id)
@@ -100,9 +108,14 @@ public class BoardServiceImpl implements BoardService {
             throw new RuntimeException("수정 권한이 없습니다.");
         }
 
-        board.setTitle(request.getTitle());
-        board.setContent(request.getContent());
+        if (!StringUtils.hasText(request.getTitle()) || !StringUtils.hasText(request.getContent())) {
+            throw new IllegalArgumentException("제목과 내용을 모두 입력해야 합니다.");
+        }
+
+        board.setTitle(request.getTitle().trim());
+        board.setContent(request.getContent().trim());
         board.setType(request.getType() != null ? request.getType() : "일반");
+
         return toResponse(boardRepository.save(board));
     }
 

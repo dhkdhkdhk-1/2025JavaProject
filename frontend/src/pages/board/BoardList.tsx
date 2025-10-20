@@ -14,7 +14,6 @@ const BoardList: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
 
-  // ✅ 기본 검색 조건을 "제목+내용"으로 설정
   const [searchType, setSearchType] = useState("제목+내용");
   const [keyword, setKeyword] = useState("");
   const [category, setCategory] = useState("전체");
@@ -43,7 +42,7 @@ const BoardList: React.FC = () => {
     }
   }, []);
 
-  /** ✅ 현재 조건의 게시글 불러오기 */
+  /** ✅ 현재 조건 게시글 불러오기 */
   const fetchBoards = useCallback(
     async (
       pageNum: number,
@@ -61,13 +60,7 @@ const BoardList: React.FC = () => {
           categoryStr
         );
 
-        if (res.data.content.length === 0) {
-          setBoards([]);
-          setErrorMsg("🔍 해당 조건에 맞는 게시글이 없습니다.");
-        } else {
-          setBoards(res.data.content);
-        }
-
+        setBoards(res.data.content);
         setTotalPages(res.data.totalPages);
       } catch (error) {
         console.error("게시글 불러오기 실패:", error);
@@ -84,7 +77,6 @@ const BoardList: React.FC = () => {
     [navigate]
   );
 
-  /** ✅ URL 변경 시 새 데이터 가져오기 */
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const newSearchType = params.get("searchType") || "제목+내용";
@@ -101,7 +93,7 @@ const BoardList: React.FC = () => {
     fetchBoards(newPage, newKeyword, newSearchType, newCategory);
   }, [location.search, fetchBoards, fetchAllBoards]);
 
-  /** ✅ 검색 실행 */
+  /** ✅ 검색 */
   const handleSearch = () => {
     const query = new URLSearchParams();
     if (keyword.trim()) query.append("keyword", keyword);
@@ -121,13 +113,6 @@ const BoardList: React.FC = () => {
     navigate(`/board?${query.toString()}`);
   };
 
-  const handleCategoryChange = (newCategory: string) => {
-    const query = new URLSearchParams(location.search);
-    query.set("category", newCategory);
-    query.set("page", "0");
-    navigate(`/board?${query.toString()}`);
-  };
-
   /** ✅ 전체 기준 ID 계산 */
   const calculateGlobalId = (boardId: number) => {
     const index = allBoards.findIndex((b) => b.id === boardId);
@@ -144,7 +129,7 @@ const BoardList: React.FC = () => {
         <select
           className="board-category-select"
           value={category}
-          onChange={(e) => handleCategoryChange(e.target.value)}
+          onChange={(e) => handlePageChange(0)}
         >
           <option value="전체">전체</option>
           <option value="일반">일반</option>
@@ -152,7 +137,6 @@ const BoardList: React.FC = () => {
           <option value="질문">질문</option>
         </select>
 
-        {/* ✅ 검색 조건 - 제목+내용 기본, 제목 / 작성자 추가 */}
         <select
           className="board-search-select"
           value={searchType}
@@ -176,7 +160,7 @@ const BoardList: React.FC = () => {
         </button>
       </div>
 
-      {/* ✅ 게시글 테이블 */}
+      {/* ✅ 게시글 목록 */}
       {loading ? (
         <p style={{ textAlign: "center", color: "#777" }}>불러오는 중...</p>
       ) : errorMsg ? (
@@ -195,36 +179,36 @@ const BoardList: React.FC = () => {
         />
       )}
 
-      {/* ✅ 페이지네이션 */}
-      {totalPages > 1 && (
-        <div className="pagination">
-          <button
-            className="board-button"
-            onClick={() => handlePageChange(Math.max(page - 1, 0))}
-            disabled={page === 0}
-          >
-            ← 이전
-          </button>
+      {/* ✅ 페이지네이션 항상 표시 */}
+      <div className="pagination">
+        <button
+          className="board-button"
+          onClick={() => handlePageChange(Math.max(page - 1, 0))}
+          disabled={page === 0}
+        >
+          ← 이전
+        </button>
 
-          {[...Array(totalPages)].map((_, num) => (
-            <button
-              key={num}
-              onClick={() => handlePageChange(num)}
-              className={`page-number ${num === page ? "active" : ""}`}
-            >
-              {num + 1}
-            </button>
-          ))}
-
+        {[...Array(Math.max(totalPages, 1))].map((_, num) => (
           <button
-            className="board-button"
-            onClick={() => handlePageChange(Math.min(page + 1, totalPages - 1))}
-            disabled={page >= totalPages - 1}
+            key={num}
+            onClick={() => handlePageChange(num)}
+            className={`page-number ${num === page ? "active" : ""}`}
           >
-            다음 →
+            {num + 1}
           </button>
-        </div>
-      )}
+        ))}
+
+        <button
+          className="board-button"
+          onClick={() =>
+            handlePageChange(Math.min(page + 1, Math.max(totalPages - 1, 0)))
+          }
+          disabled={page >= totalPages - 1 || totalPages === 0}
+        >
+          다음 →
+        </button>
+      </div>
 
       {/* ✅ 글쓰기 버튼 */}
       <div style={{ textAlign: "right", marginTop: "20px" }}>

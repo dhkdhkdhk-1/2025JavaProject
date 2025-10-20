@@ -6,6 +6,7 @@
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   padding: 40px;
+  min-height: 750px; /* ✅ 고정된 최소 높이로 폼 크기 일정 유지 */
 }
 
 /* ✅ 게시판 제목 (BoardList, Read, Write 공통) */
@@ -18,14 +19,32 @@
 }
 
 /* ✅ 입력폼 스타일 */
-.board-input,
-.board-textarea {
+.board-input {
   width: 100%;
   padding: 10px;
   margin-top: 5px;
   border: 1px solid #ddd;
   border-radius: 6px;
   font-size: 0.95rem;
+}
+/* ✅ 글 작성 / 수정 textarea 크기 확대 */
+.board-textarea {
+  width: 100%;
+  min-height: 400px; /* 🔹 기존보다 넉넉하게 (기존 150~200 정도였다면 2배 이상) */
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 1rem;
+  resize: vertical; /* 🔹 사용자가 직접 늘릴 수도 있게 */
+  line-height: 1.6;
+  box-sizing: border-box;
+}
+
+/* 🔹 포커스 시 강조 효과 */
+.board-textarea:focus {
+  outline: none;
+  border-color: #1a73e8;
+  box-shadow: 0 0 6px rgba(26, 115, 232, 0.3);
 }
 
 /* ✅ 버튼 스타일 */
