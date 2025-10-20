@@ -40,7 +40,9 @@ export const login = async (
   data: LoginRequest
 ): Promise<TokenResponse | null> => {
   try {
-    const res = await api.post<TokenResponse>("/auth", data);
+    const res = await api.post<TokenResponse>("/auth", data, {
+      headers: { skipAuthInterceptor: "true" },
+    });
     localStorage.setItem("accessToken", res.data.accessToken);
     localStorage.setItem("refreshToken", res.data.refreshToken);
     setAccessToken(res.data.accessToken);
@@ -56,7 +58,10 @@ export const login = async (
 export const signup = async (data: SignupRequest): Promise<boolean> => {
   try {
     await api.post("/auth/signup", data, {
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        skipAuthInterceptor: "true",
+      },
     });
     alert("회원가입이 완료되었습니다!");
     return true;
@@ -79,6 +84,7 @@ export const checkEmail = async (email: string): Promise<boolean> => {
       { email },
       { headers: { skipAuthInterceptor: "true" } }
     );
+    alert("✅ 사용 가능한 이메일입니다.");
     return res.status === 200;
   } catch (error: any) {
     if (axios.isAxiosError(error) && error.response?.status === 409)
@@ -89,7 +95,7 @@ export const checkEmail = async (email: string): Promise<boolean> => {
   }
 };
 
-/** ✅ 휴대폰 인증 API */
+/** ✅ 휴대폰 인증(중복확인) API */
 export const verifyPhone = async (phone: string): Promise<boolean> => {
   try {
     const res = await api.post(
@@ -97,8 +103,13 @@ export const verifyPhone = async (phone: string): Promise<boolean> => {
       { phone },
       { headers: { skipAuthInterceptor: "true" } }
     );
+    alert("✅ 사용 가능한 전화번호입니다."); // ✅ 문구 변경됨
     return res.status === 200;
   } catch (error: any) {
+    if (axios.isAxiosError(error) && error.response?.status === 409) {
+      alert("이미 등록된 전화번호입니다.");
+      return false;
+    }
     console.error("전화번호 인증 실패:", error);
     alert("전화번호 인증 중 오류가 발생했습니다.");
     return false;
@@ -133,7 +144,6 @@ export const refreshAccessToken = async (): Promise<string | null> => {
     localStorage.setItem("accessToken", res.data.accessToken);
     localStorage.setItem("refreshToken", res.data.refreshToken);
 
-    // ✅ 새 토큰을 전역 Axios에 반영
     api.defaults.headers.common[
       "Authorization"
     ] = `Bearer ${res.data.accessToken}`;
@@ -149,7 +159,20 @@ export const refreshAccessToken = async (): Promise<string | null> => {
   }
 };
 
-/** ✅ Axios 인터셉터 */
+/** ✅ 요청 인터셉터 추가 */
+api.interceptors.request.use((config) => {
+  if (config.headers?.skipAuthInterceptor === "true") {
+    delete config.headers.skipAuthInterceptor;
+    delete config.headers.Authorization;
+    return config;
+  }
+
+  const token = localStorage.getItem("accessToken");
+  if (token) config.headers.Authorization = `Bearer ${token}`;
+  return config;
+});
+
+/** ✅ 응답 인터셉터 */
 let isRefreshing = false;
 let failedQueue: {
   resolve: (token: string) => void;

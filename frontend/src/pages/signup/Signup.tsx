@@ -165,7 +165,7 @@ const Signup: React.FC = () => {
             onChange={(e) => setPhone(e.target.value)}
           />
           <button className="small-btn" onClick={handlePhoneAuth}>
-            본인인증
+            중복확인
           </button>
         </div>
 
