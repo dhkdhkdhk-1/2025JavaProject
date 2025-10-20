@@ -93,17 +93,12 @@ public class AuthServiceImpl implements AuthService {
             throw new IllegalArgumentException("이미 존재하는 닉네임입니다.");
         }
 
-        if (userRepository.existsByPhone(request.getPhone())) {
-            throw new IllegalArgumentException("이미 존재하는 번호입니다.");
-        }
-
         String encodedPassword = passwordEncoder.encode(request.getPassword());
 
         UserEntity user = UserEntity.builder()
                 .email(request.getEmail())
                 .username(request.getUsername())
                 .password(encodedPassword)
-                .phone(request.getPhone())
                 .role(UserRole.USER)
                 .build();
 

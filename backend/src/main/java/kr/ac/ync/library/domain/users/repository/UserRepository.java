@@ -12,6 +12,4 @@ public interface UserRepository extends JpaRepository<UserEntity, Long> {
 
     boolean existsByUsername(String username); // 닉네임 중복체크
 
-    boolean existsByPhone(String Phone); // 전화번호 중복체크
-
 }

@@ -21,7 +21,7 @@ export const getBranches = async (
   size: number = 5
 ): Promise<PageResponse<BranchResponse>> => {
   const response = await axios.get<PageResponse<BranchResponse>>(
-    `${BASE_URL}/list`,
+    `${BASE_URL}/branch/list`,
     {
       params: { page, size },
     }

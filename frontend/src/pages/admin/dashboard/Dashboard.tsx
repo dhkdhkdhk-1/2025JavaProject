@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
-import PieChartBox from "../../components/chart/PieChartBox";
-import { getBranches, BranchResponse } from "../../api/BranchApi";
-import { getBooks } from "../../api/BookApi"; // ✅ 추가
+import PieChartBox from "../../../components/chart/PieChartBox";
+import { getBranches, BranchResponse } from "../../../api/BranchApi";
+import { getBooks } from "../../../api/BookApi"; // ✅ 추가
 import "./Dashboard.css";
 
 interface DashboardData {

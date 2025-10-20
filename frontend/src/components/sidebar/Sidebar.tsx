@@ -13,18 +13,19 @@ export default function Sidebar() {
           <span>Dashboard</span>
         </NavLink>
 
-        <div className="menu-item disabled">
+        <NavLink to="/admin/catalog" end className="menu-item">
           <span>Catalog</span>
-        </div>
+        </NavLink>
+
         <NavLink to="/admin/books" className="menu-item">
           <span>Books</span>
         </NavLink>
-        <div className="menu-item disabled">
+        <NavLink to="/admin/users" className="menu-item">
           <span>Users</span>
-        </div>
-        <div className="menu-item disabled">
+        </NavLink>
+        <NavLink to="/admin/branches" className="menu-item">
           <span>Branches</span>
-        </div>
+        </NavLink>
       </nav>
     </aside>
   );

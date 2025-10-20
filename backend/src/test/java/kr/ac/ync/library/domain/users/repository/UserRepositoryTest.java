@@ -24,12 +24,13 @@ class UserRepositoryTest
     @Test
     void testInertUsers()
     {
+        UserEntity user = UserEntity.builder().email("rnjsehsgus31@gmail.com").password(passwordEncoder.encode("1231")).role(UserRole.USER).username("이메일").build();
+        userRepository.save(user);
         IntStream.rangeClosed(1, 100)
                 .forEach(i -> {
                     String email = "user" + i + "@aaa.com";
                     UserEntity userEntity = UserEntity.builder()
                             .email(email)
-                            .phone("010-"+i)
                             .password(passwordEncoder.encode("1111"))
                             .username("USER" + i)
                             .role(UserRole.USER)

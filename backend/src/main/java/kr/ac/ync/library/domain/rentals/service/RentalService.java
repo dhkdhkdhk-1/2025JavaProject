@@ -1,5 +1,6 @@
 package kr.ac.ync.library.domain.rentals.service;
 
+import kr.ac.ync.library.domain.rentals.dto.Rental;
 import kr.ac.ync.library.domain.rentals.dto.RentalRegisterRequest;
 import kr.ac.ync.library.domain.rentals.dto.RentalResponse;
 import kr.ac.ync.library.domain.rentals.dto.RentalReturnRequest;
@@ -15,4 +16,6 @@ public interface RentalService {
     List<RentalResponse> getList();
 
     List<RentalResponse> getListByUser(Long userId);
+
+    RentalResponse findById(Long id);
 }

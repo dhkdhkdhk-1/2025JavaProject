@@ -1,0 +1,83 @@
+.catalog-container {
+  background-color: #f9f9fb;
+  padding: 32px 32px 32px 140px;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.tab-buttons {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.tab-buttons button {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  background-color: #e3e3e3;
+  color: #333;
+  font-weight: 500;
+  cursor: pointer;
+  border-radius: 8px;
+}
+
+.tab-buttons button.active {
+  background-color: #333;
+  color: white;
+}
+
+.catalog-search {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 10px;
+}
+
+.catalog-search input {
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  width: 220px;
+}
+
+.catalog-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.catalog-table th,
+.catalog-table td {
+  padding: 12px;
+  text-align: center;
+  border-bottom: 1px solid #eee;
+}
+
+.catalog-table th {
+  background-color: #f3f4f6;
+  color: #333;
+  font-weight: 600;
+}
+
+.catalog-action button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+}
+
+.mail-btn {
+  background-color: #333;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 5px 10px;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.mail-btn:hover {
+  background-color: #333;
+}

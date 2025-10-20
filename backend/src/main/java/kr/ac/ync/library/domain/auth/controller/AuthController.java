@@ -69,16 +69,4 @@ public class AuthController {
         }
         return ResponseEntity.ok(Map.of("message", "사용 가능한 이메일입니다."));
     }
-
-    // ✅ 휴대폰 인증 (테스트용)
-    @PostMapping("/verify-phone")
-    public ResponseEntity<?> verifyPhone(@RequestBody Map<String, String> request) {
-        String phone = request.get("phone");
-        if (phone == null || phone.trim().isEmpty()) {
-            return ResponseEntity.badRequest().body(Map.of("message", "휴대폰 번호가 비어 있습니다."));
-        }
-
-        // 실제 인증번호 발송 로직 대신 예시
-        return ResponseEntity.ok(Map.of("message", "인증번호가 전송되었습니다."));
-    }
 }
