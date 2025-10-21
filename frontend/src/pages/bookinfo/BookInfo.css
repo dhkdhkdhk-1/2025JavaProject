@@ -288,19 +288,24 @@
    🔷 9. 리뷰 카드 레이아웃
    ========================================================= */
 .reviews-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  display: flex;
   gap: var(--sds-size-space-1200);
+  overflow-x: auto;              /* ✅ 가로 스크롤 가능 */
+  scroll-snap-type: x mandatory; /* ✅ 카드가 스냅처럼 붙음 */
+  padding-bottom: 12px;          /* ✅ 아래 여백 (스크롤바 피하기) */
 }
 
+/* 각 리뷰 카드 */
 .review-card {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sds-size-space-600);
-  padding: var(--sds-size-space-600);
+  flex: 0 0 280px;               /* ✅ 고정된 카드 너비 */
+  scroll-snap-align: start;      /* ✅ 스크롤 시 카드가 정렬되게 */
   border: 1px solid var(--sds-color-border-default-default);
   border-radius: var(--sds-size-radius-200);
   background: var(--sds-color-background-default-default);
+  padding: var(--sds-size-space-600);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sds-size-space-400);
 }
 
 /* =========================================================

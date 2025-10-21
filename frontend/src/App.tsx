@@ -19,12 +19,14 @@ import Login from "./pages/login/Login";
 import Signup from "./pages/signup/Signup";
 import BookList from "./pages/booklist/BookList";
 import BookInfo from "./pages/bookinfo/BookInfo";
-import TotalReview from "./pages/review/totalreview/TotalReview";
+import TotalReview from "./pages/review/booktotalreview/BookTotalReview";
 import RentalList from "./pages/rental/RentalList";
 import WishList from "./pages/wishlist/WishList";
-import ReviewList from "./pages/review/reviewlist/ReviewList";
+import ReviewList from "./pages/review/myreviewlist/MyReviewList";
 import WriteReview from "./pages/review/writereview/WriteReview";
 import ReviewDetail from "./pages/review/reviewdetail/ReviewDetail";
+import CsListPage from "./pages/cspage/mycslist/MyCsListPage";
+import MyCsListDetail from "./pages/cspage/mycslistdetail/MyCsListDetail";
 
 
 // ✅ 관리자 페이지
@@ -115,13 +117,14 @@ const App: React.FC = () => {
           <Route path="/review/list" element={<ReviewList />} /> {/* 그 책에 대한 전체리뷰) */}
           <Route path="/review/write/:id" element={<WriteReview />} /> 
           <Route path="/review/detail/:id" element={<ReviewDetail />} />
-
           {/* ✅ 대여 및 찜 목록 */}
           <Route path="/rental" element={<RentalList />} />
           <Route path="/wishlist" element={<WishList />} />
           <Route path="/booklist" element={<BookList />} />
           <Route path="/book/:id" element={<BookInfo />} />{" "}
-
+          {/* 문의내역 보는 곳 */}
+          <Route path="/cs" element={<CsListPage />} /> {/* 내 전체 문의 내역 */}
+          <Route path="/cs/detail" element={<MyCsListDetail />} /> {/* 문의 내역 상세 페이지 */}
         </Route>
 
         {/* ✅ 관리자 전용 영역 */}
