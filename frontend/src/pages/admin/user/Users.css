@@ -1,99 +1,174 @@
-.users-container {
-  padding: 32px 32px 32px 140px;
-  background-color: #f7f9fb;
-  min-height: 100vh;
-  font-family: "Pretendard", "Noto Sans KR", sans-serif;
-}
-
-h2 {
-  font-size: 1.6rem;
-  margin-bottom: 24px;
-  font-weight: 700;
-  color: #2c3e50;
-}
-
-/* ✅ 테이블 */
-.users-table {
+/* ===== 전체 레이아웃 ===== */
+.admin-layout {
   width: 100%;
-  border-collapse: collapse;
-  background: #fff;
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
-}
-
-.users-table th {
-  background: #2c3e50;
-  color: white;
-  padding: 14px;
-  font-weight: 600;
-  font-size: 0.95rem;
-}
-
-.users-table td {
-  padding: 12px 16px;
-  border-bottom: 1px solid #eaeaea;
-  text-align: center;
-  font-size: 0.9rem;
-}
-
-.users-table tbody tr:hover {
-  background-color: #f3f7ff;
-}
-
-/* ✅ 버튼 */
-.users-table button {
-  padding: 6px 12px;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  margin: 0 4px;
-  font-size: 0.85rem;
-  font-weight: 500;
-  color: #fff;
-  transition: all 0.2s ease;
-}
-
-.users-table button:first-child {
-  background-color: #3498db;
-}
-
-.users-table button:first-child:hover {
-  background-color: #2980b9;
-}
-
-.users-table button:last-child {
-  background-color: #e74c3c;
-}
-
-.users-table button:last-child:hover {
-  background-color: #c0392b;
-}
-
-/* ✅ 페이징 */
-.pagination {
-  margin-top: 20px;
+  height: 100vh;
   display: flex;
-  justify-content: center;
+  margin: 0;
+  flex-direction: column;
+  background-color: #fff; /* 🔥 회색 배경 제거 */
+}
+
+.admin-body {
+  display: flex;
+  flex: 1;
+  background: #fff;
+  margin: 0;
+  padding: 0;
+  gap: 0; /* ✅ flex 간 여백 제거 */
+}
+
+/* ===== 사이드바 ===== */
+.admin-body .sidebar {
+  width: 220px; /* ✅ 사이드바 고정폭 */
+  flex-shrink: 0;
+  background: #1e1e1e;
+  padding: 0;
+  margin: 0;
+}
+/* ===== 전체 레이아웃 ===== */
+.users-container {
+  width: 100%;
+  background: #fff;
+  padding: 32px 32px 32px 140px; /* ✅ 사이드바 여백 맞춤 */
+  min-height: 100vh;
+  box-sizing: border-box;
+}
+
+/* ===== 헤더 ===== */
+.users-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.users-header h2 {
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+}
+
+.users-header h2::before {
+  content: "📘"; /* 도서관리와 동일한 아이콘 */
+}
+
+/* ===== 버튼 + 검색창 ===== */
+.users-actions {
+  display: flex;
   align-items: center;
   gap: 10px;
 }
 
-.pagination button {
-  background: #34495e;
-  color: white;
+.add-btn {
+  background: #333;
+  color: #fff;
   border: none;
+  padding: 8px 12px;
   border-radius: 6px;
-  padding: 6px 14px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.add-btn:hover {
+  background: #1e1e1e;
+}
+
+.users-actions input {
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding: 6px 10px;
+  width: 220px;
+  outline: none;
+}
+
+.users-actions input:focus {
+  border-color: #666;
+}
+
+/* ===== 테이블 ===== */
+.users-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  background: #fff;
+}
+
+.users-table th,
+.users-table td {
+  text-align: left;
+  padding: 10px 14px;
+  border-bottom: 1px solid #eee;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.users-table th {
+  background: #fafafa;
+  font-weight: 600;
+}
+
+/* 열 너비 */
+.users-table th:nth-child(1),
+.users-table td:nth-child(1) {
+  width: 10%;
+}
+.users-table th:nth-child(2),
+.users-table td:nth-child(2) {
+  width: 20%;
+}
+.users-table th:nth-child(3),
+.users-table td:nth-child(3) {
+  width: 30%;
+}
+.users-table th:nth-child(4),
+.users-table td:nth-child(4) {
+  width: 15%;
+}
+.users-table th:nth-child(5),
+.users-table td:nth-child(5) {
+  width: 15%;
+}
+
+/* ===== 아이콘 버튼 ===== */
+.icon-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 4px 6px;
+  font-size: 16px;
+}
+
+.icon-btn.edit:hover {
+  color: #333;
+}
+.icon-btn.delete:hover {
+  color: #dc3545;
+}
+
+/* ===== 페이지네이션 ===== */
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 16px;
+  gap: 8px;
+}
+
+.pagination button {
+  background: #f1f1f1;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 6px;
   cursor: pointer;
 }
 
-.pagination button:disabled {
-  background: #bdc3c7;
-  cursor: not-allowed;
+.pagination button:hover {
+  background: #e0e0e0;
 }
 
 .pagination span {
-  font-weight: 600;
-  color: #2c3e50;
+  font-weight: 500;
 }

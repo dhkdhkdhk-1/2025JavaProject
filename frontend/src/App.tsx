@@ -23,7 +23,7 @@ import TotalReview from "./pages/review/totalreview/TotalReview";
 import RentalList from "./pages/rental/RentalList";
 import WishList from "./pages/wishlist/WishList";
 import ReviewList from "./pages/review/reviewlist/ReviewList";
-import WriteReview from "./pages/review/writereview/WriteReview"; // ✅ 추가
+import WriteReview from "./pages/review/writereview/WriteReview";
 
 // ✅ 관리자 페이지
 import Dashboard from "./pages/admin/dashboard/Dashboard";
@@ -31,6 +31,7 @@ import BookManager from "./pages/admin/bookmanager/BookManager";
 import MyPage from "./pages/mypage/MyPage";
 import Catalog from "./pages/admin/catalog/Catalog";
 import Users from "./pages/admin/user/Users";
+import Branches from "./pages/admin/branches/Branches";
 // ✅ 게시판 페이지
 import BoardList from "./pages/board/BoardList";
 import BoardRead from "./pages/board/BoardRead";
@@ -126,6 +127,7 @@ const App: React.FC = () => {
           <Route path="books" element={<BookManager />} />
           <Route path="catalog" element={<Catalog />} />
           <Route path="users" element={<Users />} />
+          <Route path="branches" element={<Branches />} />
         </Route>
 
         {/* ✅ 기본 및 잘못된 경로 처리 */}

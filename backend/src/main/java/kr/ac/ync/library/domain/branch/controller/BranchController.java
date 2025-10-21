@@ -18,10 +18,11 @@ import java.util.List;
 public class BranchController {
 
     private final BranchService branchService;
+
     @GetMapping("/list")
     public ResponseEntity<Page<BranchResponse>> list(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "5") int size) {
+            @RequestParam(defaultValue = "10") int size) {
 
         return ResponseEntity.ok(branchService.getList(page, size));
     }
