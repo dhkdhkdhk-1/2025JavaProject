@@ -25,7 +25,6 @@ import WishList from "./pages/wishlist/WishList";
 import ReviewList from "./pages/review/reviewlist/ReviewList";
 import WriteReview from "./pages/review/writereview/WriteReview"; // ✅ 추가
 import Withdraw from "./pages/withdraw/Withdraw";
-import WriteReview from "./pages/review/writereview/WriteReview";
 
 // ✅ 관리자 페이지
 import Dashboard from "./pages/admin/dashboard/Dashboard";
