@@ -24,6 +24,8 @@ import RentalList from "./pages/rental/RentalList";
 import WishList from "./pages/wishlist/WishList";
 import ReviewList from "./pages/review/reviewlist/ReviewList";
 import WriteReview from "./pages/review/writereview/WriteReview";
+import ReviewDetail from "./pages/review/reviewdetail/ReviewDetail";
+
 
 // ✅ 관리자 페이지
 import Dashboard from "./pages/admin/dashboard/Dashboard";
@@ -109,16 +111,17 @@ const App: React.FC = () => {
           <Route path="/booklist" element={<BookList />} />
           <Route path="/book/:id" element={<BookInfo />} />
           {/* ✅ 리뷰 관련 */}
-          <Route path="/review/book/:id" element={<TotalReview />} />
-          {/* ✅ 내가 쓴 리뷰 목록 페이지 */}
-          <Route path="/reviewlist" element={<ReviewList />} />
-          <Route path="/review/write/:id" element={<WriteReview />} />
+          <Route path="/review/book/:id" element={<TotalReview />} /> {/* 내가 쓴 전체 리뷰들 보기 */}
+          <Route path="/review/list" element={<ReviewList />} /> {/* 그 책에 대한 전체리뷰) */}
+          <Route path="/review/write/:id" element={<WriteReview />} /> 
+          <Route path="/review/detail/:id" element={<ReviewDetail />} />
+
           {/* ✅ 대여 및 찜 목록 */}
           <Route path="/rental" element={<RentalList />} />
           <Route path="/wishlist" element={<WishList />} />
           <Route path="/booklist" element={<BookList />} />
           <Route path="/book/:id" element={<BookInfo />} />{" "}
-          <Route path="/review/book/:id" element={<TotalReview />} />{" "}
+
         </Route>
 
         {/* ✅ 관리자 전용 영역 */}

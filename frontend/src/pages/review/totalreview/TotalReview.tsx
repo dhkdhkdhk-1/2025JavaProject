@@ -114,7 +114,7 @@ const TotalReview: React.FC = () => {
                 <div
                   key={r.id}
                   className="table-row"
-                  onClick={() => navigate(`/book/${r.bookId}`)}
+                  onClick={() => navigate(`/review/detail/${r.id}`)} // ReviewDetail로 이동
                   style={{ cursor: "pointer" }}
                 >
                   <div className="table-cell col-number">

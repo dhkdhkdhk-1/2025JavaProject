@@ -96,4 +96,11 @@ public class ReviewController {
         return ResponseEntity.ok(myReviews);
     }
 
+    // ✅ 단일 리뷰 조회 (누구나 가능)
+    @GetMapping("/{id}")
+    public ResponseEntity<Review> getReviewById(@PathVariable("id") Long id) {
+        Review review = reviewService.findById(id);
+        return ResponseEntity.ok(review);
+    }
+
 }

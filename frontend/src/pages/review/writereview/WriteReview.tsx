@@ -47,7 +47,7 @@ const WriteReview: React.FC = () => {
       navigate(`/review/book/${id}`);
     } catch (error) {
       console.error(error);
-      alert("리뷰 등록 실패: 로그인 상태를 확인해주세요.");
+      alert("리뷰 등록 실패 이미 등록되어있습니다");
     }
   };
 

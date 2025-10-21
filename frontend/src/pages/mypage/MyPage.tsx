@@ -31,7 +31,7 @@ const MyPage: React.FC = () => {
             <h3>리뷰 관리</h3>
             <p>작성한 도서 리뷰를 수정하거나 삭제하세요.</p>
             <button className="mypage-btn"
-            onClick={() => navigate("/reviewlist")}>관리하기</button>
+            onClick={() => navigate("/review/list")}>관리하기</button>
           </div>
 
           <div className="mypage-card">
