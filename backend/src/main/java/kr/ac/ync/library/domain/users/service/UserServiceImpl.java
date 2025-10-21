@@ -12,6 +12,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
@@ -53,11 +55,16 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserResponse adminUpdate(Long id, AdminUserUpdateRequest request) {
+    public UserResponse adminUpdateUser(Long id, AdminUserUpdateRequest request) {
         UserEntity user = userRepository.findById(id).orElseThrow(() -> UserNotFoundException.EXCEPTION);
         user.changeUsername(request.getUsername());
         user.changeRole(request.getRole());
         userRepository.save(user);
         return UserMapper.toResponse(user);
+    }
+
+    @Override
+    public Page<UserResponse> getAdmins(Pageable pageable) {
+        return userRepository.findAdmins(pageable).map(UserMapper::toResponse);
     }
 }

@@ -24,20 +24,5 @@ public class AdminController
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/user/list")
-    public ResponseEntity<Page<UserResponse>> list(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
-    ) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
-        return ResponseEntity.ok(userService.getList(pageable));
-    }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<UserResponse> adminUpdate(
-            @PathVariable Long id,
-            @Valid @RequestBody AdminUserUpdateRequest request
-    ) {
-        return ResponseEntity.ok(userService.adminUpdate(id, request));
-    }
 }
