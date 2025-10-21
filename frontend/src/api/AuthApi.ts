@@ -16,26 +16,29 @@ export interface LoginRequest {
   email: string;
   password: string;
 }
+
 export interface SignupRequest {
   email: string;
   username: string;
   password: string;
   passwordCheck: string;
-  // ❌ phone 제거
+  restorePosts?: boolean;
 }
+
 export interface TokenResponse {
   accessToken: string;
   refreshToken: string;
 }
+
 export interface User {
   id: number;
   username: string;
   email: string;
   role: string;
-  deleted: boolean; // ✅ 추가
+  deleted: boolean;
 }
 
-/** ✅ 로그인 API */
+/** ✅ 로그인 */
 export const login = async (
   data: LoginRequest
 ): Promise<TokenResponse | null> => {
@@ -52,7 +55,7 @@ export const login = async (
       axios.isAxiosError(error) &&
       error.response?.data?.message?.includes("탈퇴")
     ) {
-      alert("탈퇴된 계정입니다. 재가입 후 이용해주세요."); // ✅ 추가
+      alert("탈퇴된 계정입니다. 재가입 후 이용해주세요.");
     } else {
       alert("로그인 실패: 이메일 또는 비밀번호를 확인하세요.");
     }
@@ -60,10 +63,10 @@ export const login = async (
   }
 };
 
-/** ✅ 회원가입 API (재가입 포함) */
+/** ✅ 회원가입 (재가입 포함) */
 export const signup = async (
   data: SignupRequest
-): Promise<"OK" | "REJOIN" | "FAIL"> => {
+): Promise<"OK" | "REJOIN" | "EXISTS" | "FAIL"> => {
   try {
     const res = await api.post("/auth/signup", data, {
       headers: {
@@ -72,33 +75,46 @@ export const signup = async (
       },
     });
 
-    if (res.data === "REJOIN") return "REJOIN"; // ✅ 추가
-
-    alert("회원가입이 완료되었습니다!");
+    // ✅ 서버 응답 메시지 파싱
+    const msg = (res.data || "").toString().toLowerCase();
+    if (msg.includes("재가입") || msg.includes("복구")) return "REJOIN";
+    if (msg.includes("이미") || msg.includes("존재")) return "EXISTS";
     return "OK";
   } catch (error: any) {
+    if (axios.isAxiosError(error) && error.response?.status === 409) {
+      return "EXISTS";
+    }
     console.error("회원가입 실패:", error);
-    alert("회원가입 중 오류가 발생했습니다.");
     return "FAIL";
   }
 };
 
-/** ✅ 이메일 중복확인 API */
-export const checkEmail = async (email: string): Promise<boolean> => {
+/** ✅ 이메일 중복확인 (탈퇴 계정 확인 포함) */
+export const checkEmail = async (
+  email: string
+): Promise<"OK" | "REJOIN" | "DUPLICATE" | "FAIL"> => {
   try {
     const res = await api.post(
       "/auth/check-email",
       { email },
       { headers: { skipAuthInterceptor: "true" } }
     );
-    alert("✅ 사용 가능한 이메일입니다.");
-    return res.status === 200;
+
+    if (res.data?.rejoin === true) {
+      const confirmRejoin = window.confirm(res.data.message);
+      return confirmRejoin ? "REJOIN" : "FAIL";
+    }
+
+    alert(res.data.message || "✅ 사용 가능한 이메일입니다.");
+    return "OK";
   } catch (error: any) {
-    if (axios.isAxiosError(error) && error.response?.status === 409)
+    if (axios.isAxiosError(error) && error.response?.status === 409) {
       alert("이미 등록된 이메일입니다.");
-    else alert("이메일 중복확인 중 오류가 발생했습니다.");
+      return "DUPLICATE";
+    }
     console.error("이메일 확인 실패:", error);
-    return false;
+    alert("이메일 중복확인 중 오류가 발생했습니다.");
+    return "FAIL";
   }
 };
 

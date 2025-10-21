@@ -4,13 +4,14 @@ import { InputField } from "../login/components/InputField";
 import { VariantPrimaryWrapper } from "../login/components/VariantPrimaryWrapper";
 import { TextContentTitle } from "../login/components/TextContentTitle";
 import { api } from "../../api/AuthApi";
-import "./Withdraw.css"; // ✅ 새 CSS 파일 분리
+import "./Withdraw.css";
 
 const Withdraw: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [passwordCheck, setPasswordCheck] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [showPasswordCheck, setShowPasswordCheck] = useState(false);
   const navigate = useNavigate();
 
   /** ✅ 회원 탈퇴 처리 */
@@ -26,7 +27,8 @@ const Withdraw: React.FC = () => {
     }
 
     try {
-      await api.post("/auth/withdraw", { email, password });
+      await api.post("/auth/withdraw", { email, password, passwordCheck });
+
       alert("회원 탈퇴가 완료되었습니다.");
       localStorage.removeItem("accessToken");
       localStorage.removeItem("refreshToken");
@@ -57,6 +59,7 @@ const Withdraw: React.FC = () => {
           onChange={(e) => setEmail(e.target.value)}
         />
 
+        {/* ✅ 비밀번호 입력칸 */}
         <div className="password-container">
           <InputField
             className="withdraw-input"
@@ -77,13 +80,26 @@ const Withdraw: React.FC = () => {
           </button>
         </div>
 
-        <InputField
-          label="비밀번호 확인"
-          type="password"
-          value={passwordCheck}
-          valueType="value"
-          onChange={(e) => setPasswordCheck(e.target.value)}
-        />
+        {/* ✅ 비밀번호 확인 입력칸 (동일 구조로 수정됨) */}
+        <div className="password-container">
+          <InputField
+            className="withdraw-input"
+            inputClassName="withdraw-input-field"
+            label="비밀번호 확인"
+            value={passwordCheck}
+            valueType="value"
+            onChange={(e) => setPasswordCheck(e.target.value)}
+            type={showPasswordCheck ? "text" : "password"}
+          />
+          <button
+            type="button"
+            className="toggle-password-btn"
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={() => setShowPasswordCheck((prev) => !prev)}
+          >
+            {showPasswordCheck ? "🙈" : "👁️"}
+          </button>
+        </div>
 
         <VariantPrimaryWrapper
           className="withdraw-button"

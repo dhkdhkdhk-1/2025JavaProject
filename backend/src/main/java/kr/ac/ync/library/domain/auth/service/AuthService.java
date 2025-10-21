@@ -11,7 +11,7 @@ public interface AuthService {
 
     JsonWebTokenResponse refresh(String token);
 
-    void signup(SignupRequest request);
+    String signup(SignupRequest request);
 
     void withdraw(WithdrawRequest request);
 

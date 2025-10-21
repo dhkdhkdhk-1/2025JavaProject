@@ -21,7 +21,7 @@ public class BoardServiceImpl implements BoardService {
 
     private final BoardRepository boardRepository;
 
-    /** ✅ 검색, 분류, 페이징 (탈퇴회원 / 삭제글 제외) */
+    /** ✅ 검색, 분류, 페이징 (DB에서 탈퇴회원/삭제글 자동 제외) */
     @Override
     public Page<BoardResponse> getAllBoards(String keyword, String searchType, String category, Pageable pageable) {
         Pageable sortedPageable = PageRequest.of(
@@ -34,7 +34,7 @@ public class BoardServiceImpl implements BoardService {
         boolean hasKeyword = keyword != null && !keyword.trim().isEmpty();
         boolean hasCategory = category != null && !"전체".equals(category);
 
-        // ✅ 검색 조건 분기
+        // ✅ 조건별 조회 (삭제된 글/탈퇴회원은 DB 레벨에서 이미 제외)
         if (hasKeyword && hasCategory) {
             switch (searchType) {
                 case "제목":
@@ -66,19 +66,18 @@ public class BoardServiceImpl implements BoardService {
         } else if (hasCategory) {
             pageResult = boardRepository.findByType(category, sortedPageable);
         } else {
-            pageResult = boardRepository.findAll(sortedPageable);
+            // ✅ 모든 게시글 중 표시 가능한 글만
+            pageResult = boardRepository.findAllVisible(sortedPageable);
         }
 
-        // ✅ 탈퇴회원 및 삭제된 글 제외
-        List<BoardResponse> filteredList = pageResult.getContent().stream()
-                .filter(board -> board.getUser() != null && !board.getUser().isDeleted() && !board.isDeleted())
+        List<BoardResponse> list = pageResult.getContent().stream()
                 .map(this::toResponse)
                 .toList();
 
-        return new PageImpl<>(filteredList, pageable, filteredList.size());
+        return new PageImpl<>(list, pageable, pageResult.getTotalElements());
     }
 
-    /** ✅ 게시글 상세 조회 (탈퇴회원 글 접근 차단) */
+    /** ✅ 게시글 상세조회 (삭제/탈퇴회원 게시글 접근 차단) */
     @Override
     public BoardResponse getBoard(Long id) {
         BoardEntity entity = boardRepository.findById(id)
@@ -91,7 +90,7 @@ public class BoardServiceImpl implements BoardService {
         return toResponse(entity);
     }
 
-    /** ✅ 게시글 생성 */
+    /** ✅ 게시글 등록 */
     @Override
     public BoardResponse createBoard(BoardRequest request, UserEntity user) {
         if (!StringUtils.hasText(request.getTitle()) || !StringUtils.hasText(request.getContent())) {
@@ -122,10 +121,6 @@ public class BoardServiceImpl implements BoardService {
             throw new RuntimeException("수정 권한이 없습니다.");
         }
 
-        if (!StringUtils.hasText(request.getTitle()) || !StringUtils.hasText(request.getContent())) {
-            throw new IllegalArgumentException("제목과 내용을 모두 입력해야 합니다.");
-        }
-
         board.setTitle(request.getTitle().trim());
         board.setContent(request.getContent().trim());
         board.setType(request.getType() != null ? request.getType() : "일반");
@@ -133,7 +128,7 @@ public class BoardServiceImpl implements BoardService {
         return toResponse(boardRepository.save(board));
     }
 
-    /** ✅ soft delete 적용 */
+    /** ✅ soft delete */
     @Override
     public void deleteBoard(Long id, UserEntity user) {
         BoardEntity board = boardRepository.findById(id)
@@ -145,7 +140,6 @@ public class BoardServiceImpl implements BoardService {
             throw new RuntimeException("삭제 권한이 없습니다.");
         }
 
-        // ✅ 실제 삭제 대신 soft delete
         board.setDeleted(true);
         boardRepository.save(board);
     }
@@ -159,7 +153,7 @@ public class BoardServiceImpl implements BoardService {
         boardRepository.save(board);
     }
 
-    /** ✅ 전체 게시글 중 가장 큰 ID 반환 */
+    /** ✅ 최대 게시글 ID 반환 */
     @Override
     public long getMaxBoardId() {
         return boardRepository.findTopByOrderByIdDesc()
@@ -167,7 +161,7 @@ public class BoardServiceImpl implements BoardService {
                 .orElse(0L);
     }
 
-    /** ✅ DTO 변환 */
+    /** ✅ Entity → DTO 변환 */
     private BoardResponse toResponse(BoardEntity entity) {
         return BoardResponse.builder()
                 .id(entity.getId())

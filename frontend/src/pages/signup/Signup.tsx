@@ -13,12 +13,14 @@ const Signup: React.FC = () => {
   const [passwordCheck, setPasswordCheck] = useState("");
   const [username, setUsername] = useState("");
   const [isEmailChecked, setIsEmailChecked] = useState(false);
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const emailRegex = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
 
+  /** ✅ 이메일 중복 확인 */
   const handleEmailCheck = async () => {
-    if (!email) {
+    if (!email.trim()) {
       alert("이메일을 입력해주세요.");
       return;
     }
@@ -26,10 +28,14 @@ const Signup: React.FC = () => {
       alert("올바른 이메일 형식을 입력해주세요. (예: example@domain.com)");
       return;
     }
-    const success = await checkEmail(email);
-    if (success) setIsEmailChecked(true);
+
+    const result = await checkEmail(email);
+    if (result === "OK" || result === "REJOIN") {
+      setIsEmailChecked(true);
+    }
   };
 
+  /** ✅ 회원가입 처리 */
   const handleSignup = async () => {
     if (!email || !password || !passwordCheck || !username) {
       alert("모든 정보를 입력해주세요.");
@@ -48,15 +54,25 @@ const Signup: React.FC = () => {
       return;
     }
 
+    setLoading(true);
+
     try {
       const result = await signup({
         email,
+        username,
         password,
         passwordCheck,
-        username,
+        restorePosts: false,
       });
 
-      // ✅ 추가: 재가입 처리
+      setLoading(false);
+
+      if (result === "EXISTS") {
+        alert("이미 존재하는 이메일입니다.");
+        return;
+      }
+
+      // ✅ 탈퇴한 계정이라면 재가입 프로세스 시작
       if (result === "REJOIN") {
         const confirmRejoin = window.confirm(
           "이전에 탈퇴한 계정입니다. 재가입하시겠습니까?"
@@ -66,15 +82,30 @@ const Signup: React.FC = () => {
           return;
         }
 
-        const showPosts = window.confirm(
-          "이전 게시글을 다시 표시할까요?\n예: 게시판에 다시 표시 / 아니오: 숨김 유지"
+        const restore = window.confirm(
+          "이전 게시글을 복원하시겠습니까?\n'확인'를 선택하면 게시글이 다시 표시됩니다."
         );
 
-        if (showPosts) alert("게시글이 복구됩니다.");
-        else alert("게시글은 숨겨진 상태로 유지됩니다.");
+        const rejoinResult = await signup({
+          email,
+          username,
+          password,
+          passwordCheck,
+          restorePosts: restore,
+        });
 
-        navigate("/login");
-        return;
+        if (rejoinResult === "OK" || rejoinResult === "REJOIN") {
+          alert(
+            restore
+              ? "✅ 계정과 게시글이 복구되었습니다!"
+              : "✅ 계정이 복구되었습니다. 게시글은 숨김 상태로 유지됩니다."
+          );
+          navigate("/login");
+          return;
+        } else {
+          alert("재가입 중 오류가 발생했습니다.");
+          return;
+        }
       }
 
       if (result === "OK") {
@@ -86,6 +117,7 @@ const Signup: React.FC = () => {
     } catch (e) {
       console.error("회원가입 실패:", e);
       alert("서버 오류가 발생했습니다.");
+      setLoading(false);
     }
   };
 
@@ -96,7 +128,6 @@ const Signup: React.FC = () => {
         align="center"
         className="signup-title"
       />
-
       <div className="signup-box">
         <div className="input-with-button">
           <InputField
@@ -136,10 +167,11 @@ const Signup: React.FC = () => {
 
         <VariantPrimaryWrapper
           className="signup-button"
-          label="회원가입"
+          label={loading ? "로딩중..." : "회원가입"}
           size="medium"
           variant="primary"
           onClick={handleSignup}
+          disabled={loading}
         />
       </div>
     </div>

@@ -27,10 +27,18 @@
   text-align: left;
 }
 
-/* ✅ 비밀번호 입력창 영역 */
+/* ✅ 비밀번호 입력창 영역 (두 칸 동일 스타일) */
 .password-container {
   position: relative;
   margin-bottom: var(--spacing-base);
+}
+
+/* ✅ Input 크기 통일 */
+.withdraw-input-field {
+  width: 100%;
+  height: 42px;
+  padding-right: 40px; /* 👁 버튼 공간 확보 */
+  box-sizing: border-box;
 }
 
 /* ✅ 눈 아이콘 버튼 */
@@ -44,6 +52,7 @@
   cursor: pointer;
   font-size: 18px;
   color: #666;
+  transition: color 0.2s;
 }
 
 .toggle-password-btn:hover {
