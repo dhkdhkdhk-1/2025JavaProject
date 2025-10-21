@@ -16,7 +16,7 @@ public class CorsConfigProd {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(Arrays.asList(
+        config.setAllowedOriginPatterns(Arrays.asList(
                 "https://d577bst0lphds.cloudfront.net",
                 "https://13.239.18.193"
         ));
