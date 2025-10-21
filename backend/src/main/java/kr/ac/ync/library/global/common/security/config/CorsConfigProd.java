@@ -16,6 +16,7 @@ public class CorsConfigProd {
         CorsConfiguration config = new CorsConfiguration();
         config.addAllowedOriginPattern("https://d577bst0lphds.cloudfront.net");
         config.addAllowedOriginPattern("http://ync-library-front.s3-website-ap-southeast-2.amazonaws.com");
+        config.addAllowedOriginPattern("https://13.239.18.193");
         config.addAllowedHeader("*");
         config.addAllowedMethod("*");
         config.setAllowCredentials(true);
