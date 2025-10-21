@@ -2,7 +2,7 @@ name: 🚀 Deploy Backend to EC2
 
 on:
   push:
-    branches: ["main"] # admin 브랜치 푸시 시 자동 배포
+    branches: ["admin"]
   workflow_dispatch: # 수동 실행 가능
 
 jobs:

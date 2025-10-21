@@ -51,7 +51,7 @@ public class SecurityConfig {
                         // ✅ 리뷰, 책, 지점
                         .requestMatchers("/review/book/**").permitAll()
                         .requestMatchers("/review/list").permitAll()
-                        .requestMatchers("/review/**").hasAnyRole("USER", "MANAGER", "ADMIN")
+                        .requestMatchers("/review/**").permitAll()
                         .requestMatchers("/book/**").permitAll()
                         .requestMatchers("/branch/**").permitAll()
 
