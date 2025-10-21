@@ -9,6 +9,7 @@ import kr.ac.ync.library.domain.auth.dto.response.JsonWebTokenResponse;
 import kr.ac.ync.library.domain.board.repository.BoardRepository;
 import kr.ac.ync.library.domain.users.entity.UserEntity;
 import kr.ac.ync.library.domain.users.entity.enums.UserRole;
+import kr.ac.ync.library.domain.users.exception.InvalidPasswordException;
 import kr.ac.ync.library.domain.users.repository.UserRepository;
 import kr.ac.ync.library.global.common.jwt.JwtProvider;
 import kr.ac.ync.library.global.common.jwt.enums.JwtType;
@@ -116,13 +117,23 @@ public class AuthServiceImpl implements AuthService {
 
         // 신규 유저 등록
         if (!request.getPassword().equals(request.getPasswordCheck())) {
-            throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
+            throw InvalidPasswordException.EXCEPTION;
         }
 
         UserEntity user = UserEntity.builder()
                 .email(request.getEmail())
                 .username(request.getUsername())
                 .password(passwordEncoder.encode(request.getPassword()))
+        if (userRepository.existsByUsername(request.getUsername())) {
+            throw new IllegalArgumentException("이미 존재하는 닉네임입니다.");
+        }
+
+        String encodedPassword = passwordEncoder.encode(request.getPassword());
+
+        UserEntity user = UserEntity.builder()
+                .email(request.getEmail())
+                .username(request.getUsername())
+                .password(encodedPassword)
                 .role(UserRole.USER)
                 .deleted(false)
                 .build();

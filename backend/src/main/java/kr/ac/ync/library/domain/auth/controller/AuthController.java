@@ -84,5 +84,11 @@ public class AuthController {
         }
 
         return ResponseEntity.ok(Map.of("rejoin", false, "message", "사용 가능한 이메일입니다."));
+        boolean exists = userRepository.existsByEmail(email);
+        if (exists) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(Map.of("message", "이미 존재하는 이메일입니다."));
+        }
+        return ResponseEntity.ok(Map.of("message", "사용 가능한 이메일입니다."));
     }
 }

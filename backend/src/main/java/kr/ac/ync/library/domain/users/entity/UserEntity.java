@@ -32,5 +32,22 @@ public class UserEntity extends BaseTimeEntity {
 
     @Column(nullable = false)
     private boolean deleted = false;
+    public void changeUsername(String username) {
+        if (username != null && !username.isBlank()) {
+            this.username = username;
+        }
+    }
+
+    // ✅ 비밀번호 변경
+    public void changePassword(String encodedPassword) {
+        this.password = encodedPassword;
+    }
+
+    // ✅ 권한 변경 (관리자 전용)
+    public void changeRole(UserRole newRole) {
+        if (newRole != null) {
+            this.role = newRole;
+        }
+    }
 
 }

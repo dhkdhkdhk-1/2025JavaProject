@@ -25,18 +25,20 @@ import WishList from "./pages/wishlist/WishList";
 import ReviewList from "./pages/review/reviewlist/ReviewList";
 import WriteReview from "./pages/review/writereview/WriteReview"; // ✅ 추가
 import Withdraw from "./pages/withdraw/Withdraw";
+import WriteReview from "./pages/review/writereview/WriteReview";
 
 // ✅ 관리자 페이지
+import Dashboard from "./pages/admin/dashboard/Dashboard";
+import BookManager from "./pages/admin/bookmanager/BookManager";
+import MyPage from "./pages/mypage/MyPage";
+import Catalog from "./pages/admin/catalog/Catalog";
+import Users from "./pages/admin/user/Users";
+import Branches from "./pages/admin/branches/Branches";
 // ✅ 게시판 페이지
 import BoardList from "./pages/board/BoardList";
 import BoardRead from "./pages/board/BoardRead";
 import BoardWrite from "./pages/board/BoardWrite";
 import BoardEdit from "./pages/board/BoardEdit";
-
-// 관리자 페이지
-import Dashboard from "./pages/admin/Dashboard";
-import BookManager from "./pages/admin/BookManager";
-import MyPage from "./pages/mypage/MyPage";
 
 /** ✅ 로그인 가드 (일반 사용자용) */
 const ProtectedLayout: React.FC = () => {
@@ -126,6 +128,9 @@ const App: React.FC = () => {
         <Route path="/admin" element={<AdminLayoutGuard />}>
           <Route index element={<Dashboard />} />
           <Route path="books" element={<BookManager />} />
+          <Route path="catalog" element={<Catalog />} />
+          <Route path="users" element={<Users />} />
+          <Route path="branches" element={<Branches />} />
         </Route>
 
         {/* ✅ 기본 및 잘못된 경로 처리 */}

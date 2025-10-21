@@ -170,5 +170,14 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem("accessToken");
+  if (token && !config.headers?.Authorization) {
+    config.headers = config.headers || {};
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
 /** ✅ 앱 시작 시 저장된 토큰 적용 */
 setAccessToken(localStorage.getItem("accessToken"));
