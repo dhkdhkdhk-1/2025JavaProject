@@ -134,7 +134,7 @@ const BookInfo: React.FC = () => {
             {/* 오른쪽: 도서 정보 */}
             <div className="product-details">
               <div className="breadcrumb">
-                국내 &gt; {book.category ?? "분류없음"}
+              {book.category ?? "분류없음"}
               </div>
 
               <div className="title-section">

@@ -27,6 +27,7 @@ import WriteReview from "./pages/review/writereview/WriteReview";
 import ReviewDetail from "./pages/review/reviewdetail/ReviewDetail";
 import CsListPage from "./pages/cspage/mycslist/MyCsListPage";
 import MyCsListDetail from "./pages/cspage/mycslistdetail/MyCsListDetail";
+import WriteCs from "./pages/cspage/writecs/WriteCs";
 
 
 // ✅ 관리자 페이지
@@ -124,7 +125,8 @@ const App: React.FC = () => {
           <Route path="/book/:id" element={<BookInfo />} />{" "}
           {/* 문의내역 보는 곳 */}
           <Route path="/cs" element={<CsListPage />} /> {/* 내 전체 문의 내역 */}
-          <Route path="/cs/detail" element={<MyCsListDetail />} /> {/* 문의 내역 상세 페이지 */}
+          <Route path="/cs/detail/:id" element={<MyCsListDetail />} /> {/* 문의 내역 상세 페이지 */}
+          <Route path="/writecs" element={<WriteCs />} /> {/* 문의작성 페이지 */}
         </Route>
 
         {/* ✅ 관리자 전용 영역 */}

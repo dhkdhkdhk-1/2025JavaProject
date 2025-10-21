@@ -4,30 +4,35 @@
 .book-info-page {
   background: var(--sds-color-background-default-default);
   font-family: Inter, -apple-system, Roboto, Helvetica, sans-serif;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 20px;
 }
 
 .product-section {
-  padding: var(--sds-size-space-1600);
-  min-height: 572px;
+  padding: 2rem;
+  min-height: 500px;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 .product-container {
   display: flex;
-  align-items: flex-start;
-  gap: var(--sds-size-space-1600);
-  max-width: 1920px;
+  flex-wrap: wrap;
+  gap: 2rem;
+  width: 100%;
   margin: 0 auto;
 }
 
 .product-content {
   display: flex;
-  align-items: flex-start;
-  gap: var(--sds-size-space-1600);
+  flex-wrap: wrap;
+  gap: 2rem;
   width: 100%;
 }
 
 .product-details {
-  flex: 1; /* 나머지 영역 차지 */
+  flex: 1 1 300px;
 }
 
 /* =========================================================
@@ -35,133 +40,117 @@
    ========================================================= */
 .breadcrumb {
   color: var(--sds-color-text-default-default);
-  font-size: var(--sds-typography-scale-06);
+  font-size: 1rem;
   font-weight: 700;
-  line-height: 120%;
-  letter-spacing: -0.48px;
-  margin-bottom: var(--sds-size-space-400);
+  margin-bottom: 0.5rem;
 }
 
 .title-section {
   display: flex;
   flex-direction: column;
-  gap: var(--sds-size-space-300);
-  margin-bottom: var(--sds-size-space-400);
+  gap: 0.5rem;
+  margin-bottom: 1rem;
 }
 
 .book-title {
   color: var(--sds-color-text-default-default);
-  font-size: 48px;
+  font-size: 2.5rem;
   font-weight: 700;
-  line-height: 100%;
-  letter-spacing: -0.96px;
   margin: 0;
 }
 
 .genre-tag {
   display: inline-flex;
-  padding: var(--sds-size-space-200);
+  padding: 4px 8px;
   justify-content: center;
   align-items: center;
-  border-radius: var(--sds-size-radius-200);
+  border-radius: 12px;
   background: var(--sds-color-background-positive-secondary);
   color: var(--sds-color-text-positive-on-positive-secondary);
-  font-size: 16px;
-  font-weight: 400;
-  line-height: 100%;
-  width: fit-content;
+  font-size: 0.9rem;
 }
 
 .author-section {
-  margin-bottom: var(--sds-size-space-600);
+  margin-bottom: 1.5rem;
 }
 
 /* =========================================================
    🔷 3. 책 이미지 관련
    ========================================================= */
 .product-image-container {
-  flex: 0 0 400px;
-}
-
-/* 오른쪽 도서 이미지 확대 (세로 고정) */
-.book-info-page .product-image-container {
-  width: 400px;
-  height: 700px;
+  flex: 0 0 35%;
+  min-width: 250px;
 }
 
 .book-info-page .book-image {
   width: 100%;
-  height: 100%;
-  object-fit: cover;
-  border-radius: var(--sds-size-radius-200);
+  height: auto;
+  border-radius: 12px;
 }
 
 /* =========================================================
    🔷 4. 책 소개 (아코디언)
    ========================================================= */
 .accordion-container {
-  max-width: 640px;
+  max-width: 100%;
 }
 
 .accordion-item {
   border: 1px solid var(--sds-color-border-default-default);
-  border-radius: var(--sds-size-radius-200);
+  border-radius: 12px;
   background: var(--sds-color-background-default-default);
-  padding: var(--sds-size-padding-lg);
+  padding: 1rem;
+  margin-bottom: 1rem;
 }
 
 .accordion-header {
   cursor: pointer;
-  margin-bottom: var(--sds-size-space-200);
+  margin-bottom: 0.5rem;
 }
 
 .accordion-title {
   color: var(--sds-color-text-default-default);
-  font-size: 16px;
+  font-size: 1rem;
   font-weight: 700;
-  line-height: 140%;
   margin: 0;
 }
 
 .accordion-content {
-  margin-top: var(--sds-size-space-200);
+  margin-top: 0.5rem;
 }
 
 .accordion-text {
   color: var(--sds-color-text-default-default);
-  font-size: 13px;
-  font-weight: 400;
-  line-height: 140%;
-  margin: 0;
+  font-size: 0.875rem;
 }
 
 /* =========================================================
    🔷 5. 지점 선택 섹션
    ========================================================= */
 .branch-select-section {
-  margin-top: 16px;
-  margin-bottom: 24px;
-  max-width: 260px;
+  margin-top: 1rem;
+  margin-bottom: 1.5rem;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 0.5rem;
+  width: 100%;
+  max-width: 260px;
 }
 
 .location-label {
-  font-size: 16px;
+  font-size: 0.95rem;
   font-weight: 600;
   color: var(--sds-color-text-default-default);
 }
 
 .location-select {
-  padding: 10px 12px;
+  padding: 10px;
   border: 1px solid var(--sds-color-border-default-default);
   border-radius: 8px;
-  font-size: 15px;
+  font-size: 0.95rem;
   background: var(--sds-color-background-default-default);
   color: var(--sds-color-text-default-default);
   cursor: pointer;
-  transition: border-color 0.2s ease;
 }
 
 .location-select:focus {
@@ -170,13 +159,12 @@
 }
 
 .branch-status {
-  margin-top: 4px;
   font-weight: 600;
-  font-size: 15px;
+  font-size: 0.9rem;
 }
 
 .branch-status.available {
-  color: #2563eb; /* 파란색 */
+  color: #2563eb;
 }
 
 .branch-status.unavailable {
@@ -184,148 +172,115 @@
 }
 
 /* =========================================================
-   🔷 6. 대여하기 / 찜하기 버튼 (크기 통일)
+   🔷 6. 대여하기 / 찜하기 버튼
    ========================================================= */
-
-/* 버튼 컨테이너 (두 버튼을 한 줄에 정렬) */
 .branch-select-section > div {
   display: flex;
   gap: 10px;
-  margin-top: 8px;
+  flex-wrap: wrap;
 }
 
-/* 공통 버튼 스타일 */
 .rent-button {
-  width: 180px;                     /* ✅ 고정 너비 */
-  height: 48px;                     /* ✅ 고정 높이 */
+  flex: 1 1 45%;
+  min-width: 120px;
+  max-width: 180px;
+  height: 48px;
   display: inline-flex;
   justify-content: center;
   align-items: center;
-  margin-top: 8px;
-
-  font-size: 16px;
+  font-size: 1rem;
   font-weight: 600;
-  color: #ffffff;
+  color: #fff;
   background-color: #0070f3;
   border: none;
   border-radius: 8px;
   cursor: pointer;
-  transition: background 0.2s ease, transform 0.1s ease;
+  transition: all 0.2s ease;
 }
 
-/* 비활성화 상태 */
 .rent-button:disabled {
   background-color: #c0c0c0;
   cursor: not-allowed;
 }
 
-/* 호버 효과 */
 .rent-button:hover:not(:disabled) {
   background-color: #005bb5;
-  transform: translateY(-1px);
 }
 
-/* 찜 버튼 (활성화 상태) */
 .rent-button.wish-active {
-  background-color: #ff4081; /* 💖 찜됨 상태 */
+  background-color: #ff4081;
   color: white;
 }
 
 .rent-button.wish-active:hover {
   background-color: #e73370;
-  transform: translateY(-1px);
 }
 
 /* =========================================================
-   🔷 7. 평점 (별점 표시)
+   🔷 7. 평점 (별점)
    ========================================================= */
 .star-rating {
   display: flex;
   align-items: center;
-  gap: 4px;
-  margin-bottom: 12px;
-}
-
-.star-rating svg {
-  transition: fill 0.2s ease;
-}
-
-/* =========================================================
-   🔷 8. 리뷰 섹션 (ReviewSection)
-   ========================================================= */
-.reviews-section {
-  padding: var(--sds-size-space-1600);
-  background: var(--sds-color-background-default-default);
-}
-
-.reviews-container {
-  max-width: 1920px;
-  margin: 0 auto;
-}
-
-.reviews-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: var(--sds-size-space-1200);
-}
-
-.reviews-title {
-  color: var(--sds-color-text-default-default);
-  font-size: var(--sds-typography-scale-06);
-  font-weight: 700;
-  line-height: 120%;
-  margin: 0;
-}
-
-.view-more-link {
-  color: var(--sds-color-text-default-secondary);
-  font-size: 16px;
-  text-decoration: none;
-}
-
-/* =========================================================
-   🔷 9. 리뷰 카드 레이아웃
-   ========================================================= */
-.reviews-grid {
-  display: flex;
-  gap: var(--sds-size-space-1200);
-  overflow-x: auto;              /* ✅ 가로 스크롤 가능 */
-  scroll-snap-type: x mandatory; /* ✅ 카드가 스냅처럼 붙음 */
-  padding-bottom: 12px;          /* ✅ 아래 여백 (스크롤바 피하기) */
-}
-
-/* 각 리뷰 카드 */
-.review-card {
-  flex: 0 0 280px;               /* ✅ 고정된 카드 너비 */
-  scroll-snap-align: start;      /* ✅ 스크롤 시 카드가 정렬되게 */
-  border: 1px solid var(--sds-color-border-default-default);
-  border-radius: var(--sds-size-radius-200);
-  background: var(--sds-color-background-default-default);
-  padding: var(--sds-size-space-600);
-  display: flex;
-  flex-direction: column;
-  gap: var(--sds-size-space-400);
+  gap: 0.25rem;
+  margin-bottom: 0.5rem;
 }
 
 /* =========================================================
    🔷 10. 반응형
    ========================================================= */
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
+  .product-container,
   .product-content {
     flex-direction: column;
+    gap: 1rem;
   }
 
-  .reviews-grid {
-    grid-template-columns: 1fr;
+  .product-image-container {
+    width: 100%;
+    height: auto;
   }
 
-  .product-section,
-  .reviews-section {
-    padding: var(--sds-size-space-600) var(--sds-size-space-400);
+  .branch-select-section {
+    max-width: 100%;
   }
 
   .rent-button {
-    width: 100%; /* 모바일에서는 꽉 차게 */
+    width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .book-title {
+    font-size: 2rem;
+  }
+
+  .star-rating {
+    gap: 2px;
+  }
+
+  .accordion-text,
+  .accordion-title {
+    font-size: 0.85rem;
+  }
+
+  .branch-select-section {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .book-title {
+    font-size: 1.5rem;
+  }
+
+  .rent-button {
+    font-size: 0.9rem;
+    height: 42px;
+  }
+
+  .accordion-text {
+    font-size: 0.8rem;
   }
 }

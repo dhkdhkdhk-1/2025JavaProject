@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom"; // ✅ 추가
+import { useNavigate } from "react-router-dom";
 import "./MyCsListPage.css";
 
 interface CsResponse {
@@ -20,7 +20,7 @@ const MyCsListPage: React.FC = () => {
   const [page, setPage] = useState(0);
   const PAGE_SIZE = 6;
   const PAGE_GROUP_SIZE = 9;
-  const navigate = useNavigate(); // ✅ 페이지 이동 훅
+  const navigate = useNavigate(); // 페이지 이동 훅
 
   const dummyData: CsResponse[] = [
     {
@@ -68,15 +68,21 @@ const MyCsListPage: React.FC = () => {
   const currentGroup = Math.floor(page / PAGE_GROUP_SIZE);
   const startPage = currentGroup * PAGE_GROUP_SIZE;
   const endPage = Math.min(startPage + PAGE_GROUP_SIZE - 1, totalPages - 1);
-  const getPageNumbers = () =>
-    Array.from({ length: endPage - startPage + 1 }, (_, i) => startPage + i);
   const startIdx = page * PAGE_SIZE;
   const displayedCs = csList.slice(startIdx, startIdx + PAGE_SIZE);
 
   return (
     <div className="Cs-board-container">
       <div className="Cs-board-card">
-        <h1 className="board-title">📨 내 문의 내역</h1>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
+          <h1 className="board-title">📨 내 문의 내역</h1>
+          <button
+            className="board-button"
+            onClick={() => navigate("/writecs")} // WriteCs.tsx 페이지로 이동
+          >
+            문의글 작성
+          </button>
+        </div>
 
         {csList.length === 0 ? (
           <p style={{ textAlign: "center", color: "#999" }}>
@@ -98,7 +104,7 @@ const MyCsListPage: React.FC = () => {
                 <div
                   key={c.id}
                   className="table-row"
-                  onClick={() => navigate(`/cs/detail/${c.id}`)} // ✅ 클릭 시 이동
+                  onClick={() => navigate(`/cs/detail/${c.id}`)}
                   style={{ cursor: "pointer" }}
                 >
                   <div className="table-cell col-number">
