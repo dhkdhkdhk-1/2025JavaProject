@@ -29,6 +29,8 @@ public class QBoardEntity extends EntityPathBase<BoardEntity> {
     //inherited
     public final DateTimePath<java.time.LocalDateTime> createdDateTime = _super.createdDateTime;
 
+    public final BooleanPath deleted = createBoolean("deleted");
+
     public final NumberPath<Long> id = createNumber("id", Long.class);
 
     //inherited

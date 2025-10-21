@@ -24,6 +24,8 @@ public class QUserEntity extends EntityPathBase<UserEntity> {
     //inherited
     public final DateTimePath<java.time.LocalDateTime> createdDateTime = _super.createdDateTime;
 
+    public final BooleanPath deleted = createBoolean("deleted");
+
     public final StringPath email = createString("email");
 
     public final NumberPath<Long> id = createNumber("id", Long.class);
@@ -32,8 +34,6 @@ public class QUserEntity extends EntityPathBase<UserEntity> {
     public final DateTimePath<java.time.LocalDateTime> modifiedDateTime = _super.modifiedDateTime;
 
     public final StringPath password = createString("password");
-
-    public final StringPath phone = createString("phone");
 
     public final EnumPath<kr.ac.ync.library.domain.users.entity.enums.UserRole> role = createEnum("role", kr.ac.ync.library.domain.users.entity.enums.UserRole.class);
 

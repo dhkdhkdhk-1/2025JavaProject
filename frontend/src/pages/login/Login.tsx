@@ -20,10 +20,7 @@ const Login: React.FC = () => {
 
   const handleLogin = async () => {
     const tokens = await login({ email, password });
-    if (!tokens) {
-      alert("로그인 실패: 이메일과 비밀번호를 확인하세요.");
-      return;
-    }
+    if (!tokens) return;
 
     localStorage.setItem("accessToken", tokens.accessToken);
     localStorage.setItem("refreshToken", tokens.refreshToken);
@@ -31,6 +28,14 @@ const Login: React.FC = () => {
 
     try {
       const me = await getMe();
+
+      // ✅ 추가: 탈퇴된 계정 차단
+      if (me.deleted) {
+        alert("탈퇴된 계정입니다. 재가입 후 이용해주세요.");
+        navigate("/signup");
+        return;
+      }
+
       localStorage.setItem("role", me.role);
       window.dispatchEvent(new Event("storage"));
 
@@ -77,7 +82,6 @@ const Login: React.FC = () => {
           </button>
         </div>
 
-        {/* ✅ 체크박스 + 텍스트 같은 줄에 */}
         <div className="remember-container">
           <input
             type="checkbox"
@@ -87,7 +91,6 @@ const Login: React.FC = () => {
           <span>계정 정보 저장</span>
         </div>
 
-        {/* ✅ 회원가입 + 비밀번호 찾기 순서 변경 */}
         <div className="login-link-container">
           <div
             className="login-signup clickable"

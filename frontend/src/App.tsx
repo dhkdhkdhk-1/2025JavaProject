@@ -23,6 +23,8 @@ import TotalReview from "./pages/review/totalreview/TotalReview";
 import RentalList from "./pages/rental/RentalList";
 import WishList from "./pages/wishlist/WishList";
 import ReviewList from "./pages/review/reviewlist/ReviewList";
+import WriteReview from "./pages/review/writereview/WriteReview"; // ✅ 추가
+import Withdraw from "./pages/withdraw/Withdraw";
 import WriteReview from "./pages/review/writereview/WriteReview";
 
 // ✅ 관리자 페이지
@@ -105,6 +107,7 @@ const App: React.FC = () => {
             <Route path="edit/:id" element={<BoardEdit />} /> {/* 수정 */}
           </Route>
           <Route path="/MyPage" element={<MyPage />} />
+          <Route path="/withdraw" element={<Withdraw />} />
           {/* ✅ 도서 목록 및 상세 */}
           <Route path="/booklist" element={<BookList />} />
           <Route path="/book/:id" element={<BookInfo />} />

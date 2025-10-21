@@ -25,17 +25,16 @@ public class BoardController {
             @RequestParam(value = "page", required = false, defaultValue = "0") int page,
             @RequestParam(value = "size", required = false, defaultValue = "10") int size,
             @RequestParam(value = "keyword", required = false) String keyword,
-            @RequestParam(value = "searchType", required = false, defaultValue = "전체") String searchType,
+            @RequestParam(value = "searchType", required = false, defaultValue = "제목+내용") String searchType,
             @RequestParam(value = "category", required = false, defaultValue = "전체") String category
     ) {
         if (size > 50) size = 50;
         if (page < 0) page = 0;
 
-        // 💡 다시 id 내림차순 정렬 복원
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));
 
         Page<BoardResponse> boardPage = boardService.getAllBoards(keyword, searchType, category, pageable);
-        long maxId = boardService.getMaxBoardId(); // ✅ 전체 최대 ID
+        long maxId = boardService.getMaxBoardId();
 
         Map<String, Object> result = new HashMap<>();
         result.put("content", boardPage.getContent());
