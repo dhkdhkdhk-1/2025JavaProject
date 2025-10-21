@@ -29,14 +29,17 @@ const RentalList: React.FC = () => {
       try {
         setLoading(true);
         setErrorMsg("");
-        const res = await axios.get<Rental[]>("http://localhost:8080/rental/my", {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-          },
-        });
+        const res = await axios.get<Rental[]>(
+          "http://localhost:8080/rental/my",
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+            },
+          }
+        );
         setRentals(res.data);
       } catch (err) {
-        setErrorMsg("대여 목록을 불러오지 못했습니다.");
+        setErrorMsg("대여목록을 불러오지 못했습니다.");
       } finally {
         setLoading(false);
       }
@@ -62,7 +65,12 @@ const RentalList: React.FC = () => {
       setRentals((prev) =>
         prev.map((r) =>
           r.id === rentalId
-            ? { ...r, status: "반납완료", returned: true, returnDate: new Date().toISOString() }
+            ? {
+                ...r,
+                status: "반납완료",
+                returned: true,
+                returnDate: new Date().toISOString(),
+              }
             : r
         )
       );
@@ -81,7 +89,9 @@ const RentalList: React.FC = () => {
       <h2 className="page-title">📚 내 대여 목록</h2>
 
       {loading && <div style={{ padding: 16 }}>불러오는 중...</div>}
-      {errorMsg && <div style={{ padding: 16, color: "crimson" }}>{errorMsg}</div>}
+      {errorMsg && (
+        <div style={{ padding: 16, color: "crimson" }}>{errorMsg}</div>
+      )}
 
       <table className="rental-table">
         <thead>
