@@ -12,4 +12,8 @@ import lombok.Setter;
 public class UserUpdateRequest {
     @NotBlank
     private String username;
+    @NotBlank
+    private String password;
+    @NotBlank
+    private String passwordCheck;
 }

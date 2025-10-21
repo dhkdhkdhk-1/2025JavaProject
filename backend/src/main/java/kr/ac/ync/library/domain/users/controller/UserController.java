@@ -1,6 +1,7 @@
 package kr.ac.ync.library.domain.users.controller;
 
 import jakarta.validation.Valid;
+import kr.ac.ync.library.domain.auth.service.AuthService;
 import kr.ac.ync.library.domain.users.dto.*;
 import kr.ac.ync.library.domain.users.service.UserService;
 import kr.ac.ync.library.global.common.security.UserSecurity;
@@ -22,6 +23,7 @@ public class UserController {
 
     private final UserSecurity userSecurity;
     private final UserService userService;
+    private final AuthService authService;
 
     // 현재 로그인한 사용자 정보 확인
     @GetMapping("/me")
@@ -36,6 +38,13 @@ public class UserController {
         String email = auth.getName(); // JWT에서 email 추출
         return ResponseEntity.ok(userService.updateMyInfo(email, request));
     }
+
+    @PutMapping("/me/v2")
+    public ResponseEntity<UserResponse> updateMyInfo1(@RequestBody UserUpdateRequest request, Authentication auth) {
+        String email = auth.getName(); // JWT에서 email 추출
+        return ResponseEntity.ok(authService.updateMyInfo1(email, request)); // ✅ AuthServiceImpl로 연결
+    }
+
 
     @PutMapping("/me/password")
     public ResponseEntity<String> updatePassword(@RequestBody PasswordUpdateRequest request, Authentication auth) {

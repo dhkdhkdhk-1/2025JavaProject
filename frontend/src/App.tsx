@@ -25,6 +25,7 @@ import WishList from "./pages/wishlist/WishList";
 import ReviewList from "./pages/review/reviewlist/ReviewList";
 import WriteReview from "./pages/review/writereview/WriteReview"; // ✅ 추가
 import Withdraw from "./pages/withdraw/Withdraw";
+import AccountInfo from "./pages/accountinfo/AccountInfo";
 
 // ✅ 관리자 페이지
 import Dashboard from "./pages/admin/dashboard/Dashboard";
@@ -107,6 +108,7 @@ const App: React.FC = () => {
           </Route>
           <Route path="/MyPage" element={<MyPage />} />
           <Route path="/withdraw" element={<Withdraw />} />
+          <Route path="/account-info" element={<AccountInfo />} />
           {/* ✅ 도서 목록 및 상세 */}
           <Route path="/booklist" element={<BookList />} />
           <Route path="/book/:id" element={<BookInfo />} />

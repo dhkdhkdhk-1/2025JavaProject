@@ -63,7 +63,7 @@ export const login = async (
   }
 };
 
-/** ✅ 회원가입 (재가입 포함) */
+/** ✅ 회원가입 */
 export const signup = async (
   data: SignupRequest
 ): Promise<"OK" | "REJOIN" | "EXISTS" | "FAIL"> => {
@@ -75,7 +75,6 @@ export const signup = async (
       },
     });
 
-    // ✅ 서버 응답 메시지 파싱
     const msg = (res.data || "").toString().toLowerCase();
     if (msg.includes("재가입") || msg.includes("복구")) return "REJOIN";
     if (msg.includes("이미") || msg.includes("존재")) return "EXISTS";
@@ -89,7 +88,7 @@ export const signup = async (
   }
 };
 
-/** ✅ 이메일 중복확인 (탈퇴 계정 확인 포함) */
+/** ✅ 이메일 중복확인 */
 export const checkEmail = async (
   email: string
 ): Promise<"OK" | "REJOIN" | "DUPLICATE" | "FAIL"> => {
@@ -124,6 +123,23 @@ export const getMe = async (): Promise<User> => {
   return res.data;
 };
 
+/** ✅ 회원정보 수정 (닉네임 변경 + 비밀번호 확인) */
+export const updateUserInfo = async (data: {
+  username: string;
+  password: string;
+  passwordCheck: string;
+}): Promise<void> => {
+  try {
+    await api.put("/user/me/v2", data, {
+      // ✅ v2 경로
+      headers: { "Content-Type": "application/json" },
+    });
+  } catch (error: any) {
+    console.error("회원정보 수정 실패:", error);
+    throw error;
+  }
+};
+
 /** ✅ 액세스 토큰 갱신 */
 export const refreshAccessToken = async (): Promise<string | null> => {
   const refreshToken = localStorage.getItem("refreshToken");
@@ -146,7 +162,6 @@ export const refreshAccessToken = async (): Promise<string | null> => {
     localStorage.setItem("accessToken", res.data.accessToken);
     localStorage.setItem("refreshToken", res.data.refreshToken);
     setAccessToken(res.data.accessToken);
-
     return res.data.accessToken;
   } catch (err) {
     console.error("❌ 토큰 갱신 실패:", err);
@@ -157,7 +172,7 @@ export const refreshAccessToken = async (): Promise<string | null> => {
   }
 };
 
-/** ✅ 요청 인터셉터 */
+/** ✅ 요청 인터셉터 (중복 제거) */
 api.interceptors.request.use((config) => {
   if (config.headers?.skipAuthInterceptor === "true") {
     delete config.headers.skipAuthInterceptor;
@@ -167,15 +182,6 @@ api.interceptors.request.use((config) => {
 
   const token = localStorage.getItem("accessToken");
   if (token) config.headers.Authorization = `Bearer ${token}`;
-  return config;
-});
-
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem("accessToken");
-  if (token && !config.headers?.Authorization) {
-    config.headers = config.headers || {};
-    config.headers.Authorization = `Bearer ${token}`;
-  }
   return config;
 });
 

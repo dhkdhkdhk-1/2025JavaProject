@@ -7,6 +7,8 @@ import kr.ac.ync.library.domain.auth.dto.request.SignupRequest;
 import kr.ac.ync.library.domain.auth.dto.request.WithdrawRequest;
 import kr.ac.ync.library.domain.auth.dto.response.JsonWebTokenResponse;
 import kr.ac.ync.library.domain.board.repository.BoardRepository;
+import kr.ac.ync.library.domain.users.dto.UserResponse;
+import kr.ac.ync.library.domain.users.dto.UserUpdateRequest;
 import kr.ac.ync.library.domain.users.entity.UserEntity;
 import kr.ac.ync.library.domain.users.entity.enums.UserRole;
 import kr.ac.ync.library.domain.users.exception.InvalidPasswordException;
@@ -88,7 +90,6 @@ public class AuthServiceImpl implements AuthService {
 
             // ✅ 탈퇴한 유저가 재가입을 시도한 첫 번째 단계
             if (user.isDeleted() && !request.isRestorePosts()) {
-                // 프론트에서 confirm 창을 띄울 수 있도록 "REJOIN" 반환
                 System.out.println("🔁 탈퇴 계정 감지: 재가입 확인 요청");
                 return "REJOIN";
             }
@@ -111,7 +112,6 @@ public class AuthServiceImpl implements AuthService {
                 return "OK";
             }
 
-            // ✅ 이미 활성화된 계정인 경우
             return "EXISTS";
         }
 
@@ -120,10 +120,6 @@ public class AuthServiceImpl implements AuthService {
             throw InvalidPasswordException.EXCEPTION;
         }
 
-        UserEntity user = UserEntity.builder()
-                .email(request.getEmail())
-                .username(request.getUsername())
-                .password(passwordEncoder.encode(request.getPassword()))
         if (userRepository.existsByUsername(request.getUsername())) {
             throw new IllegalArgumentException("이미 존재하는 닉네임입니다.");
         }
@@ -158,5 +154,38 @@ public class AuthServiceImpl implements AuthService {
         // ✅ 게시글도 함께 숨김 처리
         boardRepository.updateDeletedByUserId(user.getId(), true);
         System.out.println("❌ 회원탈퇴 완료: userId=" + user.getId());
+    }
+
+    // ✅ 새 버전 (PUT /user/me/v2 전용)
+    @Override
+    @Transactional
+    public UserResponse updateMyInfo1(String email, UserUpdateRequest request) {
+        UserEntity user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+
+        // ✅ 비밀번호 일치 검증
+        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+            throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
+        }
+
+        // ✅ 비밀번호 확인 일치 여부
+        if (!request.getPassword().equals(request.getPasswordCheck())) {
+            throw new IllegalArgumentException("비밀번호 확인이 일치하지 않습니다.");
+        }
+
+        // ✅ 닉네임 중복 체크 (본인 제외)
+        if (!user.getUsername().equals(request.getUsername())
+                && userRepository.existsByUsername(request.getUsername())) {
+            throw new IllegalArgumentException("이미 존재하는 닉네임입니다.");
+        }
+
+        // ✅ 닉네임 변경
+        user.setUsername(request.getUsername());
+        userRepository.saveAndFlush(user);
+
+        // ✅ 게시판 작성자명도 일괄 변경
+        boardRepository.updateUsernameByUserId(user.getId(), request.getUsername());
+
+        return new UserResponse(user);
     }
 }
