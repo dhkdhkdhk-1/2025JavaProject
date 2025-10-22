@@ -3,6 +3,8 @@ name: 🚀 Deploy Backend to EC2 (Clean + Lightweight)
 on:
   push:
     branches: ["main"]
+    paths:
+      - "backend/**"
   workflow_dispatch:
 
 jobs:
@@ -65,3 +67,21 @@ jobs:
               java -jar /app/library-0.0.1-SNAPSHOT.jar
 
             echo "===== ✅ Deploy Complete $(date) ====="
+
+      - name: 💬 Discord Notification
+        if: always()
+        run: |
+          if [ "${{ job.status }}" == "success" ]; then
+            STATUS="✅ Backend 배포 성공!"
+            COLOR=3066993
+          else
+            STATUS="❌ Backend 배포 실패!"
+            COLOR=15158332
+          fi
+          MESSAGE="**${STATUS}** 
+          브랜치: ${{ github.ref_name }} 
+          커밋: ${{ github.actor }} - ${{ github.event.head_commit.message }}
+          서버: ${{ secrets.EC2_HOST }}"
+          curl -H "Content-Type: application/json" \
+            -d "{\"embeds\":[{\"title\":\"Backend Deploy\",\"description\":\"${MESSAGE}\",\"color\":${COLOR}}]}" \
+            ${{ secrets.DISCORD_WEBHOOK_URL }}
