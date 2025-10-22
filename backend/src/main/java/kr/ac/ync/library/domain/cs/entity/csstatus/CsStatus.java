@@ -7,7 +7,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum CsStatus {
     WAITING("답변 대기"),
-    ANSWERING("답변 중"),
     COMPLETED("답변 완료");
 
     private final String csMessage;

@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from "react";
+// src/pages/cspage/mycslist/MyCsListPage.tsx
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "./MyCsListPage.css";
+import "../../board/board.css"; // 기존 디자인 CSS 사용
 
 interface CsResponse {
   id: number;
@@ -16,104 +17,42 @@ interface CsResponse {
 }
 
 const MyCsListPage: React.FC = () => {
-  const [csList, setCsList] = useState<CsResponse[]>([]);
-  const [page, setPage] = useState(0);
-  const PAGE_SIZE = 6;
-  const PAGE_GROUP_SIZE = 9;
-  const navigate = useNavigate(); // 페이지 이동 훅
+  const navigate = useNavigate();
+  const [csList] = useState<CsResponse[]>([]);
 
-  const dummyData: CsResponse[] = [
-    {
-      id: 1,
-      userId: 101,
-      username: "홍길동",
-      branchName: "서울지점",
-      title: "도서 반납이 안돼요",
-      content: "도서를 반납했는데 시스템에 반영이 안됐어요.",
-      answerContent: "확인 후 반영 완료했습니다.",
-      status: "COMPLETED",
-      csCategory: "도서관련",
-      createdAt: "2025-10-20T14:30:00",
-    },
-    {
-      id: 2,
-      userId: 101,
-      username: "홍길동",
-      branchName: "부산지점",
-      title: "로그인이 안돼요",
-      content: "비밀번호를 바꿨는데 접속이 안돼요.",
-      status: "WAITING",
-      csCategory: "계정관련",
-      createdAt: "2025-10-19T09:00:00",
-    },
-    {
-      id: 3,
-      userId: 101,
-      username: "홍길동",
-      branchName: "대구지점",
-      title: "홈페이지 오류",
-      content: "문의 작성 버튼이 안 눌러집니다.",
-      answerContent: "버그 수정 중입니다.",
-      status: "ANSWERING",
-      csCategory: "기타",
-      createdAt: "2025-10-18T11:45:00",
-    },
-  ];
+  // ✅ 더미 데이터
+ 
 
-  useEffect(() => {
-    setCsList(dummyData);
-  }, []);
 
-  const totalPages = Math.ceil(csList.length / PAGE_SIZE);
-  const currentGroup = Math.floor(page / PAGE_GROUP_SIZE);
-  const startPage = currentGroup * PAGE_GROUP_SIZE;
-  const endPage = Math.min(startPage + PAGE_GROUP_SIZE - 1, totalPages - 1);
-  const startIdx = page * PAGE_SIZE;
-  const displayedCs = csList.slice(startIdx, startIdx + PAGE_SIZE);
 
   return (
-    <div className="Cs-board-container">
-      <div className="Cs-board-card">
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
-          <h1 className="board-title">📨 내 문의 내역</h1>
-          <button
-            className="board-button"
-            onClick={() => navigate("/writecs")} // WriteCs.tsx 페이지로 이동
-          >
-            문의글 작성
-          </button>
-        </div>
+    <div className="board-container">
+      <h1 className="board-title">📨 내 문의 내역</h1>
 
-        {csList.length === 0 ? (
-          <p style={{ textAlign: "center", color: "#999" }}>
-            등록한 문의가 없습니다.
-          </p>
-        ) : (
-          <div className="table-container">
-            <div className="table-header">
-              <div className="header-cell col-number">번호</div>
-              <div className="header-cell col-title">제목</div>
-              <div className="header-cell col-branch">지점</div>
-              <div className="header-cell col-status">상태</div>
-              <div className="header-cell col-date">작성일</div>
-            </div>
-            <div className="table-divider"></div>
-
-            <div className="table-body">
-              {displayedCs.map((c, index) => (
-                <div
-                  key={c.id}
-                  className="table-row"
-                  onClick={() => navigate(`/cs/detail/${c.id}`)}
-                  style={{ cursor: "pointer" }}
-                >
-                  <div className="table-cell col-number">
-                    {csList.length - (startIdx + index)}
-                  </div>
-                  <div className="table-cell col-title">{c.title}</div>
-                  <div className="table-cell col-branch">{c.branchName}</div>
-                  <div
-                    className="table-cell col-status"
+      {csList.length === 0 ? (
+        <p style={{ textAlign: "center", color: "#999" }}>
+          등록한 문의가 없습니다.
+        </p>
+      ) : (
+        <>
+          <table className="board-table">
+            <thead>
+              <tr>
+                <th>번호</th>
+                <th>제목</th>
+                <th>지점</th>
+                <th>상태</th>
+                <th>작성일</th>
+              </tr>
+            </thead>
+            <tbody>
+              {csList.map((c, index) => (
+              <tr key={c.id} style={{ cursor: "pointer" }}
+                onClick={() => navigate(`/cs/detail/${c.id}`)}>
+                  <td>{csList.length - index}</td>
+                  <td style={{ textAlign: "left" }}>{c.title}</td>
+                  <td>{c.branchName}</td>
+                  <td
                     style={{
                       color:
                         c.status === "WAITING"
@@ -125,16 +64,21 @@ const MyCsListPage: React.FC = () => {
                     }}
                   >
                     {c.status}
-                  </div>
-                  <div className="table-cell col-date">
-                    {new Date(c.createdAt).toLocaleDateString()}
-                  </div>
-                </div>
+                  </td>
+                  <td>{new Date(c.createdAt).toLocaleDateString()}</td>
+                </tr>
               ))}
-            </div>
+            </tbody>
+          </table>
+
+          {/* 테이블 전체 아래, 오른쪽 정렬 */}
+          <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "20px" }}>
+            <button className="board-button" onClick={() => navigate("/writecs")}>
+              ✏️ 문의글 작성
+            </button>
           </div>
-        )}
-      </div>
+        </>
+      )}
     </div>
   );
 };

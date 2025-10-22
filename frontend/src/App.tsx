@@ -42,6 +42,8 @@ import BoardList from "./pages/board/BoardList";
 import BoardRead from "./pages/board/BoardRead";
 import BoardWrite from "./pages/board/BoardWrite";
 import BoardEdit from "./pages/board/BoardEdit";
+import Answer from "./pages/admin/answer/Answer";
+import AnswerWrite from "./pages/admin/answerwrite/AnswerWrite";
 
 /** ✅ 로그인 가드 (일반 사용자용) */
 const ProtectedLayout: React.FC = () => {
@@ -136,6 +138,9 @@ const App: React.FC = () => {
           <Route path="catalog" element={<Catalog />} />
           <Route path="users" element={<Users />} />
           <Route path="branches" element={<Branches />} />
+          <Route path="answer" element={<Answer />} />
+          <Route path="answerwrite/:id" element={<AnswerWrite />} />
+          
         </Route>
 
         {/* ✅ 기본 및 잘못된 경로 처리 */}

@@ -58,3 +58,13 @@ export const registerCs = async (request: CsRegisterRequest): Promise<void> => {
 export const deleteCs = async (id: number): Promise<void> => {
   await api.delete(`/cs/${id}`);
 };
+
+export interface CsAnswerRequest {
+  answerContent: string;
+  status: "ANSWERING" | "COMPLETED";
+}
+
+// 문의 답변 달기
+export const answerCs = async (id: number, request: CsAnswerRequest): Promise<void> => {
+  await api.put(`/cs/${id}/answer`, request);
+};
