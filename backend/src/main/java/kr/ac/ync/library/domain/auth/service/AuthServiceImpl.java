@@ -120,10 +120,6 @@ public class AuthServiceImpl implements AuthService {
             throw InvalidPasswordException.EXCEPTION;
         }
 
-        UserEntity user = UserEntity.builder()
-                .email(request.getEmail())
-                .username(request.getUsername())
-                .password(passwordEncoder.encode(request.getPassword()))
         if (userRepository.existsByUsername(request.getUsername())) {
             throw new IllegalArgumentException("이미 존재하는 닉네임입니다.");
         }

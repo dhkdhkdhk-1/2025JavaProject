@@ -46,6 +46,7 @@ public class BookEntity extends BaseTimeEntity {
 
     /** ✅ 리뷰 관계 */
     @OneToMany(mappedBy = "book", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private List<ReviewEntity> reviews = new ArrayList<>();
 
     // ====== 편의 메서드 ======
