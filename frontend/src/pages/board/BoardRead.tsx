@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import {
   getBoard,
   incrementViewCount,
@@ -14,6 +14,11 @@ const BoardRead: React.FC = () => {
   const [board, setBoard] = useState<BoardResponse | null>(null);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const params = new URLSearchParams(location.search);
+  const typeParam =
+    (params.get("type") as "일반" | "공지") || ("일반" as "일반" | "공지");
 
   useEffect(() => {
     const fetchBoard = async () => {
@@ -22,23 +27,24 @@ const BoardRead: React.FC = () => {
         await incrementViewCount(Number(id));
         const res = await getBoard(Number(id));
 
-        // ✅ soft deleted 글 접근 차단
         if (res.data.deleted) {
           alert("삭제된 게시글입니다.");
-          navigate("/board");
+          navigate(`/board?type=${typeParam}`);
           return;
         }
 
         setBoard(res.data);
+
         const me = await getMe();
         setCurrentUser(me);
       } catch (err) {
         console.error("글 불러오기 실패:", err);
+        alert("게시글을 불러오는 중 오류가 발생했습니다.");
       }
     };
 
     fetchBoard();
-  }, [id, navigate]);
+  }, [id, navigate, typeParam]);
 
   const canEditOrDelete =
     currentUser &&
@@ -51,17 +57,19 @@ const BoardRead: React.FC = () => {
     if (!board) return;
     const confirmed = window.confirm("정말로 이 글을 삭제하시겠습니까?");
     if (!confirmed) return;
+
     try {
       await deleteBoard(board.id);
       alert("글이 삭제되었습니다.");
-      navigate("/board");
+      navigate(`/board?type=${typeParam}&refresh=1`);
     } catch (err) {
       console.error("삭제 실패:", err);
       alert("삭제 중 오류가 발생했습니다.");
     }
   };
 
-  if (!board) return <div className="board-container">불러오는 중...</div>;
+  if (!board)
+    return <div className="board-container">게시글을 불러오는 중...</div>;
 
   return (
     <div className="board-container">
@@ -80,7 +88,7 @@ const BoardRead: React.FC = () => {
         <div className="board-meta-row">
           <span className="board-meta-left">조회수: {board.viewCount}</span>
           <span className="board-meta-right">
-            최종수정: {new Date(board.modifiedAt).toLocaleString()}
+            최종 수정: {new Date(board.modifiedAt).toLocaleString()}
           </span>
         </div>
       </div>
@@ -90,7 +98,7 @@ const BoardRead: React.FC = () => {
       <div style={{ textAlign: "right", marginTop: "20px" }}>
         <button
           className="board-button"
-          onClick={() => navigate("/board")}
+          onClick={() => navigate(`/board?type=${typeParam}`)}
           style={{ marginRight: "10px" }}
         >
           목록
@@ -100,7 +108,9 @@ const BoardRead: React.FC = () => {
           <>
             <button
               className="board-button"
-              onClick={() => navigate(`/board/edit/${board.id}`)}
+              onClick={() =>
+                navigate(`/board/edit/${board.id}?type=${typeParam}`)
+              }
               style={{ marginRight: "10px" }}
             >
               수정

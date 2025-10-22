@@ -236,3 +236,60 @@
   opacity: 0.6;
   transition: opacity 0.25s ease-out;
 }
+
+/* ✅ 게시판 유형 선택 버튼 (일반 게시판 / 공지 게시판) */
+.board-category-toggle {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.board-category-toggle button {
+  padding: 8px 20px;
+  background-color: #f0f0f0;
+  border: 1px solid #ddd;
+  border-radius: 20px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  margin: 0 10px;
+}
+
+/* ✅ 일반 게시판 버튼 높이 줄인 스타일 */
+.board-category-toggle .general-button {
+  padding: 6px 16px; /* 기존보다 높이를 줄임 */
+}
+
+.board-category-toggle button:hover {
+  background-color: #ddd;
+}
+
+.board-category-toggle button.active {
+  background-color: #222;
+  color: #fff;
+  font-weight: bold;
+}
+
+/* ✅ 공지 게시판 버튼 높이 줄인 스타일 */
+.board-category-toggle .notice-button {
+  padding: 6px 16px; /* 기존보다 높이를 줄임 */
+}
+
+/* ✅ 게시판 카테고리 버튼 스타일 */
+.board-category-select,
+.board-search-select {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 20px;
+  background-color: #f9f9f9;
+  font-size: 0.95rem;
+  cursor: pointer;
+  outline: none;
+  transition: 0.2s ease;
+}
+
+.board-category-select:focus,
+.board-search-select:focus {
+  border-color: #1a73e8;
+  box-shadow: 0 0 4px rgba(26, 115, 232, 0.3);
+}

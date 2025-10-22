@@ -7,42 +7,41 @@ import "./board.css";
 
 const BoardList: React.FC = () => {
   const [boards, setBoards] = useState<BoardResponse[]>([]);
-  const [allBoards, setAllBoards] = useState<BoardResponse[]>([]);
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
-  const [totalElements, setTotalElements] = useState(0);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
 
   const [searchType, setSearchType] = useState("제목+내용");
   const [keyword, setKeyword] = useState("");
   const [category, setCategory] = useState("전체");
+  const [boardType, setBoardType] = useState<"일반" | "공지">("일반");
+  const userRole = localStorage.getItem("role") || "";
+
+  const [baseAll, setBaseAll] = useState<BoardResponse[]>([]);
 
   const navigate = useNavigate();
   const location = useLocation();
 
-  /** ✅ 전체 게시글 불러오기 */
-  const fetchAllBoards = useCallback(async () => {
-    try {
-      let all: BoardResponse[] = [];
-      let pageNum = 0;
-      let hasMore = true;
+  /** ✅ 전체 게시판 기준 목록 캐싱 */
+  const fetchBaseList = useCallback(async () => {
+    const res = await getBoardList(0, "", "제목+내용", "전체", boardType);
+    let base = res.data.content
+      .filter((b: BoardResponse) => b.deleted !== true)
+      .filter((b: BoardResponse) =>
+        boardType === "공지"
+          ? ["공지", "입고", "행사"].includes(b.type || "")
+          : !b.type || ["일반", "요청", "질문"].includes(b.type)
+      )
+      .sort((a: BoardResponse, b: BoardResponse) => b.id - a.id)
+      .map((b: BoardResponse, idx: number, arr: BoardResponse[]) => ({
+        ...b,
+        displayId: arr.length - idx,
+      }));
+    setBaseAll(base);
+  }, [boardType]);
 
-      while (hasMore) {
-        const res = await getBoardList(pageNum, "", "제목+내용", "전체");
-        all = [...all, ...res.data.content];
-        hasMore = pageNum < res.data.totalPages - 1;
-        pageNum++;
-      }
-
-      setAllBoards(all);
-      setTotalElements(all.length);
-    } catch (error) {
-      console.error("전체 게시글 불러오기 실패:", error);
-    }
-  }, []);
-
-  /** ✅ 현재 조건 게시글 불러오기 */
+  /** ✅ 게시글 목록 불러오기 */
   const fetchBoards = useCallback(
     async (
       pageNum: number,
@@ -53,17 +52,72 @@ const BoardList: React.FC = () => {
       try {
         setLoading(true);
         setErrorMsg("");
+
         const res = await getBoardList(
-          pageNum,
+          0,
           keywordStr,
           searchTypeStr,
-          categoryStr
+          categoryStr,
+          boardType
         );
 
-        setBoards(res.data.content);
-        setTotalPages(res.data.totalPages);
+        let allBoards = res.data.content || [];
+        allBoards = allBoards.filter((b) => b.deleted !== true);
+
+        let filtered: BoardResponse[] = [];
+        if (boardType === "공지") {
+          filtered = allBoards.filter((b) =>
+            ["공지", "입고", "행사"].includes(b.type || "")
+          );
+        } else {
+          filtered = allBoards.filter(
+            (b) => !b.type || ["일반", "요청", "질문"].includes(b.type)
+          );
+        }
+
+        if (categoryStr !== "전체") {
+          filtered = filtered.filter((b) => b.type === categoryStr);
+        }
+
+        if (keywordStr.trim()) {
+          const kw = keywordStr.toLowerCase();
+          filtered = filtered.filter((b) => {
+            if (searchTypeStr === "제목")
+              return b.title.toLowerCase().includes(kw);
+            if (searchTypeStr === "작성자")
+              return b.username.toLowerCase().includes(kw);
+            return (
+              b.title.toLowerCase().includes(kw) ||
+              b.content.toLowerCase().includes(kw)
+            );
+          });
+        }
+
+        filtered.sort((a, b) => b.id - a.id);
+
+        let numbered: BoardResponse[];
+        const isDefaultView = !keywordStr.trim() && categoryStr === "전체";
+
+        if (isDefaultView) {
+          numbered = baseAll;
+        } else {
+          numbered = filtered.map((b) => {
+            const found = baseAll.find((x) => x.id === b.id);
+            return {
+              ...b,
+              displayId: found ? found.displayId : b.id,
+            };
+          });
+        }
+
+        const totalPageCount = Math.ceil(numbered.length / 10);
+        const startIdx = pageNum * 10;
+        const paginated = numbered.slice(startIdx, startIdx + 10);
+
+        setBoards(paginated);
+        setTotalPages(totalPageCount);
       } catch (error) {
-        console.error("게시글 불러오기 실패:", error);
+        console.error("❌ 게시글 불러오기 실패:", error);
         if (axios.isAxiosError(error) && error.response?.status === 401) {
           alert("세션이 만료되었습니다. 다시 로그인해주세요.");
           navigate("/login");
@@ -74,8 +128,12 @@ const BoardList: React.FC = () => {
         setLoading(false);
       }
     },
-    [navigate]
+    [navigate, boardType, baseAll]
   );
+
+  useEffect(() => {
+    fetchBaseList();
+  }, [fetchBaseList]);
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
@@ -83,17 +141,24 @@ const BoardList: React.FC = () => {
     const newKeyword = params.get("keyword") || "";
     const newCategory = params.get("category") || "전체";
     const newPage = parseInt(params.get("page") || "0", 10);
+    const refresh = params.get("refresh");
 
     setSearchType(newSearchType);
     setKeyword(newKeyword);
     setCategory(newCategory);
     setPage(newPage);
 
-    fetchAllBoards();
     fetchBoards(newPage, newKeyword, newSearchType, newCategory);
-  }, [location.search, fetchBoards, fetchAllBoards]);
+    if (refresh) navigate("/board");
+  }, [location.search, boardType, fetchBoards, navigate]);
 
-  /** ✅ 검색 */
+  const handleBoardTypeChange = (type: "일반" | "공지") => {
+    setBoardType(type);
+    setCategory("전체");
+    setPage(0);
+    navigate(`/board?type=${type}`);
+  };
+
   const handleSearch = () => {
     const query = new URLSearchParams();
     if (keyword.trim()) query.append("keyword", keyword);
@@ -107,7 +172,6 @@ const BoardList: React.FC = () => {
     if (e.key === "Enter") handleSearch();
   };
 
-  /** ✅ 페이지 변경 시 URL 갱신 */
   const handlePageChange = (newPage: number) => {
     const query = new URLSearchParams();
     if (keyword.trim()) query.append("keyword", keyword);
@@ -117,20 +181,28 @@ const BoardList: React.FC = () => {
     navigate(`/board?${query.toString()}`);
   };
 
-  /** ✅ 전체 기준 ID 계산 */
-  const calculateGlobalId = (boardId: number) => {
-    const index = allBoards.findIndex((b) => b.id === boardId);
-    if (index === -1) return 0;
-    return totalElements - index;
-  };
-
   return (
     <div className={`board-container ${loading ? "fade-out" : "fade-in"}`}>
-      <h1 className="board-title">📋 게시판</h1>
+      <h1 className="board-title">
+        {boardType === "일반" ? "게시판" : "공지게시판"}
+      </h1>
 
-      {/* ✅ 검색 바 */}
+      <div className="board-category-toggle">
+        <button
+          onClick={() => handleBoardTypeChange("일반")}
+          className={`general-button ${boardType === "일반" ? "active" : ""}`}
+        >
+          일반 게시판
+        </button>
+        <button
+          onClick={() => handleBoardTypeChange("공지")}
+          className={`notice-button ${boardType === "공지" ? "active" : ""}`}
+        >
+          공지 게시판
+        </button>
+      </div>
+
       <div className="board-search-bar">
-        {/* ✅ 카테고리 변경 시 즉시 navigate */}
         <select
           className="board-category-select"
           value={category}
@@ -146,10 +218,21 @@ const BoardList: React.FC = () => {
             navigate(`/board?${query.toString()}`);
           }}
         >
-          <option value="전체">전체</option>
-          <option value="일반">일반</option>
-          <option value="요청">요청</option>
-          <option value="질문">질문</option>
+          {boardType === "일반" ? (
+            <>
+              <option value="전체">전체</option>
+              <option value="일반">일반</option>
+              <option value="요청">요청</option>
+              <option value="질문">질문</option>
+            </>
+          ) : (
+            <>
+              <option value="전체">전체</option>
+              <option value="공지">공지</option>
+              <option value="입고">입고</option>
+              <option value="행사">행사</option>
+            </>
+          )}
         </select>
 
         <select
@@ -175,26 +258,17 @@ const BoardList: React.FC = () => {
         </button>
       </div>
 
-      {/* ✅ 게시글 목록 */}
       {loading ? (
         <p style={{ textAlign: "center", color: "#777" }}>불러오는 중...</p>
       ) : errorMsg ? (
         <p style={{ textAlign: "center", color: "#999" }}>{errorMsg}</p>
       ) : (
         <BoardTable
-          boards={boards.map((b) => ({
-            id: b.id,
-            displayId: calculateGlobalId(b.id),
-            title: b.title,
-            type: b.type,
-            username: b.username,
-            viewCount: b.viewCount,
-          }))}
+          boards={boards}
           onSelect={(id) => navigate(`/board/${id}`)}
         />
       )}
 
-      {/* ✅ 페이지네이션 */}
       <div className="pagination">
         <button
           className="board-button"
@@ -226,14 +300,30 @@ const BoardList: React.FC = () => {
       </div>
 
       {/* ✅ 글쓰기 버튼 */}
-      <div style={{ textAlign: "right", marginTop: "20px" }}>
-        <button
-          className="board-button"
-          onClick={() => navigate("/board/write")}
-        >
-          ✏️ 글쓰기
-        </button>
-      </div>
+      {userRole &&
+        (boardType === "일반"
+          ? (userRole === "USER" ||
+              userRole === "MANAGER" ||
+              userRole === "ADMIN") && (
+              <div style={{ textAlign: "right", marginTop: "20px" }}>
+                <button
+                  className="board-button"
+                  onClick={() => navigate("/board/write")}
+                >
+                  ✏️ 글쓰기
+                </button>
+              </div>
+            )
+          : (userRole === "MANAGER" || userRole === "ADMIN") && (
+              <div style={{ textAlign: "right", marginTop: "20px" }}>
+                <button
+                  className="board-button"
+                  onClick={() => navigate("/board/notice/write?redirect=공지")}
+                >
+                  ✏️ 공지 작성
+                </button>
+              </div>
+            ))}
     </div>
   );
 };

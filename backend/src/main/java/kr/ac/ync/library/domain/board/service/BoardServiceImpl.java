@@ -172,6 +172,7 @@ public class BoardServiceImpl implements BoardService {
                 .viewCount(entity.getViewCount() == null ? 0L : entity.getViewCount())
                 .createdAt(entity.getCreatedDateTime())
                 .modifiedAt(entity.getModifiedDateTime())
+                .deleted(entity.isDeleted())
                 .build();
     }
 }

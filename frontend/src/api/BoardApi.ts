@@ -1,10 +1,11 @@
 import { api, refreshAccessToken } from "./AuthApi";
 import { AxiosRequestHeaders, AxiosError } from "axios";
 
+// 게시판 요청/응답 인터페이스
 export interface BoardRequest {
   title: string;
   content: string;
-  type: string;
+  type: string; // 게시판 유형
 }
 
 export interface BoardResponse {
@@ -16,10 +17,11 @@ export interface BoardResponse {
   viewCount: number;
   createdAt: string;
   modifiedAt: string;
-  deleted: boolean; // ✅ soft delete 플래그 추가
+  deleted: boolean; // ✅ soft delete 플래그
+  displayId?: number;
 }
 
-// ✅ maxId 포함
+// 페이지 응답 인터페이스
 export interface PageResponse<T> {
   content: T[];
   totalPages: number;
@@ -97,29 +99,35 @@ api.interceptors.response.use(
 
 // ---------------- Board API ----------------
 
-/** ✅ 게시글 목록 조회 (검색 + 분류 + 페이징) */
+// 게시글 목록 조회 (검색 + 분류 + 페이징)
 export const getBoardList = async (
   page: number = 0,
   keyword: string = "",
   searchType: string = "제목+내용",
-  category: string = "전체"
+  category: string = "전체",
+  boardType: "일반" | "공지" = "일반" // 게시판 유형
 ) => {
   const params = new URLSearchParams();
   params.append("page", page.toString());
-  params.append("size", "10");
+  params.append("size", "9999"); // 전체 데이터 한 번에 불러옴
 
   if (keyword.trim()) params.append("keyword", keyword);
   if (searchType !== "제목+내용") params.append("searchType", searchType);
   if (category !== "전체") params.append("category", category);
+  params.append("type", boardType); // 게시판 유형 필터 추가
 
-  return api.get<PageResponse<BoardResponse>>(`/board?${params.toString()}`);
+  const res = await api.get<PageResponse<BoardResponse>>(
+    `/board?${params.toString()}`
+  );
+
+  return res;
 };
 
-/** ✅ 게시글 상세 조회 */
+// 게시글 상세 조회
 export const getBoard = async (id: number) =>
   api.get<BoardResponse>(`/board/${id}`);
 
-/** ✅ 조회수 증가 */
+// 조회수 증가
 export const incrementViewCount = async (id: number) =>
   api.post(
     `/board/${id}/view`,
@@ -127,18 +135,23 @@ export const incrementViewCount = async (id: number) =>
     { headers: { skipAuthInterceptor: "true" } }
   );
 
-/** ✅ 게시글 생성 */
-export const createBoard = async (data: BoardRequest) =>
-  api.post<BoardResponse>("/board", data, {
+// 게시글 생성
+export const createBoard = async (data: BoardRequest) => {
+  const boardData = {
+    ...data,
+    type: data.type || "일반",
+  };
+  return api.post<BoardResponse>("/board", boardData, {
     headers: { "Content-Type": "application/json" },
   });
+};
 
-/** ✅ 게시글 수정 */
+// 게시글 수정
 export const updateBoard = async (id: number, data: BoardRequest) =>
   api.put<BoardResponse>(`/board/${id}`, data, {
     headers: { "Content-Type": "application/json" },
   });
 
-/** ✅ 게시글 삭제 (soft delete) */
+// 게시글 삭제 (soft delete)
 export const deleteBoard = async (id: number) =>
   api.delete<void>(`/board/${id}`);

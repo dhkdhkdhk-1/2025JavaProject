@@ -1,4 +1,3 @@
-// src/pages/board/components/BoardForm.tsx
 import React from "react";
 import "../board.css";
 
@@ -6,17 +5,32 @@ interface Props {
   form: { title: string; content: string; type: string };
   onChange: (
     e:
-      | React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+      | React.ChangeEvent<
+          HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+        >
       | { target: { name: string; value: string } }
   ) => void;
   onSubmit: () => void;
   isEdit?: boolean;
+  boardType?: "일반" | "공지"; // ✅ 추가
 }
 
-const BoardForm: React.FC<Props> = ({ form, onChange, onSubmit, isEdit }) => {
+const BoardForm: React.FC<Props> = ({
+  form,
+  onChange,
+  onSubmit,
+  isEdit,
+  boardType = "일반",
+}) => {
+  const isNoticeBoard = boardType === "공지";
+
+  const handleTypeChange = (type: string) => {
+    onChange({ target: { name: "type", value: type } } as any);
+  };
+
   return (
     <div className="board-container">
-      <h1 className="board-title">게시판 {isEdit ? "글 수정" : "글쓰기"}</h1>
+      <h1 className="board-title">{isEdit ? "글 수정" : "글쓰기"}</h1>
 
       <label>제목</label>
       <input
@@ -27,12 +41,15 @@ const BoardForm: React.FC<Props> = ({ form, onChange, onSubmit, isEdit }) => {
         placeholder="제목을 입력하세요"
       />
 
-      <label style={{ marginTop: "15px", display: "block" }}>분류</label>
+      <label>분류</label>
       <div style={{ margin: "10px 0" }}>
-        {["일반", "질문", "요청"].map((t) => (
+        {(isNoticeBoard
+          ? ["공지", "입고", "행사"]
+          : ["일반", "질문", "요청"]
+        ).map((t) => (
           <button
             key={t}
-            onClick={() => onChange({ target: { name: "type", value: t } })}
+            onClick={() => handleTypeChange(t)}
             className={`board-button ${form.type === t ? "active" : ""}`}
             style={{ marginRight: "5px" }}
             type="button"

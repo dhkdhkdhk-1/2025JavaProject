@@ -1,19 +1,18 @@
 import React from "react";
+import { BoardResponse } from "../../../api/BoardApi";
 import "../board.css";
 
 interface Props {
-  boards: {
-    id: number;
-    displayId?: number; // ✅ 화면용 번호
-    title: string;
-    type: string;
-    username: string;
-    viewCount: number;
-  }[];
+  boards: BoardResponse[];
   onSelect: (id: number) => void;
 }
 
 const BoardTable: React.FC<Props> = ({ boards, onSelect }) => {
+  if (!boards || boards.length === 0)
+    return (
+      <p style={{ textAlign: "center", color: "#777" }}>게시글이 없습니다.</p>
+    );
+
   return (
     <table className="board-table">
       <thead>
@@ -26,23 +25,19 @@ const BoardTable: React.FC<Props> = ({ boards, onSelect }) => {
         </tr>
       </thead>
       <tbody>
-        {boards.length > 0 ? (
-          boards.map((b) => (
-            <tr key={b.id} onClick={() => onSelect(b.id)}>
-              <td>{b.displayId ?? b.id}</td>
-              <td>{b.type}</td>
-              <td style={{ textAlign: "left" }}>{b.title}</td>
-              <td>{b.username}</td>
-              <td>{b.viewCount}</td>
-            </tr>
-          ))
-        ) : (
-          <tr>
-            <td colSpan={5} style={{ textAlign: "center", color: "#888" }}>
-              게시글이 없습니다.
-            </td>
+        {boards.map((board) => (
+          <tr
+            key={board.id}
+            onClick={() => onSelect(board.id)}
+            className="board-row"
+          >
+            <td>{board.displayId ?? board.id}</td>
+            <td>{board.type}</td>
+            <td>{board.title}</td>
+            <td>{board.username}</td>
+            <td>{board.viewCount}</td>
           </tr>
-        )}
+        ))}
       </tbody>
     </table>
   );
