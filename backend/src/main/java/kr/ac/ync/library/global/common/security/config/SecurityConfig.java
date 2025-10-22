@@ -34,10 +34,10 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.OPTIONS, "/**/*").permitAll()
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
                         // ✅ 로그인, 회원가입, 토큰 관련은 허용
-                        .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers( "/auth", "/auth/**").permitAll()
 
                         // ✅ 조회수 증가 API만 비회원 접근 허용
                         .requestMatchers(HttpMethod.POST, "/board/*/view").permitAll()
