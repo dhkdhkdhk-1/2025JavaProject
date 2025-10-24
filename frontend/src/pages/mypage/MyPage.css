@@ -10,11 +10,11 @@
   color: #1e1e1e;
 }
 
-/* ✅ 3x2 그리드 레이아웃 */
+/* ✅ 2x2 그리드 레이아웃 */
 .mypage-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr); /* 가로 3칸 */
-  gap: 30px 40px; /* 세로/가로 간격 */
+  grid-template-columns: repeat(2, 1fr); /* ✅ 2열로 변경 */
+  gap: 40px 50px; /* 세로/가로 간격 */
   justify-content: center;
   align-items: stretch;
   width: 80%;
@@ -62,15 +62,9 @@
   background: #444;
 }
 
-/* ✅ 반응형 (모바일 대응) */
+/* ✅ 반응형 (태블릿 이하) */
 @media (max-width: 1024px) {
   .mypage-grid {
-    grid-template-columns: repeat(2, 1fr); /* 태블릿에서는 2칸 */
-  }
-}
-
-@media (max-width: 640px) {
-  .mypage-grid {
-    grid-template-columns: 1fr; /* 모바일에서는 1칸 */
+    grid-template-columns: 1fr; /* 태블릿/모바일은 한 열 */
   }
 }

@@ -9,6 +9,10 @@
 
 /* 페이지 타이틀 */
 .page-title {
+  display: flex;
+  align-items: center;
+  gap: 8px; /* 📚와 텍스트 간 여백 */
+  margin-left: 500px;
   margin-bottom: 24px;
   font-size: 24px;
   font-weight: 700;

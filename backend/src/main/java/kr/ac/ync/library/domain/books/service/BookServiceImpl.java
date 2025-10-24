@@ -137,11 +137,13 @@ public class BookServiceImpl implements BookService {
 
         List<BranchEntity> allBranches = branchRepository.findAll();
 
+        // ✅ 중복 키 발생 방지: merge 함수 추가
         Map<Long, Boolean> connectedBranches = book.getBookBranches()
                 .stream()
                 .collect(Collectors.toMap(
                         rel -> rel.getBranch().getId(),
-                        BookBranchEntity::isAvailable
+                        BookBranchEntity::isAvailable,
+                        (v1, v2) -> v1  // 중복 branchId가 있을 경우 첫 번째 값 유지
                 ));
 
         return allBranches.stream().map(branch -> {
@@ -153,4 +155,5 @@ public class BookServiceImpl implements BookService {
             return info;
         }).collect(Collectors.toList());
     }
+
 }

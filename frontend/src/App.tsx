@@ -126,7 +126,7 @@ const App: React.FC = () => {
           <Route path="/booklist" element={<BookList />} />
           <Route path="/book/:id" element={<BookInfo />} />{" "}
           {/* 문의내역 보는 곳 */}
-          <Route path="/cs" element={<CsListPage />} /> {/* 내 전체 문의 내역 */}
+          <Route path="/mycslistpage" element={<CsListPage />} /> {/* 내 전체 문의 내역 */}
           <Route path="/cs/detail/:id" element={<MyCsListDetail />} /> {/* 문의 내역 상세 페이지 */}
           <Route path="/writecs" element={<WriteCs />} /> {/* 문의작성 페이지 */}
         </Route>
@@ -139,7 +139,7 @@ const App: React.FC = () => {
           <Route path="users" element={<Users />} />
           <Route path="branches" element={<Branches />} />
           <Route path="answer" element={<Answer />} />
-          <Route path="answerwrite/:id" element={<AnswerWrite />} />
+          <Route path="" element={<AnswerWrite />} />
           
         </Route>
 

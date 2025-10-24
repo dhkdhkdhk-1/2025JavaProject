@@ -1,7 +1,6 @@
-// src/pages/cspage/mycslist/MyCsListPage.tsx
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "../../board/board.css"; // 기존 디자인 CSS 사용
+import "./MyCsListPage.css";
 
 interface CsResponse {
   id: number;
@@ -20,35 +19,44 @@ const MyCsListPage: React.FC = () => {
   const navigate = useNavigate();
   const [csList] = useState<CsResponse[]>([]);
 
-  // ✅ 더미 데이터
- 
-
-
-
   return (
     <div className="board-container">
-      <h1 className="board-title">📨 내 문의 내역</h1>
+      <h1 className="board-title">📨 お問い合わせ履歴</h1>
 
-      {csList.length === 0 ? (
-        <p style={{ textAlign: "center", color: "#999" }}>
-          등록한 문의가 없습니다.
-        </p>
-      ) : (
-        <>
-          <table className="board-table">
-            <thead>
+      {/* ✅ 테이블 전체를 감싸는 wrapper */}
+      <div className="table-wrapper">
+        <table className="board-table">
+          <thead>
+            <tr>
+              <th>番号</th>
+              <th>タイトル</th>
+              <th>支店</th>
+              <th>状態</th>
+              <th>作成日</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {csList.length === 0 ? (
               <tr>
-                <th>번호</th>
-                <th>제목</th>
-                <th>지점</th>
-                <th>상태</th>
-                <th>작성일</th>
+                <td
+                  colSpan={5}
+                  style={{
+                    textAlign: "center",
+                    color: "#999",
+                    height: "200px",
+                  }}
+                >
+                  登録されたお問い合わせはありません。
+                </td>
               </tr>
-            </thead>
-            <tbody>
-              {csList.map((c, index) => (
-              <tr key={c.id} style={{ cursor: "pointer" }}
-                onClick={() => navigate(`/cs/detail/${c.id}`)}>
+            ) : (
+              csList.map((c, index) => (
+                <tr
+                  key={c.id}
+                  style={{ cursor: "pointer" }}
+                  onClick={() => navigate(`/cs/detail/${c.id}`)}
+                >
                   <td>{csList.length - index}</td>
                   <td style={{ textAlign: "left" }}>{c.title}</td>
                   <td>{c.branchName}</td>
@@ -67,18 +75,18 @@ const MyCsListPage: React.FC = () => {
                   </td>
                   <td>{new Date(c.createdAt).toLocaleDateString()}</td>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
 
-          {/* 테이블 전체 아래, 오른쪽 정렬 */}
-          <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "20px" }}>
-            <button className="board-button" onClick={() => navigate("/writecs")}>
-              ✏️ 문의글 작성
-            </button>
-          </div>
-        </>
-      )}
+      {/* ✅ 버튼은 테이블 아래 오른쪽 정렬 */}
+      <div className="table-footer">
+        <button className="board-button" onClick={() => navigate("/writecs")}>
+          ✏️ お問い合わせ作成
+        </button>
+      </div>
     </div>
   );
 };

@@ -11,9 +11,9 @@ export default function Home() {
   const [books, setBooks] = useState<BookCard[]>([]);
 
   const announcements = [
-    "공지사항 1 - 테스트용 공지",
-    "공지사항 2 - 테스트용 공지",
-    "공지사항 3 - 테스트용 공지",
+    "お知らせ １ - Test",
+    "お知らせ 2 - Test",
+    "お知らせ 3 - Test",
   ];
 
   // ✅ 최신 도서 불러오기 (API 함수만 사용)
@@ -28,7 +28,7 @@ export default function Home() {
       {/* Hero Section */}
       <section className="hero-section">
         <div className="hero-content">
-          <h1 className="hero-title">도서관리페이지</h1>
+          <h1 className="hero-title">図書管理ページ</h1>
         </div>
       </section>
 

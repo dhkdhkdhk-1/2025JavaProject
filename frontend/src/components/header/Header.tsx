@@ -46,12 +46,12 @@ export default function Header() {
       </div>
 
       <nav className="header-right">
-        <a href="/booklist">도서목록</a>
-        <a href="/board">게시판</a>
-        <a href="/cs">고객센터</a>
-        <a href="/mypage">마이페이지</a>
+        <a href="/booklist">図書一覧</a>
+        <a href="/board">掲示板</a>
+        <a href="/mycslistpage">お問い合わせ</a>
+        <a href="/mypage">マイページ</a>
         <button className="login-btn" onClick={handleLogout}>
-          로그아웃
+          ログアウト
         </button>
       </nav>
     </header>

@@ -3,13 +3,13 @@ import { useParams, useNavigate } from "react-router-dom";
 import ReviewSection from "../review/reviewsection/ReviewSection";
 import "./BookInfo.css";
 import { getBook, BookDetail } from "../../api/BookApi";
-import axios from "axios";
 import {
   addWishlist,
   deleteWishlist,
   isWishlisted,
 } from "../../api/WishlistApi";
-import { registerRental } from "../../api/RentalApi"; // ✅ 추가
+import { registerRental } from "../../api/RentalApi";
+import { api } from "../../api/AuthApi"; // ✅ 추가 (axios 대신 사용)
 
 interface BranchStatus {
   branchId: number;
@@ -29,39 +29,45 @@ const BookInfo: React.FC = () => {
   const [selectedBranchId, setSelectedBranchId] = useState<number | "">("");
   const [wished, setWished] = useState(false);
 
-  const placeholder = "https://via.placeholder.com/357x492?text=No+Image";
+  const placeholder = "https://placehold.co/357x492?text=No+Image"; // ✅ 안전한 이미지 URL
 
   /** ✅ 도서 + 지점 + 찜 여부 불러오기 */
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        if (!id) return;
-        setLoading(true);
+useEffect(() => {
+  async function fetchData() {
+    try {
+      if (!id) return;
+      setLoading(true);
 
-        const [bookRes, branchRes] = await Promise.all([
-          getBook(Number(id)),
-          axios.get<BranchStatus[]>(`http://localhost:8080/book/${id}/branches`),
-        ]);
+      // ❌ axios → ✅ api (AuthApi 인스턴스)
+      const [bookRes, branchRes] = await Promise.all([
+        getBook(Number(id)),
+        api.get<BranchStatus[]>(`/book/${id}/branches`),
+      ]);
 
-        setBook(bookRes);
-        setBranches(branchRes.data);
+      setBook(bookRes);
+      setBranches(branchRes.data);
 
-        // ✅ 기본 선택 (대여 가능한 지점 자동 선택)
-        const matchedBranch = branchRes.data.find((b) => b.available);
-        setSelectedBranchId(matchedBranch?.branchId ?? "");
+      const matchedBranch = branchRes.data.find((b) => b.available);
+      setSelectedBranchId(matchedBranch?.branchId ?? "");
 
-        // ✅ 찜 여부 확인
-        const wishStatus = await isWishlisted(Number(id));
-        setWished(wishStatus);
-      } catch (e) {
-        setErr("도서 정보를 불러오지 못했어요.");
-      } finally {
-        setLoading(false);
+      const wishStatus = await isWishlisted(Number(id));
+      setWished(wishStatus);
+    } catch (e: any) {
+      console.error("도서 데이터 불러오기 오류:", e);
+      if (e.response?.status === 401) {
+        alert("セッションが切れたか、ログインが必要です。");
+        navigate("/login");
+      } else {
+        setErr("本の情報を取得できませんでした。");
       }
+    } finally {
+      setLoading(false);
     }
+  }
 
-    fetchData();
-  }, [id]);
+  fetchData();
+}, [id]);
+
 
   /** ✅ 찜하기/취소 */
   const handleWishlist = async () => {
@@ -70,21 +76,22 @@ const BookInfo: React.FC = () => {
       if (wished) {
         await deleteWishlist(Number(id));
         setWished(false);
-        alert("찜이 취소되었습니다.");
+        alert("お気に入りを削除しました。");
       } else {
         await addWishlist(Number(id));
         setWished(true);
-        alert("찜 목록에 추가되었습니다!");
+        alert("お気に入りに追加しました！");
       }
     } catch {
-      alert("로그인이 필요합니다.");
+      alert("ログインが必要です。");
+      navigate("/login");
     }
   };
 
   /** ✅ 도서 대여 */
   const handleRent = async () => {
     if (!id || !selectedBranchId) {
-      alert("지점을 선택해주세요.");
+      alert("支店を選択してください。");
       return;
     }
 
@@ -94,23 +101,23 @@ const BookInfo: React.FC = () => {
         branchId: Number(selectedBranchId),
       });
 
-      alert(`"${book?.title}" 도서를 성공적으로 대여했습니다!`);
+      alert(`「${book?.title}」を正常にレンタルしました！`);
       navigate("/rental");
     } catch (error: any) {
       if (error.response?.status === 400) {
-        alert("이미 대여 중이거나 대여할 수 없는 도서입니다.");
+        alert("すでにレンタル中、またはレンタルできない本です。");
       } else if (error.response?.status === 401) {
-        alert("로그인이 필요합니다.");
+        alert("ログインが必要です。");
         navigate("/login");
       } else {
-        alert("대여 중 오류가 발생했습니다.");
+        alert("レンタル中にエラーが発生しました。");
       }
     }
   };
 
-  if (loading) return <div style={{ padding: 16 }}>불러오는 중...</div>;
+  if (loading) return <div style={{ padding: 16 }}>読み込み中...</div>;
   if (err) return <div style={{ padding: 16, color: "crimson" }}>{err}</div>;
-  if (!book) return <div style={{ padding: 16 }}>도서를 찾을 수 없어요.</div>;
+  if (!book) return <div style={{ padding: 16 }}>本が見つかりません。</div>;
 
   const selectedBranch = branches.find((b) => b.branchId === selectedBranchId);
 
@@ -124,7 +131,7 @@ const BookInfo: React.FC = () => {
               <img
                 src={book.imageUrl || placeholder}
                 alt={book.title}
-                className=".book-info-page .book-image"
+                className="book-image"
                 onError={(e) =>
                   ((e.target as HTMLImageElement).src = placeholder)
                 }
@@ -133,31 +140,29 @@ const BookInfo: React.FC = () => {
 
             {/* 오른쪽: 도서 정보 */}
             <div className="product-details">
-              <div className="breadcrumb">
-              {book.category ?? "분류없음"}
-              </div>
+              <div className="breadcrumb">{book.category ?? "分類なし"}</div>
 
               <div className="title-section">
                 <h1 className="book-title">{book.title}</h1>
-                <div className="genre-tag">{book.category ?? "분류없음"}</div>
+                <div className="genre-tag">{book.category ?? "分類なし"}</div>
               </div>
 
               <div className="author-section">
-                저자: {book.author} | 출판사: {book.publisher}
+                著者: {book.author} | 出版社: {book.publisher}
               </div>
 
               {/* ✅ 지점 선택 */}
               <div className="branch-select-section">
-                <label className="location-label">지점 선택</label>
+                <label className="location-label">支店を選択</label>
                 <select
                   className="location-select"
                   value={selectedBranchId}
                   onChange={(e) => setSelectedBranchId(Number(e.target.value))}
                 >
-                  <option value="">지점을 선택하세요</option>
+                  <option value="">支店を選択してください</option>
                   {branches.map((b) => (
                     <option key={b.branchId} value={b.branchId}>
-                      {b.branchName} — {b.available ? "대여 가능" : "대여 불가"}
+                      {b.branchName} — {b.available ? "貸出可能" : "貸出不可"}
                     </option>
                   ))}
                 </select>
@@ -168,7 +173,7 @@ const BookInfo: React.FC = () => {
                       selectedBranch.available ? "available" : "unavailable"
                     }`}
                   >
-                    {selectedBranch.available ? "대여 가능" : "대여 불가"}
+                    {selectedBranch.available ? "貸出可能" : "貸出不可"}
                   </div>
                 )}
 
@@ -179,7 +184,7 @@ const BookInfo: React.FC = () => {
                     disabled={!selectedBranch || !selectedBranch.available}
                     onClick={handleRent}
                   >
-                    대여하기
+                    レンタル
                   </button>
 
                   {/* ✅ 찜 버튼 */}
@@ -187,7 +192,7 @@ const BookInfo: React.FC = () => {
                     className={`rent-button ${wished ? "wish-active" : ""}`}
                     onClick={handleWishlist}
                   >
-                    {wished ? "💖 찜됨" : "🤍 찜하기"}
+                    {wished ? "💖" : "🤍 "}
                   </button>
                 </div>
               </div>
@@ -196,11 +201,11 @@ const BookInfo: React.FC = () => {
               <div className="accordion-container">
                 <div className="accordion-item open">
                   <div className="accordion-header">
-                    <h3 className="accordion-title">책 소개</h3>
+                    <h3 className="accordion-title">本の紹介</h3>
                   </div>
                   <div className="accordion-content">
                     <p className="accordion-text">
-                      {book.description ?? "소개/줄거리 정보가 없습니다."}
+                      {book.description ?? "紹介やあらすじの情報がありません。"}
                     </p>
                   </div>
                 </div>

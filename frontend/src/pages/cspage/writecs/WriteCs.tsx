@@ -1,7 +1,7 @@
 // src/pages/cspage/writecs/WriteCs.tsx
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "./WriteCs.css"; // 주어진 디자인 그대로 사용
+import "./WriteCs.css"; // デザインはそのまま使用
 
 interface CsForm {
   title: string;
@@ -14,7 +14,7 @@ const WriteCs: React.FC = () => {
   const [form, setForm] = useState<CsForm>({
     title: "",
     content: "",
-    type: "일반",
+    type: "一般",
   });
 
   const handleChange = (
@@ -29,35 +29,35 @@ const WriteCs: React.FC = () => {
   const handleSubmit = () => {
     const token = localStorage.getItem("accessToken");
     if (!token) {
-      alert("로그인이 필요합니다.");
+      alert("ログインが必要です。");
       navigate("/login");
       return;
     }
 
-    // ✅ 더미 데이터로 콘솔 출력 (DB 연동 X)
-    console.log("작성 완료!", form);
-    alert("문의글이 작성되었습니다. (더미 데이터)");
+    // ✅ ダミーデータとして出力（DB連携なし）
+    console.log("作成完了！", form);
+    alert("お問い合わせが作成されました。（ダミーデータ）");
 
-    // 작성 후 목록 페이지로 이동
+    // 作成後、一覧ページへ移動
     navigate("/cs");
   };
 
   return (
     <div className="board-container">
-      <h1 className="board-title">문의글 작성</h1>
+      <h1 className="board-title">お問い合わせ作成</h1>
 
-      <label>제목</label>
+      <label>タイトル</label>
       <input
         className="board-input"
         name="title"
         value={form.title}
         onChange={handleChange}
-        placeholder="제목을 입력하세요"
+        placeholder="タイトルを入力してください"
       />
 
-      <label style={{ marginTop: "15px", display: "block" }}>분류</label>
+      <label style={{ marginTop: "15px", display: "block" }}>分類</label>
       <div style={{ margin: "10px 0" }}>
-        {["도서관련", "계정관련", "기타"].map((t) => (
+        {["書籍関連", "アカウント関連", "その他"].map((t) => (
           <button
             key={t}
             type="button"
@@ -70,19 +70,19 @@ const WriteCs: React.FC = () => {
         ))}
       </div>
 
-      <label>내용</label>
+      <label>内容</label>
       <textarea
         className="board-textarea"
         rows={10}
         name="content"
         value={form.content}
         onChange={handleChange}
-        placeholder="문의 내용을 입력하세요"
+        placeholder="お問い合わせ内容を入力してください"
       />
 
       <div style={{ textAlign: "right", marginTop: "20px" }}>
         <button className="board-button" onClick={handleSubmit} type="button">
-          작성
+          作成
         </button>
       </div>
     </div>
