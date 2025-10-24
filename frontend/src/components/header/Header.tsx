@@ -28,7 +28,7 @@ export default function Header() {
     localStorage.removeItem("accessToken");
     localStorage.removeItem("refreshToken");
     localStorage.removeItem("role");
-    alert("로그아웃되었습니다.");
+    alert("ログアウトしました。");
     navigate("/login", { replace: true });
     window.dispatchEvent(new Event("storage"));
   };
@@ -46,12 +46,12 @@ export default function Header() {
       </div>
 
       <nav className="header-right">
-        <a href="/booklist">도서목록</a>
-        <a href="/board">게시판</a>
-        <a href="/support">고객센터</a>
-        <a href="/mypage">마이페이지</a>
+        <a href="/booklist">図書一覧</a>
+        <a href="/board">掲示板</a>
+        <a href="/support">お問い合わせ</a>
+        <a href="/mypage">マイページ</a>
         <button className="login-btn" onClick={handleLogout}>
-          로그아웃
+          ログアウト
         </button>
       </nav>
     </header>

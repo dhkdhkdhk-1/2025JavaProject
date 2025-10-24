@@ -12,10 +12,10 @@ const BoardList: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
 
-  const [searchType, setSearchType] = useState("제목+내용");
+  const [searchType, setSearchType] = useState("タイトル+内容");
   const [keyword, setKeyword] = useState("");
-  const [category, setCategory] = useState("전체");
-  const [boardType, setBoardType] = useState<"일반" | "공지">("일반");
+  const [category, setCategory] = useState("すべて");
+  const [boardType, setBoardType] = useState<"掲示板" | "告知">("掲示板");
   const userRole = localStorage.getItem("role") || "";
 
   const [baseAll, setBaseAll] = useState<BoardResponse[]>([]);
@@ -25,13 +25,13 @@ const BoardList: React.FC = () => {
 
   /** ✅ 전체 게시판 기준 목록 캐싱 */
   const fetchBaseList = useCallback(async () => {
-    const res = await getBoardList(0, "", "제목+내용", "전체", boardType);
+    const res = await getBoardList(0, "", "タイトル+内容", "すべて", boardType);
     let base = res.data.content
       .filter((b: BoardResponse) => b.deleted !== true)
       .filter((b: BoardResponse) =>
-        boardType === "공지"
-          ? ["공지", "입고", "행사"].includes(b.type || "")
-          : !b.type || ["일반", "요청", "질문"].includes(b.type)
+        boardType === "告知"
+          ? ["告知", "入荷", "行事"].includes(b.type || "")
+          : !b.type || ["一般", "リクエスト", "質問"].includes(b.type)
       )
       .sort((a: BoardResponse, b: BoardResponse) => b.id - a.id)
       .map((b: BoardResponse, idx: number, arr: BoardResponse[]) => ({
@@ -65,26 +65,26 @@ const BoardList: React.FC = () => {
         allBoards = allBoards.filter((b) => b.deleted !== true);
 
         let filtered: BoardResponse[] = [];
-        if (boardType === "공지") {
+        if (boardType === "告知") {
           filtered = allBoards.filter((b) =>
-            ["공지", "입고", "행사"].includes(b.type || "")
+            ["告知", "入荷", "行事"].includes(b.type || "")
           );
         } else {
           filtered = allBoards.filter(
-            (b) => !b.type || ["일반", "요청", "질문"].includes(b.type)
+            (b) => !b.type || ["一般", "リクエスト", "質問"].includes(b.type)
           );
         }
 
-        if (categoryStr !== "전체") {
+        if (categoryStr !== "すべて") {
           filtered = filtered.filter((b) => b.type === categoryStr);
         }
 
         if (keywordStr.trim()) {
           const kw = keywordStr.toLowerCase();
           filtered = filtered.filter((b) => {
-            if (searchTypeStr === "제목")
+            if (searchTypeStr === "タイトル")
               return b.title.toLowerCase().includes(kw);
-            if (searchTypeStr === "작성자")
+            if (searchTypeStr === "投稿者")
               return b.username.toLowerCase().includes(kw);
             return (
               b.title.toLowerCase().includes(kw) ||
@@ -96,7 +96,7 @@ const BoardList: React.FC = () => {
         filtered.sort((a, b) => b.id - a.id);
 
         let numbered: BoardResponse[];
-        const isDefaultView = !keywordStr.trim() && categoryStr === "전체";
+        const isDefaultView = !keywordStr.trim() && categoryStr === "すべて";
 
         if (isDefaultView) {
           numbered = baseAll;
@@ -117,12 +117,14 @@ const BoardList: React.FC = () => {
         setBoards(paginated);
         setTotalPages(totalPageCount);
       } catch (error) {
-        console.error("❌ 게시글 불러오기 실패:", error);
+        console.error("❌ 投稿読み込みに失敗しました。:", error);
         if (axios.isAxiosError(error) && error.response?.status === 401) {
-          alert("세션이 만료되었습니다. 다시 로그인해주세요.");
+          alert(
+            "セッションの有効期限が切れました。もう一度ログインしてください。"
+          );
           navigate("/login");
         } else {
-          setErrorMsg("❌ 데이터를 불러오는 중 오류가 발생했습니다.");
+          setErrorMsg("❌ データの読み込み中エラーが発生しました。");
         }
       } finally {
         setLoading(false);
@@ -137,9 +139,9 @@ const BoardList: React.FC = () => {
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
-    const newSearchType = params.get("searchType") || "제목+내용";
+    const newSearchType = params.get("searchType") || "タイトル+内容";
     const newKeyword = params.get("keyword") || "";
-    const newCategory = params.get("category") || "전체";
+    const newCategory = params.get("category") || "すべて";
     const newPage = parseInt(params.get("page") || "0", 10);
     const refresh = params.get("refresh");
 
@@ -152,9 +154,9 @@ const BoardList: React.FC = () => {
     if (refresh) navigate("/board");
   }, [location.search, boardType, fetchBoards, navigate]);
 
-  const handleBoardTypeChange = (type: "일반" | "공지") => {
+  const handleBoardTypeChange = (type: "掲示板" | "告知") => {
     setBoardType(type);
-    setCategory("전체");
+    setCategory("すべて");
     setPage(0);
     navigate(`/board?type=${type}`);
   };
@@ -162,8 +164,8 @@ const BoardList: React.FC = () => {
   const handleSearch = () => {
     const query = new URLSearchParams();
     if (keyword.trim()) query.append("keyword", keyword);
-    if (searchType !== "제목+내용") query.append("searchType", searchType);
-    if (category !== "전체") query.append("category", category);
+    if (searchType !== "タイトル+内容") query.append("searchType", searchType);
+    if (category !== "すべて") query.append("category", category);
     query.append("page", "0");
     navigate(`/board?${query.toString()}`);
   };
@@ -175,8 +177,8 @@ const BoardList: React.FC = () => {
   const handlePageChange = (newPage: number) => {
     const query = new URLSearchParams();
     if (keyword.trim()) query.append("keyword", keyword);
-    if (searchType !== "제목+내용") query.append("searchType", searchType);
-    if (category !== "전체") query.append("category", category);
+    if (searchType !== "タイトル+内容") query.append("searchType", searchType);
+    if (category !== "すべて") query.append("category", category);
     query.append("page", newPage.toString());
     navigate(`/board?${query.toString()}`);
   };
@@ -184,21 +186,21 @@ const BoardList: React.FC = () => {
   return (
     <div className={`board-container ${loading ? "fade-out" : "fade-in"}`}>
       <h1 className="board-title">
-        {boardType === "일반" ? "게시판" : "공지게시판"}
+        {boardType === "掲示板" ? "掲示板" : "お知らせ"}
       </h1>
 
       <div className="board-category-toggle">
         <button
-          onClick={() => handleBoardTypeChange("일반")}
-          className={`general-button ${boardType === "일반" ? "active" : ""}`}
+          onClick={() => handleBoardTypeChange("掲示板")}
+          className={`general-button ${boardType === "掲示板" ? "active" : ""}`}
         >
-          일반 게시판
+          掲示板
         </button>
         <button
-          onClick={() => handleBoardTypeChange("공지")}
-          className={`notice-button ${boardType === "공지" ? "active" : ""}`}
+          onClick={() => handleBoardTypeChange("告知")}
+          className={`notice-button ${boardType === "告知" ? "active" : ""}`}
         >
-          공지 게시판
+          お知らせ
         </button>
       </div>
 
@@ -211,26 +213,26 @@ const BoardList: React.FC = () => {
             setCategory(newCategory);
             const query = new URLSearchParams();
             if (keyword.trim()) query.append("keyword", keyword);
-            if (searchType !== "제목+내용")
+            if (searchType !== "タイトル+内容")
               query.append("searchType", searchType);
-            if (newCategory !== "전체") query.append("category", newCategory);
+            if (newCategory !== "すべて") query.append("category", newCategory);
             query.append("page", "0");
             navigate(`/board?${query.toString()}`);
           }}
         >
-          {boardType === "일반" ? (
+          {boardType === "掲示板" ? (
             <>
-              <option value="전체">전체</option>
-              <option value="일반">일반</option>
-              <option value="요청">요청</option>
-              <option value="질문">질문</option>
+              <option value="すべて">すべて</option>
+              <option value="一般">一般</option>
+              <option value="リクエスト">リクエスト</option>
+              <option value="質問">質問</option>
             </>
           ) : (
             <>
-              <option value="전체">전체</option>
-              <option value="공지">공지</option>
-              <option value="입고">입고</option>
-              <option value="행사">행사</option>
+              <option value="すべて">すべて</option>
+              <option value="告知">告知</option>
+              <option value="入荷">入荷</option>
+              <option value="行事">行事</option>
             </>
           )}
         </select>
@@ -240,15 +242,15 @@ const BoardList: React.FC = () => {
           value={searchType}
           onChange={(e) => setSearchType(e.target.value)}
         >
-          <option value="제목+내용">제목 + 내용</option>
-          <option value="제목">제목</option>
-          <option value="작성자">작성자</option>
+          <option value="タイトル+内容">タイトル＋内容</option>
+          <option value="タイトル">タイトル</option>
+          <option value="投稿者">投稿者</option>
         </select>
 
         <input
           className="board-search-input"
           type="text"
-          placeholder="검색어를 입력하세요"
+          placeholder="キーワード"
           value={keyword}
           onChange={(e) => setKeyword(e.target.value)}
           onKeyDown={handleKeyPress}
@@ -259,7 +261,7 @@ const BoardList: React.FC = () => {
       </div>
 
       {loading ? (
-        <p style={{ textAlign: "center", color: "#777" }}>불러오는 중...</p>
+        <p style={{ textAlign: "center", color: "#777" }}>読み込み中...</p>
       ) : errorMsg ? (
         <p style={{ textAlign: "center", color: "#999" }}>{errorMsg}</p>
       ) : (
@@ -275,7 +277,7 @@ const BoardList: React.FC = () => {
           onClick={() => handlePageChange(Math.max(page - 1, 0))}
           disabled={page === 0}
         >
-          ← 이전
+          ← 前へ
         </button>
 
         {[...Array(Math.max(totalPages, 1))].map((_, num) => (
@@ -295,13 +297,13 @@ const BoardList: React.FC = () => {
           }
           disabled={page >= totalPages - 1 || totalPages === 0}
         >
-          다음 →
+          次へ →
         </button>
       </div>
 
       {/* ✅ 글쓰기 버튼 */}
       {userRole &&
-        (boardType === "일반"
+        (boardType === "掲示板"
           ? (userRole === "USER" ||
               userRole === "MANAGER" ||
               userRole === "ADMIN") && (
@@ -310,7 +312,7 @@ const BoardList: React.FC = () => {
                   className="board-button"
                   onClick={() => navigate("/board/write")}
                 >
-                  ✏️ 글쓰기
+                  ✏️ 投稿する
                 </button>
               </div>
             )
@@ -318,9 +320,9 @@ const BoardList: React.FC = () => {
               <div style={{ textAlign: "right", marginTop: "20px" }}>
                 <button
                   className="board-button"
-                  onClick={() => navigate("/board/notice/write?redirect=공지")}
+                  onClick={() => navigate("/board/notice/write?redirect=告知")}
                 >
-                  ✏️ 공지 작성
+                  ✏️ 告知作成
                 </button>
               </div>
             ))}

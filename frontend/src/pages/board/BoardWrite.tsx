@@ -4,17 +4,17 @@ import BoardForm from "./components/BoardForm";
 import { createBoard, BoardRequest } from "../../api/BoardApi";
 
 interface BoardWriteProps {
-  boardType?: "일반" | "공지";
+  boardType?: "一般" | "告知";
 }
 
-const BoardWrite: React.FC<BoardWriteProps> = ({ boardType = "일반" }) => {
+const BoardWrite: React.FC<BoardWriteProps> = ({ boardType = "一般" }) => {
   const navigate = useNavigate();
   const location = useLocation();
 
   // ✅ URL의 type값 우선 적용
   const params = new URLSearchParams(location.search);
   const typeParam =
-    (params.get("type") as "일반" | "공지") || boardType || "일반";
+    (params.get("type") as "一般" | "告知") || boardType || "一般";
 
   const [form, setForm] = useState<BoardRequest>({
     title: "",
@@ -39,17 +39,17 @@ const BoardWrite: React.FC<BoardWriteProps> = ({ boardType = "일반" }) => {
 
   const handleSubmit = async () => {
     if (!form.title.trim() || !form.content.trim()) {
-      alert("제목과 내용을 모두 입력하세요.");
+      alert("タイトルと内容を全部書いてください。");
       return;
     }
 
     try {
       await createBoard(form);
-      alert("게시글이 등록되었습니다.");
+      alert("投稿が登録されました。");
       navigate(`/board?type=${typeParam}&refresh=1`);
     } catch (err) {
-      console.error("게시글 등록 실패:", err);
-      alert("게시글 등록 중 오류가 발생했습니다.");
+      console.error("投稿登録失敗:", err);
+      alert("投稿を登録している中エラーが発生しました。");
     }
   };
 

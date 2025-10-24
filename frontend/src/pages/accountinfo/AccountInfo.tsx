@@ -31,8 +31,8 @@ const AccountInfo: React.FC = () => {
         setUser(res);
         setNewNickname(res.username);
       } catch (err) {
-        console.error("회원 정보를 불러오지 못했습니다.", err);
-        alert("로그인이 만료되었거나 정보를 불러올 수 없습니다.");
+        console.error("会員情報を読み込めませんでした。", err);
+        alert("セッションの有効期限が切れたか、情報を読み込めません。");
         navigate("/login");
       }
     };
@@ -41,19 +41,19 @@ const AccountInfo: React.FC = () => {
 
   /** ✅ 닉네임 변경 모드 전환 */
   const handleAskEdit = () => {
-    const confirmEdit = window.confirm("닉네임을 변경하시겠습니까?");
+    const confirmEdit = window.confirm("ニックネームを変更しますか？");
     setIsEditing(confirmEdit);
   };
 
   /** ✅ 회원정보 수정 요청 */
   const handleUpdate = async () => {
     if (!newNickname.trim() || !password.trim() || !passwordCheck.trim()) {
-      alert("닉네임과 비밀번호를 모두 입력해주세요.");
+      alert("すべての情報を入力してしてください。");
       return;
     }
 
     if (password !== passwordCheck) {
-      alert("비밀번호가 일치하지 않습니다.");
+      alert("パスワードが一致してません。");
       return;
     }
 
@@ -65,7 +65,7 @@ const AccountInfo: React.FC = () => {
         passwordCheck,
       });
 
-      alert("닉네임이 성공적으로 변경되었습니다!");
+      alert("ニックネームが成功的に変更されました！");
       setIsEditing(false);
 
       // ✅ 최신 사용자 정보 반영
@@ -74,21 +74,21 @@ const AccountInfo: React.FC = () => {
 
       navigate("/mypage");
     } catch (error: any) {
-      console.error("회원 정보 수정 실패:", error);
+      console.error("会員情報修正失敗:", error);
       if (error.response?.data) {
-        alert(error.response.data.message || "회원정보 수정에 실패했습니다.");
+        alert(error.response.data.message || "会員情報修正に失敗しました。");
       } else {
-        alert("회원정보 수정 중 오류가 발생했습니다.");
+        alert("会員情報修正途中エラーが発生しました。");
       }
     }
   };
 
-  if (!user) return <div>로딩 중...</div>;
+  if (!user) return <div>ロード中です...</div>;
 
   return (
     <div className="account-info-page">
       <TextContentTitle
-        title="회원 정보"
+        title="会員情報"
         align="center"
         className="account-info-title"
       />
@@ -97,15 +97,14 @@ const AccountInfo: React.FC = () => {
         {!isEditing ? (
           <>
             <p>
-              <strong>닉네임:</strong> {user.username}
+              <strong>メール:</strong> {user.email}
             </p>
             <p>
-              <strong>이메일:</strong> {user.email}
+              <strong>ニックネーム:</strong> {user.username}
             </p>
-
             <VariantPrimaryWrapper
               className="account-info-button"
-              label="닉네임 변경"
+              label="ニックネーム変更"
               size="medium"
               variant="primary"
               onClick={handleAskEdit}
@@ -115,14 +114,14 @@ const AccountInfo: React.FC = () => {
               className="account-info-button cancel"
               onClick={() => navigate("/mypage")}
             >
-              돌아가기
+              戻る
             </button>
           </>
         ) : (
           <>
             {/* ✅ 닉네임 입력 */}
             <InputField
-              label="새 닉네임"
+              label="新しいニックネーム"
               value={newNickname}
               valueType="value"
               onChange={(e) => setNewNickname(e.target.value)}
@@ -133,7 +132,7 @@ const AccountInfo: React.FC = () => {
               <InputField
                 className="account-info-input"
                 inputClassName="account-info-input-field"
-                label="비밀번호"
+                label="パスワード"
                 value={password}
                 valueType="value"
                 onChange={(e) => setPassword(e.target.value)}
@@ -154,7 +153,7 @@ const AccountInfo: React.FC = () => {
               <InputField
                 className="account-info-input"
                 inputClassName="account-info-input-field"
-                label="비밀번호 확인"
+                label="パスワードチェック"
                 value={passwordCheck}
                 valueType="value"
                 onChange={(e) => setPasswordCheck(e.target.value)}
@@ -172,7 +171,7 @@ const AccountInfo: React.FC = () => {
 
             <VariantPrimaryWrapper
               className="account-info-button"
-              label="저장"
+              label="保存"
               size="medium"
               variant="primary"
               onClick={handleUpdate}
@@ -182,7 +181,7 @@ const AccountInfo: React.FC = () => {
               className="account-info-button cancel"
               onClick={() => setIsEditing(false)}
             >
-              취소
+              キャンセル
             </button>
           </>
         )}

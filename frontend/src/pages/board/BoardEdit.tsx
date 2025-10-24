@@ -10,15 +10,15 @@ const BoardEdit: React.FC = () => {
 
   const params = new URLSearchParams(location.search);
   const typeParam =
-    (params.get("type") as "일반" | "공지") || ("일반" as "일반" | "공지");
+    (params.get("type") as "一般" | "告知") || ("一般" as "一般" | "告知");
 
   const [form, setForm] = useState({
     title: "",
     content: "",
-    type: "일반",
+    type: "一般",
   });
 
-  const [boardType, setBoardType] = useState<"일반" | "공지">(typeParam);
+  const [boardType, setBoardType] = useState<"一般" | "告知">(typeParam);
 
   useEffect(() => {
     const fetchBoard = async () => {
@@ -30,16 +30,16 @@ const BoardEdit: React.FC = () => {
         setForm({
           title: data.title || "",
           content: data.content || "",
-          type: data.type || "일반",
+          type: data.type || "一般",
         });
 
-        if (["공지", "입고", "행사"].includes(data.type)) {
-          setBoardType("공지");
+        if (["告知", "入荷", "行事"].includes(data.type)) {
+          setBoardType("告知");
         } else {
-          setBoardType("일반");
+          setBoardType("一般");
         }
       } catch {
-        alert("게시글 정보를 불러오는 중 오류가 발생했습니다.");
+        alert("投稿の読み込みに失敗しました。");
         navigate("/board");
       }
     };
@@ -60,20 +60,20 @@ const BoardEdit: React.FC = () => {
   const handleSubmit = async () => {
     if (!id) return;
     if (!form.title.trim() || !form.content.trim()) {
-      alert("제목과 내용을 모두 입력해주세요.");
+      alert("タイトルと内容を全部書いてください。");
       return;
     }
 
     try {
       await updateBoard(Number(id), form);
-      alert("게시글이 수정되었습니다.");
+      alert("投稿を修正しました。");
       navigate(`/board?type=${boardType}&refresh=1`);
     } catch (err: any) {
-      console.error("게시글 수정 오류:", err);
+      console.error("投稿修正エラー:", err);
       if (err.response?.status === 403) {
-        alert("수정 권한이 없습니다.");
+        alert("修正権限がありません。");
       } else {
-        alert("게시글 수정 중 오류가 발생했습니다.");
+        alert("投稿の修正中エラーが発生しました。");
       }
     }
   };

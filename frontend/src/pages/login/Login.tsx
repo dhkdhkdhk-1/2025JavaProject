@@ -29,9 +29,9 @@ const Login: React.FC = () => {
     try {
       const me = await getMe();
 
-      // ✅ 추가: 탈퇴된 계정 차단
+      // ✅ 탈퇴된 계정 차단
       if (me.deleted) {
-        alert("탈퇴된 계정입니다. 재가입 후 이용해주세요.");
+        alert("脱退したアカウントです。再加入をした後に利用してください。");
         navigate("/signup");
         return;
       }
@@ -42,15 +42,19 @@ const Login: React.FC = () => {
       if (me.role === "ADMIN") navigate("/admin");
       else navigate("/home");
     } catch (e) {
-      console.error("/user/me 조회 실패", e);
-      alert("로그인은 되었지만 사용자 정보를 불러오지 못했습니다.");
+      console.error("/user/me 照会失敗", e);
+      alert("ログインはしましたが、会員情報の読み込みに失敗しました。");
       navigate("/home");
     }
   };
 
   return (
     <div className="login-page">
-      <TextContentTitle title="로그인" align="center" className="login-title" />
+      <TextContentTitle
+        title="ログイン"
+        align="center"
+        className="login-title"
+      />
 
       <div className="login-box">
         <InputField
@@ -88,7 +92,7 @@ const Login: React.FC = () => {
             checked={remember}
             onChange={(e) => setRemember(e.target.checked)}
           />
-          <span>계정 정보 저장</span>
+          <span>アカウント情報保存</span>
         </div>
 
         <div className="login-link-container">
@@ -96,19 +100,19 @@ const Login: React.FC = () => {
             className="login-signup clickable"
             onClick={() => navigate("/signup")}
           >
-            회원가입
+            会員登録
           </div>
           <div
             className="login-forgot clickable"
-            onClick={() => alert("비밀번호 찾기 기능 준비 중입니다.")}
+            onClick={() => navigate("/findpassword")}
           >
-            비밀번호 찾기
+            パスワードを探す
           </div>
         </div>
 
         <VariantPrimaryWrapper
           className="login-button"
-          label="로그인"
+          label="ログイン"
           size="medium"
           variant="primary"
           onClick={handleLogin}

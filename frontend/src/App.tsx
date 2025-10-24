@@ -25,6 +25,7 @@ import ReviewList from "./pages/review/reviewlist/ReviewList";
 import WriteReview from "./pages/review/writereview/WriteReview";
 import Withdraw from "./pages/withdraw/Withdraw";
 import AccountInfo from "./pages/accountinfo/AccountInfo";
+import FindPassword from "./pages/findpassword/FindPassword";
 
 // ✅ 관리자 페이지
 import Dashboard from "./pages/admin/dashboard/Dashboard";
@@ -91,6 +92,7 @@ const App: React.FC = () => {
         {/* 비로그인 가능 */}
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
+        <Route path="/findpassword" element={<FindPassword />} />
 
         {/* 로그인 필요 */}
         <Route element={<ProtectedLayout />}>
@@ -100,10 +102,10 @@ const App: React.FC = () => {
           <Route path="/board" element={<Outlet />}>
             <Route index element={<BoardList />} />
             <Route path=":id" element={<BoardRead />} />
-            <Route path="write" element={<BoardWrite boardType="일반" />} />
+            <Route path="write" element={<BoardWrite boardType="一般" />} />
             <Route
               path="notice/write"
-              element={<BoardWrite boardType="공지" />}
+              element={<BoardWrite boardType="告知" />}
             />
             <Route path="edit/:id" element={<BoardEdit />} />
           </Route>

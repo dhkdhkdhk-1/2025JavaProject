@@ -10,18 +10,18 @@ interface Props {
 const BoardTable: React.FC<Props> = ({ boards, onSelect }) => {
   if (!boards || boards.length === 0)
     return (
-      <p style={{ textAlign: "center", color: "#777" }}>게시글이 없습니다.</p>
+      <p style={{ textAlign: "center", color: "#777" }}>投稿がありません.</p>
     );
 
   return (
     <table className="board-table">
       <thead>
         <tr>
-          <th>번호</th>
-          <th>분류</th>
-          <th>제목</th>
-          <th>작성자</th>
-          <th>조회수</th>
+          <th>番号</th>
+          <th>分類</th>
+          <th>タイトル</th>
+          <th>投稿者</th>
+          <th>閲覧数</th>
         </tr>
       </thead>
       <tbody>

@@ -1,5 +1,14 @@
 @import "../login/Login-Variables.css";
 
+body,
+button,
+input,
+select,
+textarea {
+  font-family: "Noto Sans JP", "Noto Sans KR", "Hiragino Sans", "Meiryo",
+    sans-serif;
+}
+
 /* ✅ 전체 컨테이너 */
 .withdraw-page {
   max-width: 420px;

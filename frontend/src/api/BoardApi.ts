@@ -72,7 +72,7 @@ api.interceptors.response.use(
 
       try {
         const newToken = await refreshAccessToken();
-        if (!newToken) throw new Error("토큰 갱신 실패");
+        if (!newToken) throw new Error("トークン更新失敗");
 
         api.defaults.headers.common["Authorization"] = `Bearer ${newToken}`;
         processQueue(null, newToken);
@@ -103,17 +103,17 @@ api.interceptors.response.use(
 export const getBoardList = async (
   page: number = 0,
   keyword: string = "",
-  searchType: string = "제목+내용",
-  category: string = "전체",
-  boardType: "일반" | "공지" = "일반" // 게시판 유형
+  searchType: string = "タイトル＋内容",
+  category: string = "すべて",
+  boardType: "掲示板" | "告知" = "掲示板" // 게시판 유형
 ) => {
   const params = new URLSearchParams();
   params.append("page", page.toString());
   params.append("size", "9999"); // 전체 데이터 한 번에 불러옴
 
   if (keyword.trim()) params.append("keyword", keyword);
-  if (searchType !== "제목+내용") params.append("searchType", searchType);
-  if (category !== "전체") params.append("category", category);
+  if (searchType !== "タイトル＋内容") params.append("searchType", searchType);
+  if (category !== "すべて") params.append("category", category);
   params.append("type", boardType); // 게시판 유형 필터 추가
 
   const res = await api.get<PageResponse<BoardResponse>>(
@@ -139,7 +139,7 @@ export const incrementViewCount = async (id: number) =>
 export const createBoard = async (data: BoardRequest) => {
   const boardData = {
     ...data,
-    type: data.type || "일반",
+    type: data.type || "一般",
   };
   return api.post<BoardResponse>("/board", boardData, {
     headers: { "Content-Type": "application/json" },

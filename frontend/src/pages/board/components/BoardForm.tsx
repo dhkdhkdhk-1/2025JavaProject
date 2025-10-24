@@ -12,7 +12,7 @@ interface Props {
   ) => void;
   onSubmit: () => void;
   isEdit?: boolean;
-  boardType?: "일반" | "공지"; // ✅ 추가
+  boardType?: "一般" | "告知"; // ✅ 추가
 }
 
 const BoardForm: React.FC<Props> = ({
@@ -20,9 +20,9 @@ const BoardForm: React.FC<Props> = ({
   onChange,
   onSubmit,
   isEdit,
-  boardType = "일반",
+  boardType = "掲示板",
 }) => {
-  const isNoticeBoard = boardType === "공지";
+  const isNoticeBoard = boardType === "告知";
 
   const handleTypeChange = (type: string) => {
     onChange({ target: { name: "type", value: type } } as any);
@@ -30,22 +30,30 @@ const BoardForm: React.FC<Props> = ({
 
   return (
     <div className="board-container">
-      <h1 className="board-title">{isEdit ? "글 수정" : "글쓰기"}</h1>
+      <h1 className="board-title">
+        {isEdit
+          ? boardType === "告知"
+            ? "告知修正"
+            : "投稿修正"
+          : boardType === "告知"
+          ? "告知作成"
+          : "投稿する"}
+      </h1>
 
-      <label>제목</label>
+      <label>タイトル</label>
       <input
         className="board-input"
         name="title"
         value={form.title}
         onChange={onChange}
-        placeholder="제목을 입력하세요"
+        placeholder="タイトルを書いてください。"
       />
 
-      <label>분류</label>
+      <label>分類</label>
       <div style={{ margin: "10px 0" }}>
         {(isNoticeBoard
-          ? ["공지", "입고", "행사"]
-          : ["일반", "질문", "요청"]
+          ? ["告知", "入荷", "行事"]
+          : ["一般", "質問", "リクエスト"]
         ).map((t) => (
           <button
             key={t}
@@ -59,19 +67,19 @@ const BoardForm: React.FC<Props> = ({
         ))}
       </div>
 
-      <label>내용</label>
+      <label>内容</label>
       <textarea
         className="board-textarea"
         rows={10}
         name="content"
         value={form.content}
         onChange={onChange}
-        placeholder="내용을 입력하세요"
+        placeholder="内容を書いてください。"
       />
 
       <div style={{ textAlign: "right", marginTop: "20px" }}>
         <button className="board-button" onClick={onSubmit} type="button">
-          {isEdit ? "수정" : "작성"}
+          {isEdit ? "修正" : "作成"}
         </button>
       </div>
     </div>

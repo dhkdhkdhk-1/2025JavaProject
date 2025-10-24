@@ -17,28 +17,28 @@ const Withdraw: React.FC = () => {
   /** ✅ 회원 탈퇴 처리 */
   const handleWithdraw = async () => {
     if (!email || !password || !passwordCheck) {
-      alert("이메일과 비밀번호를 모두 입력해주세요.");
+      alert("すべての情報を入力してください。");
       return;
     }
 
     if (password !== passwordCheck) {
-      alert("비밀번호가 일치하지 않습니다.");
+      alert("パスワードが一致してません。");
       return;
     }
 
     try {
       await api.post("/auth/withdraw", { email, password, passwordCheck });
 
-      alert("회원 탈퇴가 완료되었습니다.");
+      alert("会員脱退が完了されました。");
       localStorage.removeItem("accessToken");
       localStorage.removeItem("refreshToken");
       navigate("/login");
     } catch (error: any) {
-      console.error("회원 탈퇴 실패:", error);
+      console.error("会員脱退失敗:", error);
       if (error.response?.status === 401) {
-        alert("비밀번호가 올바르지 않습니다.");
+        alert("パスワードが正しくありません。");
       } else {
-        alert("회원 탈퇴 중 오류가 발생했습니다.");
+        alert("会員脱退途中エラーが発生しました。");
       }
     }
   };
@@ -46,14 +46,14 @@ const Withdraw: React.FC = () => {
   return (
     <div className="withdraw-page">
       <TextContentTitle
-        title="회원 탈퇴"
+        title="会員脱退"
         align="center"
         className="withdraw-title"
       />
 
       <div className="withdraw-box">
         <InputField
-          label="이메일"
+          label="メール"
           value={email}
           valueType="value"
           onChange={(e) => setEmail(e.target.value)}
@@ -64,7 +64,7 @@ const Withdraw: React.FC = () => {
           <InputField
             className="withdraw-input"
             inputClassName="withdraw-input-field"
-            label="비밀번호"
+            label="パスワード"
             value={password}
             valueType="value"
             onChange={(e) => setPassword(e.target.value)}
@@ -85,7 +85,7 @@ const Withdraw: React.FC = () => {
           <InputField
             className="withdraw-input"
             inputClassName="withdraw-input-field"
-            label="비밀번호 확인"
+            label="パスワード確認"
             value={passwordCheck}
             valueType="value"
             onChange={(e) => setPasswordCheck(e.target.value)}
@@ -103,7 +103,7 @@ const Withdraw: React.FC = () => {
 
         <VariantPrimaryWrapper
           className="withdraw-button"
-          label="회원 탈퇴"
+          label="会員脱退"
           size="medium"
           variant="primary"
           onClick={handleWithdraw}
@@ -113,7 +113,7 @@ const Withdraw: React.FC = () => {
           className="withdraw-button cancel"
           onClick={() => navigate("/mypage")}
         >
-          취소
+          キャンセル
         </button>
       </div>
     </div>
