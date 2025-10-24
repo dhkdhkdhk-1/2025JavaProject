@@ -1,7 +1,7 @@
-package kr.ac.ync.library.domain.email.service;
+package kr.ac.ync.library.domain.rentals.email.service;
 
-import kr.ac.ync.library.domain.email.entity.EmailLogEntity;
-import kr.ac.ync.library.domain.email.repository.EmailLogRepository;
+import kr.ac.ync.library.domain.rentals.email.entity.EmailLogEntity;
+import kr.ac.ync.library.domain.rentals.email.repository.EmailLogRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

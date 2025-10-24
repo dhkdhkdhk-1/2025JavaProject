@@ -1,4 +1,4 @@
-package kr.ac.ync.library.domain.email.entity;
+package kr.ac.ync.library.domain.rentals.email.entity;
 
 import jakarta.persistence.*;
 import lombok.*;

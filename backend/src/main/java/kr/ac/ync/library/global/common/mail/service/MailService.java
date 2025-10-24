@@ -1,12 +1,10 @@
 package kr.ac.ync.library.global.common.mail.service;
 
-import kr.ac.ync.library.domain.email.repository.EmailLogRepository;
-import kr.ac.ync.library.domain.email.service.EmailLogService;
+import kr.ac.ync.library.domain.rentals.email.service.EmailLogService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
-import kr.ac.ync.library.domain.email.entity.EmailLogEntity;
 
 @Service
 @RequiredArgsConstructor
