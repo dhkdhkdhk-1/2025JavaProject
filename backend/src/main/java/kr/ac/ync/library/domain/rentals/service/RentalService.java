@@ -18,4 +18,7 @@ public interface RentalService {
     List<RentalResponse> getListByUser(Long userId);
 
     RentalResponse findById(Long id);
+
+
+    List<RentalResponse> findOverdueRentals();
 }

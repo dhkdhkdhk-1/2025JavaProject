@@ -1,25 +1,27 @@
 import React, { useEffect, useState } from "react";
 import PieChartBox from "../../../components/chart/PieChartBox";
+import { getBooks, Book } from "../../../api/BookApi";
 import { getBranches, BranchResponse } from "../../../api/BranchApi";
 import { getBooks } from "../../../api/BookApi"; // ✅ 追加
+import { getAdmins, User, getUsers } from "../../../api/UserApi";
+import { getAllRentals } from "../../../api/RentalApi";
 import "./Dashboard.css";
 
 interface DashboardData {
   totalUsers: number;
   totalBooks: number;
   totalBranches: number;
-  borrowedRatio: number;
-  returnedRatio: number;
-  borrowers: { name: string; book: string }[];
+  borrowedCount: number;
+  returnedCount: number;
   admins: { name: string; id: string; status: string }[];
+  books: Book[];
   branches: BranchResponse[];
 }
 
 const Dashboard: React.FC = () => {
   const [data, setData] = useState<DashboardData | null>(null);
-
   useEffect(() => {
-    const fetchDashboardData = async () => {
+    const fetchData = async () => {
       try {
         // ✅ 本と支店データを同時に取得
         const [bookPage, branchPage] = await Promise.all([
@@ -45,15 +47,13 @@ const Dashboard: React.FC = () => {
             { name: "ハン・ジミン", id: "Admin ID: 4", status: "アクティブ" },
           ],
           branches: branchPage.content,
-        };
-
-        setData(mock);
+        });
       } catch (err) {
         console.error("📊 ダッシュボードデータの読み込みに失敗しました:", err);
       }
     };
 
-    fetchDashboardData();
+    fetchData();
   }, []);
 
   if (!data) return <p>読み込み中...</p>;
@@ -64,8 +64,8 @@ const Dashboard: React.FC = () => {
       <div className="chart-section dashboard-card">
         <h3>貸出 / 返却 比率</h3>
         <PieChartBox
-          borrowed={data.borrowedRatio}
-          returned={data.returnedRatio}
+          borrowed={data.borrowedCount}
+          returned={data.returnedCount}
         />
         <div className="chart-legend">
           <div className="legend-item">
@@ -77,9 +77,10 @@ const Dashboard: React.FC = () => {
         </div>
       </div>
 
-      {/* 右側セクション */}
+      {/* ===== 오른쪽 ===== */}
       <div className="right-section">
         <div className="top-section">
+          {/* 통계 카드 */}
           <div className="stat-cards">
             <div className="stat-card">
               <div className="stat-icon">👤</div>
@@ -88,6 +89,7 @@ const Dashboard: React.FC = () => {
                 <span className="stat-label">総ユーザー数</span>
               </div>
             </div>
+
             <div className="stat-card">
               <div className="stat-icon">📚</div>
               <div className="stat-info">
@@ -96,6 +98,7 @@ const Dashboard: React.FC = () => {
                 <span className="stat-label">総書籍数</span>
               </div>
             </div>
+
             <div className="stat-card">
               <div className="stat-icon">🏢</div>
               <div className="stat-info">
@@ -113,30 +116,33 @@ const Dashboard: React.FC = () => {
                   <span>👨‍💻 {a.name}</span>
                   <small>{a.id}</small>
                 </div>
-                <div className="list-item-status">{a.status}</div>
-              </div>
-            ))}
+              ))
+            ) : (
+              <p>등록된 관리자가 없습니다.</p>
+            )}
           </div>
         </div>
 
-        {/* 下部 */}
+        {/* 하단 목록 */}
         <div className="bottom-section">
+          {/* 책 목록 */}
           <div className="list-card">
             <h4>延滞者リスト</h4>
             {data.borrowers.map((b, idx) => (
               <div className="list-item" key={idx}>
-                <span>👤 {b.name}</span>
-                <div className="list-item-status">{b.book}</div>
+                <span>📖 {b.title}</span>
+                <div className="list-item-status">ID: {b.id}</div>
               </div>
             ))}
           </div>
 
+          {/* 지점 목록 */}
           <div className="list-card">
             <h4>支店リスト</h4>
             {data.branches.map((b, idx) => (
               <div className="list-item" key={idx}>
                 <span>🏫 {b.name}</span>
-                <div className="list-item-status">{b.id}</div>
+                <div className="list-item-status">ID: {b.id}</div>
               </div>
             ))}
           </div>

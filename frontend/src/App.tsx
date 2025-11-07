@@ -112,6 +112,7 @@ const App: React.FC = () => {
             <Route path="edit/:id" element={<BoardEdit />} /> {/* 수정 */}
           </Route>
           <Route path="/MyPage" element={<MyPage />} />
+          <Route path="/withdraw" element={<Withdraw />} />
           {/* ✅ 도서 목록 및 상세 */}
           <Route path="/booklist" element={<BookList />} />
           <Route path="/book/:id" element={<BookInfo />} />

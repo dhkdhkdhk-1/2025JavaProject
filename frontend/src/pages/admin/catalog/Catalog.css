@@ -81,3 +81,12 @@
 .mail-btn:hover {
   background-color: #333;
 }
+
+.catalog-container table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.catalog-container th,
+.catalog-container td {
+  text-align: left;
+}

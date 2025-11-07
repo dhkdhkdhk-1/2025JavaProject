@@ -11,4 +11,9 @@ public interface RentalRepository extends JpaRepository<RentalEntity, Long> {
 
     @Query("SELECT r FROM RentalEntity r WHERE r.user.id = :userId")
     List<RentalEntity> findByUserId(@Param("userId") Long userId);
+
+    @Query("SELECT r FROM RentalEntity r " +
+            "WHERE r.returnDate IS NULL " +
+            "AND r.dueDate < CURRENT_TIMESTAMP")
+    List<RentalEntity> findOverdueRentals();
 }

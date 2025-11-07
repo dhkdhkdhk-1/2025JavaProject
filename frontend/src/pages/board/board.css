@@ -1,3 +1,4 @@
+/* ✅ 게시판 전체 컨테이너 */
 .board-container {
   max-width: 1000px;
   margin: 50px auto;
@@ -5,17 +6,20 @@
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   padding: 40px;
+  min-height: 750px; /* ✅ 고정된 최소 높이로 폼 크기 일정 유지 */
 }
 
+/* ✅ 게시판 제목 (BoardList, Read, Write 공통) */
 .board-title {
   text-align: center;
   font-size: 2rem;
   font-weight: bold;
+  margin-top: 80px; /* ✅ 헤더 아래 여백 추가 */
   margin-bottom: 40px;
 }
 
-.board-input,
-.board-textarea {
+/* ✅ 입력폼 스타일 */
+.board-input {
   width: 100%;
   padding: 10px;
   margin-top: 5px;
@@ -23,7 +27,27 @@
   border-radius: 6px;
   font-size: 0.95rem;
 }
+/* ✅ 글 작성 / 수정 textarea 크기 확대 */
+.board-textarea {
+  width: 100%;
+  min-height: 400px; /* 🔹 기존보다 넉넉하게 (기존 150~200 정도였다면 2배 이상) */
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 1rem;
+  resize: vertical; /* 🔹 사용자가 직접 늘릴 수도 있게 */
+  line-height: 1.6;
+  box-sizing: border-box;
+}
 
+/* 🔹 포커스 시 강조 효과 */
+.board-textarea:focus {
+  outline: none;
+  border-color: #1a73e8;
+  box-shadow: 0 0 6px rgba(26, 115, 232, 0.3);
+}
+
+/* ✅ 버튼 스타일 */
 .board-button {
   background-color: #222;
   color: #fff;
@@ -38,6 +62,15 @@
   background-color: #444;
 }
 
+/* ✅ 삭제 버튼 강조 */
+.board-button.delete {
+  background-color: #d9534f;
+}
+.board-button.delete:hover {
+  background-color: #c9302c;
+}
+
+/* ✅ 게시글 메타 정보 */
 .board-meta {
   font-size: 0.9rem;
   color: #777;
@@ -59,6 +92,7 @@
   margin-top: 4px;
 }
 
+/* ✅ 게시글 본문 */
 .board-content {
   background-color: #f9f9f9;
   padding: 20px;
@@ -69,6 +103,7 @@
   overflow-wrap: break-word;
 }
 
+/* ✅ 게시글 테이블 */
 .board-table {
   width: 100%;
   border-collapse: collapse;
@@ -92,7 +127,7 @@
   cursor: pointer;
 }
 
-/* 페이지네이션 */
+/* ✅ 페이지네이션 */
 .pagination {
   display: flex;
   justify-content: center;
@@ -160,6 +195,7 @@
   outline: none;
 }
 
+/* ✅ 검색 입력창 */
 .board-search-input {
   flex: 1;
   max-width: 300px;
@@ -176,6 +212,7 @@
   box-shadow: 0 0 4px rgba(26, 115, 232, 0.3);
 }
 
+/* ✅ 검색 버튼 */
 .board-search-button {
   background: none;
   border: none;
@@ -194,6 +231,7 @@
   opacity: 1;
   transition: opacity 0.25s ease-in;
 }
+
 .fade-out {
   opacity: 0.6;
   transition: opacity 0.25s ease-out;

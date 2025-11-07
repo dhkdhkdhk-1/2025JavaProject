@@ -26,7 +26,7 @@ const Branches: React.FC = () => {
   /** ✅ 一覧の取得 */
   const fetchBranches = async (pageNum = 0) => {
     try {
-      const res: PageResponse<BranchResponse> = await getBranches(pageNum, 5);
+      const res: PageResponse<BranchResponse> = await getBranches(pageNum, 10);
       setBranches(res.content || []);
       setTotalPages(res.totalPages || 1);
       setPage(pageNum);
@@ -116,8 +116,7 @@ const Branches: React.FC = () => {
               <tr key={b.id}>
                 <td>{b.id}</td>
                 <td>{b.name}</td>
-                <td>{b.address}</td>
-                <td>{b.managerName}</td>
+                <td>{b.location}</td>
                 <td className="action-buttons">
                   <button
                     className="icon-btn view"

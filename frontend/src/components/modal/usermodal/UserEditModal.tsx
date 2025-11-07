@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { updateUser } from "../../../api/UserApi";
+import { adminUpdateUser } from "../../../api/UserApi";
 import "./UserEditModal.css";
 
 interface User {
@@ -35,10 +35,9 @@ const UserEditModal: React.FC<Props> = ({ user, onClose, onUpdated }) => {
       username: form.username || user.username,
       email: form.email || user.email,
       role: form.role || user.role,
-      password: form.password || undefined,
     };
 
-    await updateUser(user.id, updatedData);
+    await adminUpdateUser(user.id, updatedData);
     alert("✅ 회원 정보가 수정되었습니다.");
     onUpdated();
     onClose();
@@ -71,15 +70,6 @@ const UserEditModal: React.FC<Props> = ({ user, onClose, onUpdated }) => {
           <option value="USER">USER</option>
           <option value="ADMIN">ADMIN</option>
         </select>
-
-        <label>비밀번호 초기화 (선택)</label>
-        <input
-          type="password"
-          name="password"
-          placeholder="새 비밀번호 (선택)"
-          value={form.password}
-          onChange={handleChange}
-        />
 
         <div className="modal-buttons">
           <button onClick={handleSubmit}>저장</button>

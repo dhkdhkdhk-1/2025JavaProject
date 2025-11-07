@@ -7,6 +7,7 @@ import kr.ac.ync.library.domain.auth.dto.request.SignupRequest;
 import kr.ac.ync.library.domain.auth.dto.request.WithdrawRequest;
 import kr.ac.ync.library.domain.auth.dto.response.JsonWebTokenResponse;
 import kr.ac.ync.library.domain.auth.service.AuthService;
+import kr.ac.ync.library.domain.users.entity.UserEntity;
 import kr.ac.ync.library.domain.users.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -28,7 +29,6 @@ public class AuthController {
         return ResponseEntity.ok(authService.auth(request));
     }
 
-    // ✅ 수정됨: refreshToken 유효성 검증 추가
     @PostMapping("/refresh")
     public ResponseEntity<JsonWebTokenResponse> refresh(@Valid @RequestBody RefreshTokenRequest request) {
         if (request == null || request.getRefreshToken() == null || request.getRefreshToken().isBlank()) {
@@ -44,17 +44,25 @@ public class AuthController {
 
     @PostMapping("/signup")
     public ResponseEntity<String> signup(@Valid @RequestBody SignupRequest request) {
-        authService.signup(request); // 회원가입 DB 저장
-        return ResponseEntity.ok("회원가입이 완료되었습니다.");
+        String result = authService.signup(request);
+
+        if ("EXISTS".equals(result)) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("이미 존재하는 이메일입니다.");
+        }
+
+        if ("REJOIN".equals(result)) {
+            return ResponseEntity.ok("재가입 성공: 게시글 복원 여부를 선택해주세요.");
+        }
+
+        return ResponseEntity.ok(result);
     }
 
-    @DeleteMapping("/withdraw")
+    @PostMapping("/withdraw")
     public ResponseEntity<String> withdraw(@Valid @RequestBody WithdrawRequest request) {
-        authService.withdraw(request);  // 회원탈퇴 DB 삭제
+        authService.withdraw(request);
         return ResponseEntity.ok("회원탈퇴가 완료되었습니다.");
     }
 
-    // ✅ 이메일 중복 확인
     @PostMapping("/check-email")
     public ResponseEntity<?> checkEmail(@RequestBody Map<String, String> request) {
         String email = request.get("email");
@@ -62,11 +70,19 @@ public class AuthController {
             return ResponseEntity.badRequest().body(Map.of("message", "이메일이 비어 있습니다."));
         }
 
-        boolean exists = userRepository.existsByEmail(email);
-        if (exists) {
-            return ResponseEntity.status(HttpStatus.CONFLICT)
-                    .body(Map.of("message", "이미 존재하는 이메일입니다."));
+        var userOpt = userRepository.findByEmail(email);
+
+        if (userOpt.isPresent()) {
+            UserEntity user = userOpt.get();
+            if (user.isDeleted()) {
+                return ResponseEntity.status(HttpStatus.OK)
+                        .body(Map.of("rejoin", true, "message", "탈퇴한 계정입니다. 재가입하시겠습니까?"));
+            } else {
+                return ResponseEntity.status(HttpStatus.CONFLICT)
+                        .body(Map.of("rejoin", false, "message", "이미 존재하는 이메일입니다."));
+            }
         }
-        return ResponseEntity.ok(Map.of("message", "사용 가능한 이메일입니다."));
+
+        return ResponseEntity.ok(Map.of("rejoin", false, "message", "사용 가능한 이메일입니다."));
     }
 }
