@@ -38,12 +38,17 @@ public class BoardServiceImpl implements BoardService {
         if (hasKeyword && hasCategory) {
             switch (searchType) {
                 case "제목":
+                case "タイトル":
                     pageResult = boardRepository.findByTypeAndTitleContaining(category, keyword, sortedPageable);
                     break;
+
                 case "작성자":
+                case "投稿者":
                     pageResult = boardRepository.findByTypeAndUser_UsernameContaining(category, keyword, sortedPageable);
                     break;
+
                 case "제목+내용":
+                case "タイトル+内容":
                 default:
                     pageResult = boardRepository.findByTypeAndTitleContainingOrTypeAndContentContaining(
                             category, keyword, category, keyword, sortedPageable
@@ -53,12 +58,17 @@ public class BoardServiceImpl implements BoardService {
         } else if (hasKeyword) {
             switch (searchType) {
                 case "제목":
+                case "タイトル":
                     pageResult = boardRepository.findByTitleContaining(keyword, sortedPageable);
                     break;
+
                 case "작성자":
+                case "投稿者":
                     pageResult = boardRepository.findByUser_UsernameContaining(keyword, sortedPageable);
                     break;
+
                 case "제목+내용":
+                case "タイトル+内容":
                 default:
                     pageResult = boardRepository.findByTitleContainingOrContentContaining(keyword, keyword, sortedPageable);
                     break;

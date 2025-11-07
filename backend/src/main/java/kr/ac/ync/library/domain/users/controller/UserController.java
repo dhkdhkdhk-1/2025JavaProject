@@ -39,13 +39,6 @@ public class UserController {
         return ResponseEntity.ok(userService.updateMyInfo(email, request));
     }
 
-    @PutMapping("/me/v2")
-    public ResponseEntity<UserResponse> updateMyInfo1(@RequestBody UserUpdateRequest request, Authentication auth) {
-        String email = auth.getName(); // JWT에서 email 추출
-        return ResponseEntity.ok(authService.updateMyInfo1(email, request)); // ✅ AuthServiceImpl로 연결
-    }
-
-
     @PutMapping("/me/password")
     public ResponseEntity<String> updatePassword(@RequestBody PasswordUpdateRequest request, Authentication auth) {
         String email = auth.getName();

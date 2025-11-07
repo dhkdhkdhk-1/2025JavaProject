@@ -109,6 +109,13 @@ const AccountInfo: React.FC = () => {
               variant="primary"
               onClick={handleAskEdit}
             />
+            <VariantPrimaryWrapper
+              className="account-info-button"
+              label="会員退会"
+              size="medium"
+              variant="primary"
+              onClick={() => navigate("/withdraw")}
+            />
 
             <button
               className="account-info-button cancel"

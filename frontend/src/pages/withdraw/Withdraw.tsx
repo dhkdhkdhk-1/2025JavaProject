@@ -46,7 +46,7 @@ const Withdraw: React.FC = () => {
   return (
     <div className="withdraw-page">
       <TextContentTitle
-        title="会員脱退"
+        title="会員退会"
         align="center"
         className="withdraw-title"
       />
@@ -103,7 +103,7 @@ const Withdraw: React.FC = () => {
 
         <VariantPrimaryWrapper
           className="withdraw-button"
-          label="会員脱退"
+          label="会員退会"
           size="medium"
           variant="primary"
           onClick={handleWithdraw}

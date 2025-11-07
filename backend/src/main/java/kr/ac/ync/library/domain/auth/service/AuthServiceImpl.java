@@ -159,7 +159,7 @@ public class AuthServiceImpl implements AuthService {
     // ✅ 새 버전 (PUT /user/me/v2 전용)
     @Override
     @Transactional
-    public UserResponse updateMyInfo1(String email, UserUpdateRequest request) {
+    public UserResponse updateMyInfo(String email, UserUpdateRequest request) {
         UserEntity user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
 

@@ -16,5 +16,6 @@ public interface AuthService {
     String signup(SignupRequest request);
 
     void withdraw(WithdrawRequest request);
-    UserResponse updateMyInfo1(String email, UserUpdateRequest request);
+
+    UserResponse updateMyInfo(String email, UserUpdateRequest request);
 }

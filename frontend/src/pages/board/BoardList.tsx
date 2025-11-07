@@ -64,6 +64,7 @@ const BoardList: React.FC = () => {
         let allBoards = res.data.content || [];
         allBoards = allBoards.filter((b) => b.deleted !== true);
 
+        // ✅ 게시판 타입 필터링
         let filtered: BoardResponse[] = [];
         if (boardType === "告知") {
           filtered = allBoards.filter((b) =>
@@ -75,26 +76,44 @@ const BoardList: React.FC = () => {
           );
         }
 
+        // ✅ 카테고리 필터
         if (categoryStr !== "すべて") {
           filtered = filtered.filter((b) => b.type === categoryStr);
         }
 
+        // ✅ 키워드 검색 로직
         if (keywordStr.trim()) {
-          const kw = keywordStr.toLowerCase();
+          const kw = keywordStr.trim().toLowerCase();
+
           filtered = filtered.filter((b) => {
-            if (searchTypeStr === "タイトル")
-              return b.title.toLowerCase().includes(kw);
-            if (searchTypeStr === "投稿者")
-              return b.username.toLowerCase().includes(kw);
-            return (
-              b.title.toLowerCase().includes(kw) ||
-              b.content.toLowerCase().includes(kw)
-            );
+            const title = (b.title || "").toLowerCase();
+            const content = (b.content || "").toLowerCase();
+            const username = (b.username || "").trim().toLowerCase();
+
+            if (searchTypeStr === "タイトル") {
+              return title.includes(kw);
+            }
+
+            if (searchTypeStr === "投稿者") {
+              // ✅ null-safe + 완전 일치 + 부분 일치
+              return (
+                username !== "" && (username === kw || username.includes(kw))
+              );
+            }
+
+            // ✅ "タイトル+内容"
+            return title.includes(kw) || content.includes(kw);
           });
         }
 
-        filtered.sort((a, b) => b.id - a.id);
+        // ✅ createdAt 기준 정렬 (첫 글 누락 방지)
+        filtered.sort((a, b) => {
+          const dateA = new Date(a.createdAt).getTime();
+          const dateB = new Date(b.createdAt).getTime();
+          return dateB - dateA; // 최신순
+        });
 
+        // ✅ displayId 유지
         let numbered: BoardResponse[];
         const isDefaultView = !keywordStr.trim() && categoryStr === "すべて";
 
@@ -110,6 +129,7 @@ const BoardList: React.FC = () => {
           });
         }
 
+        // ✅ 페이지 계산
         const totalPageCount = Math.ceil(numbered.length / 10);
         const startIdx = pageNum * 10;
         const paginated = numbered.slice(startIdx, startIdx + 10);
@@ -161,13 +181,18 @@ const BoardList: React.FC = () => {
     navigate(`/board?type=${type}`);
   };
 
+  /** ✅ searchType 즉시 반영 + fetchBoards 직접 호출 */
   const handleSearch = () => {
     const query = new URLSearchParams();
     if (keyword.trim()) query.append("keyword", keyword);
-    if (searchType !== "タイトル+内容") query.append("searchType", searchType);
+    query.append("searchType", searchType);
     if (category !== "すべて") query.append("category", category);
     query.append("page", "0");
+
     navigate(`/board?${query.toString()}`);
+
+    // 🔥 즉시 실행 (URL 업데이트 기다리지 않음)
+    fetchBoards(0, keyword, searchType, category);
   };
 
   const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -177,7 +202,7 @@ const BoardList: React.FC = () => {
   const handlePageChange = (newPage: number) => {
     const query = new URLSearchParams();
     if (keyword.trim()) query.append("keyword", keyword);
-    if (searchType !== "タイトル+内容") query.append("searchType", searchType);
+    query.append("searchType", searchType);
     if (category !== "すべて") query.append("category", category);
     query.append("page", newPage.toString());
     navigate(`/board?${query.toString()}`);
@@ -213,8 +238,7 @@ const BoardList: React.FC = () => {
             setCategory(newCategory);
             const query = new URLSearchParams();
             if (keyword.trim()) query.append("keyword", keyword);
-            if (searchType !== "タイトル+内容")
-              query.append("searchType", searchType);
+            query.append("searchType", searchType);
             if (newCategory !== "すべて") query.append("category", newCategory);
             query.append("page", "0");
             navigate(`/board?${query.toString()}`);
