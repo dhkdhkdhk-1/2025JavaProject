@@ -8,6 +8,7 @@ import kr.ac.ync.library.domain.reviews.dto.ReviewRegisterRequest;
 import kr.ac.ync.library.domain.reviews.dto.ReviewResponse;
 import kr.ac.ync.library.domain.reviews.entity.ReviewEntity;
 import kr.ac.ync.library.domain.reviews.exception.ReviewNotFoundException;
+import kr.ac.ync.library.domain.reviews.exception.UserNotMatchedException;
 import kr.ac.ync.library.domain.reviews.repository.ReviewRepository;
 import kr.ac.ync.library.domain.reviews.service.ReviewService;
 import kr.ac.ync.library.domain.users.dto.User;
@@ -63,7 +64,7 @@ public class ReviewController {
                 .orElseThrow(() -> ReviewNotFoundException.EXCEPTION);
 
         if (!review.getUser().getId().equals(user.getId())) {
-            throw new RuntimeException("본인 리뷰만 수정 가능합니다.");
+            throw UserNotMatchedException.EXCEPTION;
         }
 
         reviewService.modify(request);
@@ -78,7 +79,7 @@ public class ReviewController {
                 .orElseThrow(() -> ReviewNotFoundException.EXCEPTION);
 
         if (!review.getUser().getId().equals(user.getId())) {
-            throw new RuntimeException("본인 리뷰만 삭제 가능합니다.");
+            throw UserNotMatchedException.EXCEPTION;
         }
 
         reviewService.remove(id);

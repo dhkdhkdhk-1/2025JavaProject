@@ -11,20 +11,20 @@ const Catalog: React.FC = () => {
   const [rentals, setRentals] = useState<RentalResponse[]>([]);
   const [search, setSearch] = useState("");
 
-  // ✅ 데이터 가져오기
+  // ✅ データ取得
   useEffect(() => {
     const fetchRentals = async () => {
       try {
-        const res = await getAllRentals(); // /rental/list 요청
+        const res = await getAllRentals(); // /rental/list リクエスト
         setRentals(res);
       } catch (err) {
-        console.error("📦 대여 목록 조회 실패:", err);
+        console.error("📦 貸出リストの取得に失敗しました:", err);
       }
     };
     fetchRentals();
   }, []);
 
-  // ✅ 연체 데이터 (지금은 필터로 분리)
+  // ✅ 延滞データ（現在はフィルターで区別）
   const filtered = rentals.filter((r) => {
     if (tab === "borrowed") return true;
     if (tab === "overdue")
@@ -32,7 +32,7 @@ const Catalog: React.FC = () => {
     return true;
   });
 
-  // ✅ 검색 기능
+  // ✅ 検索機能
   const searched = filtered.filter(
     (r) =>
       r.id.toString().includes(search.trim()) ||
@@ -44,44 +44,44 @@ const Catalog: React.FC = () => {
     <div className="admin-layout">
       <div className="admin-body">
         <div className="catalog-container">
-          {/* ✅ 탭 버튼 */}
+          {/* ✅ タブボタン */}
           <div className="tab-buttons">
             <button
               className={tab === "borrowed" ? "active" : ""}
               onClick={() => setTab("borrowed")}
             >
-              빌린 책 현황
+              貸出中の本
             </button>
             <button
               className={tab === "overdue" ? "active" : ""}
               onClick={() => setTab("overdue")}
             >
-              연체 현황
+              延滞中の本
             </button>
           </div>
 
-          {/* ✅ 검색창 */}
+          {/* ✅ 検索ボックス */}
           <div className="catalog-search">
             <input
               type="text"
-              placeholder="Search by ID / Title / Branch"
+              placeholder="ID / タイトル / 支店 で検索"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
           </div>
 
-          {/* ✅ 테이블 */}
+          {/* ✅ テーブル */}
           <table className="catalog-table">
             <thead>
               <tr>
                 <th>ID</th>
-                <th>도서명</th>
-                <th>지점</th>
-                <th>대여일</th>
-                <th>반납예정일</th>
-                <th>{tab === "borrowed" && "반납일"}</th>
-                <th>상태</th>
-                <th>{tab === "overdue" && "메일 발송"}</th>
+                <th>書籍名</th>
+                <th>支店</th>
+                <th>貸出日</th>
+                <th>返却予定日</th>
+                <th>{tab === "borrowed" && "返却日"}</th>
+                <th>状態</th>
+                <th>{tab === "overdue" && "メール送信"}</th>
               </tr>
             </thead>
             <tbody>
@@ -101,7 +101,7 @@ const Catalog: React.FC = () => {
                         : ""}
                     </td>
                     <td style={{ color: r.returned ? "#2ecc71" : "#e74c3c" }}>
-                      {r.returned ? "반납 완료" : "대여 중"}
+                      {r.returned ? "返却完了" : "貸出中"}
                     </td>
                     <td>
                       {tab === "overdue" && (
@@ -109,7 +109,7 @@ const Catalog: React.FC = () => {
                           className="mail-btn"
                           onClick={() => sendReturnMail(r.id)}
                         >
-                          📧 보내기
+                          📧 送信
                         </button>
                       )}
                     </td>
@@ -117,7 +117,7 @@ const Catalog: React.FC = () => {
                 ))
               ) : (
                 <tr>
-                  <td colSpan={7}>데이터가 없습니다.</td>
+                  <td colSpan={7}>データがありません。</td>
                 </tr>
               )}
             </tbody>

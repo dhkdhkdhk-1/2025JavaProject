@@ -10,6 +10,7 @@ import lombok.*;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Setter
 @Getter
 @ToString
 public class UserEntity extends BaseTimeEntity {
@@ -29,6 +30,8 @@ public class UserEntity extends BaseTimeEntity {
     @Enumerated(value = EnumType.STRING)
     private UserRole role;
 
+    @Column(nullable = false)
+    private boolean deleted = false;
     public void changeUsername(String username) {
         if (username != null && !username.isBlank()) {
             this.username = username;

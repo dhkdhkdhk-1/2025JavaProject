@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import PieChartBox from "../../../components/chart/PieChartBox";
 import { getBranches, BranchResponse } from "../../../api/BranchApi";
-import { getBooks } from "../../../api/BookApi"; // ✅ 추가
+import { getBooks } from "../../../api/BookApi"; // ✅ 追加
 import "./Dashboard.css";
 
 interface DashboardData {
@@ -21,63 +21,63 @@ const Dashboard: React.FC = () => {
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        // ✅ 책, 지점 데이터 동시에 가져오기
+        // ✅ 本と支店データを同時に取得
         const [bookPage, branchPage] = await Promise.all([
-          getBooks(0, 1), // 책 전체 개수만 필요 → 한 페이지만 가져오면 totalElements 계산 가능
+          getBooks(0, 1), // 本の総数のみ必要 → totalElements で取得可能
           getBranches(0, 4),
         ]);
 
         const mock = {
-          totalUsers: 150, // 나중에 /user/list 연동 시 여기도 DB값 가능
-          totalBooks: bookPage.totalElements, // ✅ DB의 실제 책 개수
+          totalUsers: 150, // 後で /user/list 連携時に DB値も利用可能
+          totalBooks: bookPage.totalElements, // ✅ DBの実際の本の数
           totalBranches: branchPage.totalElements,
           borrowedRatio: 75,
           returnedRatio: 25,
           borrowers: [
-            { name: "김철수", book: "Borrowed ID-10" },
-            { name: "이영희", book: "Borrowed ID-03" },
-            { name: "박지민", book: "Borrowed ID-07" },
+            { name: "キム・チョルス", book: "Borrowed ID-10" },
+            { name: "イ・ヨンヒ", book: "Borrowed ID-03" },
+            { name: "パク・ジミン", book: "Borrowed ID-07" },
           ],
           admins: [
-            { name: "최용현", id: "Admin ID: 1", status: "Active" },
-            { name: "김재환", id: "Admin ID: 2", status: "Active" },
-            { name: "이지환", id: "Admin ID: 3", status: "Active" },
-            { name: "한지민", id: "Admin ID: 4", status: "Active" },
+            { name: "チェ・ヨンヒョン", id: "Admin ID: 1", status: "アクティブ" },
+            { name: "キム・ジェファン", id: "Admin ID: 2", status: "アクティブ" },
+            { name: "イ・ジファン", id: "Admin ID: 3", status: "アクティブ" },
+            { name: "ハン・ジミン", id: "Admin ID: 4", status: "アクティブ" },
           ],
           branches: branchPage.content,
         };
 
         setData(mock);
       } catch (err) {
-        console.error("📊 대시보드 데이터 로딩 실패:", err);
+        console.error("📊 ダッシュボードデータの読み込みに失敗しました:", err);
       }
     };
 
     fetchDashboardData();
   }, []);
 
-  if (!data) return <p>로딩중...</p>;
+  if (!data) return <p>読み込み中...</p>;
 
   return (
     <div className="dashboard">
-      {/* 왼쪽 차트 */}
+      {/* 左側のチャート */}
       <div className="chart-section dashboard-card">
-        <h3>대여 / 반납 비율</h3>
+        <h3>貸出 / 返却 比率</h3>
         <PieChartBox
           borrowed={data.borrowedRatio}
           returned={data.returnedRatio}
         />
         <div className="chart-legend">
           <div className="legend-item">
-            <span className="legend-dot blue"></span> 총 빌린 책
+            <span className="legend-dot blue"></span> 貸出中の本の総数
           </div>
           <div className="legend-item">
-            <span className="legend-dot gray"></span> 총 반납된 책
+            <span className="legend-dot gray"></span> 返却済みの本の総数
           </div>
         </div>
       </div>
 
-      {/* 오른쪽 섹션 */}
+      {/* 右側セクション */}
       <div className="right-section">
         <div className="top-section">
           <div className="stat-cards">
@@ -85,28 +85,28 @@ const Dashboard: React.FC = () => {
               <div className="stat-icon">👤</div>
               <div className="stat-info">
                 <span className="stat-value">{data.totalUsers}</span>
-                <span className="stat-label">총 유저 수</span>
+                <span className="stat-label">総ユーザー数</span>
               </div>
             </div>
             <div className="stat-card">
               <div className="stat-icon">📚</div>
               <div className="stat-info">
                 <span className="stat-value">{data.totalBooks}</span>{" "}
-                {/* ✅ DB 값 반영 */}
-                <span className="stat-label">총 책 수</span>
+                {/* ✅ DB 値反映 */}
+                <span className="stat-label">総書籍数</span>
               </div>
             </div>
             <div className="stat-card">
               <div className="stat-icon">🏢</div>
               <div className="stat-info">
                 <span className="stat-value">{data.totalBranches}</span>
-                <span className="stat-label">지점 개수</span>
+                <span className="stat-label">支店数</span>
               </div>
             </div>
           </div>
 
           <div className="admin-card dashboard-card">
-            <h4>Admins</h4>
+            <h4>管理者一覧</h4>
             {data.admins.map((a, idx) => (
               <div className="list-item" key={idx}>
                 <div className="list-item-name">
@@ -119,10 +119,10 @@ const Dashboard: React.FC = () => {
           </div>
         </div>
 
-        {/* 하단 */}
+        {/* 下部 */}
         <div className="bottom-section">
           <div className="list-card">
-            <h4>연체자 목록</h4>
+            <h4>延滞者リスト</h4>
             {data.borrowers.map((b, idx) => (
               <div className="list-item" key={idx}>
                 <span>👤 {b.name}</span>
@@ -132,7 +132,7 @@ const Dashboard: React.FC = () => {
           </div>
 
           <div className="list-card">
-            <h4>지점 목록</h4>
+            <h4>支店リスト</h4>
             {data.branches.map((b, idx) => (
               <div className="list-item" key={idx}>
                 <span>🏫 {b.name}</span>
