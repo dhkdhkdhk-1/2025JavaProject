@@ -18,11 +18,9 @@ public class MailService {
         message.setTo(to);
         message.setSubject(subject);
         message.setText(text);
-        message.setFrom("영남이공대학교 도서관리시스템 <3160rnjs@ync.ac.kr>"); // ✅ 발신자
+        message.setFrom("嶺南理工大學 図書管理システム <3160rnjs@ync.ac.kr>"); // ✅ 발신자
         mailSender.send(message);
 
         emailLogService.recordLog(to,subject,text);
-
-        System.out.println("📩 메일 전송 완료: " + to);
     }
 }

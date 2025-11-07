@@ -8,13 +8,14 @@ public class MailTemplateUtil {
 
     public static String buildOverdueMailBody(RentalResponse rental) {
         return """
-        안녕하세요, %s 님
-
-        대여하신 도서 "%s"의 반납 예정일은 %s 입니다.
-        반납일이 지나 연체로 처리되었으니 빠른 반납 부탁드립니다.
-
-        감사합니다.
-        - 영남이공대학교 도서관리 시스템
+                こんにちは、%s様
+                
+                お借りになった本「%s」の返却予定日は %sです。
+                返却日を過ぎていますので、早めのご返却をお願いいたします。
+                
+                ご協力ありがとうございます。
+                
+                — 永南工科大学 図書管理システム
         """.formatted(
                 rental.getUserName(),
                 rental.getBookTitle(),

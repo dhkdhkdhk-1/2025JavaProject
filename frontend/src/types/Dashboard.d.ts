@@ -1,6 +1,7 @@
 export interface Borrower {
   name: string;
   book: string;
+  id: string;
 }
 
 export interface Admin {
@@ -18,9 +19,10 @@ export interface DashboardData {
   totalUsers: number;
   totalBooks: number;
   totalBranches: number;
-  borrowedRatio: number;
-  returnedRatio: number;
+  borrowedCount: number;
+  returnedCount: number;
   borrowers: Borrower[];
   admins: Admin[];
   branches: Branch[];
+  books: Book[];
 }

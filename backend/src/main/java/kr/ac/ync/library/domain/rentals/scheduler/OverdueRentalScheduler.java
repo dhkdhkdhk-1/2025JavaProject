@@ -26,17 +26,17 @@ public class OverdueRentalScheduler {
     public void sendOverdueMailAutomatically() {
         List<RentalResponse> overdueRentals = rentalService.findOverdueRentals();
         if (overdueRentals.isEmpty()) {
-            log.info("📭 연체된 대여 없음 - 메일 발송 생략");
+            log.info("延滞中の貸出はありません - メール送信をスキップします。");
             return;
         }
 
         for (RentalResponse rental : overdueRentals) {
-            String subject = "[도서 반납 안내] " + rental.getBookTitle();
+            String subject = "【返却案内】" + rental.getBookTitle();
             String text = MailTemplateUtil.buildOverdueMailBody(rental);
             mailService.sendEmail(rental.getUserEmail(), subject, text);
-            log.info("📨 자동 발송 완료: {}", rental.getUserEmail());
+            log.info("📨 自動送信完了: {}", rental.getUserEmail());
         }
 
-        log.info("✅ 연체자 자동 메일 발송 완료 ({}건)", overdueRentals.size());
+        log.info("✅  延滞者への自動メール送信完了（{}件）", overdueRentals.size());
     }
 }

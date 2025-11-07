@@ -19,7 +19,7 @@ const MyCsListDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [cs, setCs] = useState<CsDetail | null>(null);
-  const [user, setUser] = useState<User | null>(null); // 유저 정보
+  const [, setUser] = useState<User | null>(null); // 유저 정보
   const [loading, setLoading] = useState(true);
 
   // ✅ 더미데이터 목록
@@ -84,7 +84,8 @@ const MyCsListDetail: React.FC = () => {
   }, [id, navigate]);
 
   if (loading) return <div className="board-container">불러오는 중...</div>;
-  if (!cs) return <div className="board-container">문의 내역을 찾을 수 없습니다.</div>;
+  if (!cs)
+    return <div className="board-container">문의 내역을 찾을 수 없습니다.</div>;
 
   return (
     <div className="board-container">
@@ -93,7 +94,8 @@ const MyCsListDetail: React.FC = () => {
       <div className="board-meta">
         <div className="board-meta-row">
           <span className="board-meta-left">
-            작성자: {cs.username} &nbsp; | &nbsp; {cs.branchName} | {cs.csCategory}
+            작성자: {cs.username} &nbsp; | &nbsp; {cs.branchName} |{" "}
+            {cs.csCategory}
           </span>
           <span className="board-meta-right">
             작성일: {new Date(cs.createdAt).toLocaleString()}
@@ -132,8 +134,6 @@ const MyCsListDetail: React.FC = () => {
       ) : (
         <div className="board-answer waiting">
           <h3>⌛ 답변 대기 중</h3>
-
-          
         </div>
       )}
 
