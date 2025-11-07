@@ -50,9 +50,9 @@ const TotalReview: React.FC = () => {
       setReviews(sortedData);
       setTotalPages(Math.ceil(sortedData.length / PAGE_SIZE));
     } catch (error: unknown) {
-      console.error("리뷰 불러오기 실패:", error);
+      console.error("レビューの取得に失敗しました:", error);
       if (axios.isAxiosError(error) && error.response?.status === 401) {
-        alert("로그인이 필요합니다.");
+        alert("ログインが必要です。");
         navigate("/login");
       }
     } finally {
@@ -63,7 +63,7 @@ const TotalReview: React.FC = () => {
   useEffect(() => {
     const token = localStorage.getItem("accessToken");
     if (!token) {
-      alert("로그인이 필요합니다.");
+      alert("ログインが必要です。");
       navigate("/login");
       return;
     }
@@ -89,23 +89,23 @@ const TotalReview: React.FC = () => {
     <div className="review-board-container">
       <div className="review-board-card">
         <h1 className="board-title">
-          📖 {displayedReviews[0]?.bookTitle ?? "리뷰"} 리뷰
+          📖 {displayedReviews[0]?.bookTitle ?? "レビュー"} レビュー
         </h1>
 
         {loading ? (
-          <p style={{ textAlign: "center", color: "#777" }}>불러오는 중...</p>
+          <p style={{ textAlign: "center", color: "#777" }}>読み込み中...</p>
         ) : reviews.length === 0 ? (
           <p style={{ textAlign: "center", color: "#999" }}>
-            아직 등록된 리뷰가 없습니다.
+            登録されたレビューはまだありません。
           </p>
         ) : (
           <div className="table-container">
             <div className="table-header">
-              <div className="header-cell col-number">번호</div>
-              <div className="header-cell col-title">리뷰 제목</div>
-              <div className="header-cell col-author">작성자</div>
-              <div className="header-cell col-views">별점</div>
-              <div className="header-cell col-date">작성일</div>
+              <div className="header-cell col-number">番号</div>
+              <div className="header-cell col-title">レビュータイトル</div>
+              <div className="header-cell col-author">投稿者</div>
+              <div className="header-cell col-views">評価</div>
+              <div className="header-cell col-date">投稿日</div>
             </div>
             <div className="table-divider"></div>
 
@@ -114,7 +114,7 @@ const TotalReview: React.FC = () => {
                 <div
                   key={r.id}
                   className="table-row"
-                  onClick={() => navigate(`/book/${r.bookId}`)}
+                  onClick={() => navigate(`/review/detail/${r.id}`)} // ReviewDetail로 이동
                   style={{ cursor: "pointer" }}
                 >
                   <div className="table-cell col-number">

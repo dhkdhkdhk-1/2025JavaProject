@@ -1,11 +1,18 @@
+/* =========================================================
+   🔷 리뷰 섹션
+   ========================================================= */
 .reviews-section {
   padding: 16px;
   background: var(--sds-color-background-default-default);
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .reviews-container {
   max-width: 1200px;
   margin: 0 auto;
+  padding: 0 16px;
+  box-sizing: border-box;
 }
 
 .section-header {
@@ -22,7 +29,7 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: 16px;
-  margin-bottom: 8px; /* 리뷰 더보기 버튼과 간격 */
+  margin-bottom: 8px;
 }
 
 .review-card {
@@ -99,12 +106,46 @@
   color: var(--sds-color-text-default-tertiary);
 }
 
-/* 리뷰 더보기 버튼 오른쪽 상단 배치 */
 .view-more-reviews {
   font-weight: 600;
   color: #0070f3;
   cursor: pointer;
   display: flex;
-  justify-content: flex-end; /* 오른쪽 정렬 */
+  justify-content: flex-end;
   margin-bottom: 16px;
+}
+
+/* ✅ 스크롤 숨김 */
+.reviews-grid {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.reviews-grid::-webkit-scrollbar {
+  display: none;
+}
+
+/* =========================================================
+   반응형
+   ========================================================= */
+@media (max-width: 1024px) {
+  .reviews-grid {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .section-title {
+    font-size: 18px;
+  }
+
+  .reviews-grid {
+    gap: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .reviews-grid {
+    grid-template-columns: 1fr;
+  }
 }

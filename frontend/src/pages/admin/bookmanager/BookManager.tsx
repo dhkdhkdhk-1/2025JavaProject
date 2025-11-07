@@ -17,14 +17,13 @@ const BookManager: React.FC = () => {
   const [totalPages, setTotalPages] = useState(0);
   const [keyword, setKeyword] = useState("");
 
-  // 모달 상태 관리
+  // モーダル状態管理
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [isUpdateOpen, setIsUpdateOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [selectedBook, setSelectedBook] = useState<Book | null>(null);
 
-  // ✅ 목록 새로고침 함수
-
+  // ✅ リストを更新する関数
   const refreshBooks = useCallback(() => {
     getBooks(page, 10, keyword).then((data) => {
       setBooks(data.content);
@@ -39,57 +38,57 @@ const BookManager: React.FC = () => {
   const translateCategory = (c: string) => {
     switch (c) {
       case "NOVEL":
-        return "소설";
+        return "小説";
       case "ESSAY":
-        return "에세이";
+        return "エッセイ";
       case "IT":
-        return "IT / 프로그래밍";
+        return "IT / プログラミング";
       case "HISTORY":
-        return "역사";
+        return "歴史";
       case "SCIENCE":
-        return "과학";
+        return "科学";
       default:
-        return "기타";
+        return "その他";
     }
   };
 
-  // ✅ 새 책 등록
+  // ✅ 新しい本を登録
   const handleAddBook = async (form: any) => {
     try {
       await addBook(form);
-      alert("📚 도서가 성공적으로 등록되었습니다!");
+      alert("📚 本が正常に登録されました！");
       setIsAddOpen(false);
       refreshBooks();
     } catch (err) {
       console.error(err);
-      alert("등록 중 오류가 발생했습니다 ❌");
+      alert("登録中にエラーが発生しました ❌");
     }
   };
 
-  // ✅ 책 수정
+  // ✅ 本を修正
   const handleUpdateBook = async (form: any) => {
     try {
       await updateBook(form);
-      alert("✏️ 도서 정보가 수정되었습니다!");
+      alert("✏️ 本の情報が修正されました！");
       setIsUpdateOpen(false);
       refreshBooks();
     } catch (err) {
       console.error(err);
-      alert("수정 중 오류가 발생했습니다 ❌");
+      alert("修正中にエラーが発生しました ❌");
     }
   };
 
-  // ✅ 책 삭제
+  // ✅ 本を削除
   const handleDeleteBook = async () => {
     if (!selectedBook) return;
     try {
       await deleteBook(selectedBook.id);
-      alert("🗑 도서가 삭제되었습니다!");
+      alert("🗑 本が削除されました！");
       setIsDeleteOpen(false);
       refreshBooks();
     } catch (err) {
       console.error(err);
-      alert("삭제 중 오류가 발생했습니다 ❌");
+      alert("削除中にエラーが発生しました ❌");
     }
   };
 
@@ -98,14 +97,14 @@ const BookManager: React.FC = () => {
       <div className="admin-body">
         <main className="admin-content">
           <div className="book-header">
-            <h2>📘 도서 관리</h2>
+            <h2>📘 書籍管理</h2>
             <div className="book-actions">
               <button className="add-btn" onClick={() => setIsAddOpen(true)}>
-                + Add Book
+                + 本を追加
               </button>
               <input
                 type="text"
-                placeholder="Search by title..."
+                placeholder="タイトルで検索..."
                 value={keyword}
                 onChange={(e) => setKeyword(e.target.value)}
               />
@@ -116,12 +115,12 @@ const BookManager: React.FC = () => {
             <thead>
               <tr>
                 <th>ID</th>
-                <th>제목</th>
-                <th>저자</th>
-                <th>출판사</th>
-                <th>카테고리</th>
-                <th>대여 가능 여부</th>
-                <th>Action</th>
+                <th>タイトル</th>
+                <th>著者</th>
+                <th>出版社</th>
+                <th>カテゴリ</th>
+                <th>貸出可否</th>
+                <th>操作</th>
               </tr>
             </thead>
             <tbody>
@@ -132,7 +131,7 @@ const BookManager: React.FC = () => {
                   <td>{b.author}</td>
                   <td>{b.publisher}</td>
                   <td>{translateCategory(b.category)}</td>
-                  <td>{b.available ? "가능" : "불가"}</td>
+                  <td>{b.available ? "可能" : "不可"}</td>
                   <td>
                     <button
                       className="icon-btn edit"
@@ -163,7 +162,7 @@ const BookManager: React.FC = () => {
               onClick={() => setPage((p) => Math.max(p - 1, 0))}
               disabled={page === 0}
             >
-              ◀ 이전
+              ◀ 前へ
             </button>
             <span>
               {page + 1} / {totalPages}
@@ -172,13 +171,13 @@ const BookManager: React.FC = () => {
               onClick={() => setPage((p) => Math.min(p + 1, totalPages - 1))}
               disabled={page + 1 >= totalPages}
             >
-              다음 ▶
+              次へ ▶
             </button>
           </div>
         </main>
       </div>
 
-      {/* ✅ 모달들 */}
+      {/* ✅ モーダルたち */}
       <AddBookModal
         isOpen={isAddOpen}
         onAdd={handleAddBook}

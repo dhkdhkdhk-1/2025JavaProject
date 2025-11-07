@@ -19,12 +19,16 @@ import Login from "./pages/login/Login";
 import Signup from "./pages/signup/Signup";
 import BookList from "./pages/booklist/BookList";
 import BookInfo from "./pages/bookinfo/BookInfo";
-import TotalReview from "./pages/review/totalreview/TotalReview";
+import TotalReview from "./pages/review/booktotalreview/BookTotalReview";
 import RentalList from "./pages/rental/RentalList";
 import WishList from "./pages/wishlist/WishList";
-import ReviewList from "./pages/review/reviewlist/ReviewList";
-import WriteReview from "./pages/review/writereview/WriteReview"; // ✅ 추가
-import Withdraw from "./pages/withdraw/Withdraw";
+import ReviewList from "./pages/review/myreviewlist/MyReviewList";
+import WriteReview from "./pages/review/writereview/WriteReview";
+import ReviewDetail from "./pages/review/reviewdetail/ReviewDetail";
+import CsListPage from "./pages/cspage/mycslist/MyCsListPage";
+import MyCsListDetail from "./pages/cspage/mycslistdetail/MyCsListDetail";
+import WriteCs from "./pages/cspage/writecs/WriteCs";
+
 
 // ✅ 관리자 페이지
 import Dashboard from "./pages/admin/dashboard/Dashboard";
@@ -38,6 +42,8 @@ import BoardList from "./pages/board/BoardList";
 import BoardRead from "./pages/board/BoardRead";
 import BoardWrite from "./pages/board/BoardWrite";
 import BoardEdit from "./pages/board/BoardEdit";
+import Answer from "./pages/admin/answer/Answer";
+import AnswerWrite from "./pages/admin/answerwrite/AnswerWrite";
 
 /** ✅ 로그인 가드 (일반 사용자용) */
 const ProtectedLayout: React.FC = () => {
@@ -111,16 +117,19 @@ const App: React.FC = () => {
           <Route path="/booklist" element={<BookList />} />
           <Route path="/book/:id" element={<BookInfo />} />
           {/* ✅ 리뷰 관련 */}
-          <Route path="/review/book/:id" element={<TotalReview />} />
-          {/* ✅ 내가 쓴 리뷰 목록 페이지 */}
-          <Route path="/reviewlist" element={<ReviewList />} />
-          <Route path="/review/write/:id" element={<WriteReview />} />
+          <Route path="/review/book/:id" element={<TotalReview />} /> {/* 내가 쓴 전체 리뷰들 보기 */}
+          <Route path="/review/list" element={<ReviewList />} /> {/* 그 책에 대한 전체리뷰) */}
+          <Route path="/review/write/:id" element={<WriteReview />} /> 
+          <Route path="/review/detail/:id" element={<ReviewDetail />} />
           {/* ✅ 대여 및 찜 목록 */}
           <Route path="/rental" element={<RentalList />} />
           <Route path="/wishlist" element={<WishList />} />
           <Route path="/booklist" element={<BookList />} />
           <Route path="/book/:id" element={<BookInfo />} />{" "}
-          <Route path="/review/book/:id" element={<TotalReview />} />{" "}
+          {/* 문의내역 보는 곳 */}
+          <Route path="/mycslistpage" element={<CsListPage />} /> {/* 내 전체 문의 내역 */}
+          <Route path="/cs/detail/:id" element={<MyCsListDetail />} /> {/* 문의 내역 상세 페이지 */}
+          <Route path="/writecs" element={<WriteCs />} /> {/* 문의작성 페이지 */}
         </Route>
 
         {/* ✅ 관리자 전용 영역 */}
@@ -130,6 +139,9 @@ const App: React.FC = () => {
           <Route path="catalog" element={<Catalog />} />
           <Route path="users" element={<Users />} />
           <Route path="branches" element={<Branches />} />
+          <Route path="answer" element={<Answer />} />
+          <Route path="" element={<AnswerWrite />} />
+          
         </Route>
 
         {/* ✅ 기본 및 잘못된 경로 처리 */}

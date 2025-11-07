@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import PieChartBox from "../../../components/chart/PieChartBox";
 import { getBooks, Book } from "../../../api/BookApi";
 import { getBranches, BranchResponse } from "../../../api/BranchApi";
+import { getBooks } from "../../../api/BookApi"; // ✅ 追加
 import { getAdmins, User, getUsers } from "../../../api/UserApi";
 import { getAllRentals } from "../../../api/RentalApi";
 import "./Dashboard.css";
@@ -22,66 +23,56 @@ const Dashboard: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // ✅ 모든 데이터 병렬 요청
-        const [bookPage, adminPage, branchPage, rentals, userPage] =
-          await Promise.all([
-            getBooks(0, 5),
-            getAdmins(0, 5),
-            getBranches(0, 5),
-            getAllRentals(),
-            getUsers(0, 5),
-          ]);
-        console.log("📦 User data:", userPage.content);
+        // ✅ 本と支店データを同時に取得
+        const [bookPage, branchPage] = await Promise.all([
+          getBooks(0, 1), // 本の総数のみ必要 → totalElements で取得可能
+          getBranches(0, 4),
+        ]);
 
-        // ✅ 관리자 / 매니저 필터링
-        const admins = adminPage.content.map((a: User) => ({
-          name: a.username,
-          id: `${a.role}: ${a.id}`,
-          status: "Active",
-        }));
-
-        // ✅ 대여 / 반납 갯수 계산
-        const borrowedCount = rentals.filter((r) => !r.returned).length;
-        const returnedCount = rentals.filter((r) => r.returned).length;
-
-        // ✅ 통합 데이터 구성
-        setData({
-          totalUsers: userPage.totalElements,
-          totalBooks: bookPage.totalElements,
+        const mock = {
+          totalUsers: 150, // 後で /user/list 連携時に DB値も利用可能
+          totalBooks: bookPage.totalElements, // ✅ DBの実際の本の数
           totalBranches: branchPage.totalElements,
-          borrowedCount,
-          returnedCount,
-          admins,
-          books: bookPage.content,
+          borrowedRatio: 75,
+          returnedRatio: 25,
+          borrowers: [
+            { name: "キム・チョルス", book: "Borrowed ID-10" },
+            { name: "イ・ヨンヒ", book: "Borrowed ID-03" },
+            { name: "パク・ジミン", book: "Borrowed ID-07" },
+          ],
+          admins: [
+            { name: "チェ・ヨンヒョン", id: "Admin ID: 1", status: "アクティブ" },
+            { name: "キム・ジェファン", id: "Admin ID: 2", status: "アクティブ" },
+            { name: "イ・ジファン", id: "Admin ID: 3", status: "アクティブ" },
+            { name: "ハン・ジミン", id: "Admin ID: 4", status: "アクティブ" },
+          ],
           branches: branchPage.content,
         });
       } catch (err) {
-        console.error("📊 대시보드 데이터 로딩 실패:", err);
+        console.error("📊 ダッシュボードデータの読み込みに失敗しました:", err);
       }
     };
 
     fetchData();
   }, []);
 
-  if (!data) return <p>로딩중...</p>;
+  if (!data) return <p>読み込み中...</p>;
 
   return (
     <div className="dashboard">
-      {/* ===== 왼쪽: 대여 / 반납 ===== */}
+      {/* 左側のチャート */}
       <div className="chart-section dashboard-card">
-        <h3>📊 대여 / 반납 현황</h3>
+        <h3>貸出 / 返却 比率</h3>
         <PieChartBox
           borrowed={data.borrowedCount}
           returned={data.returnedCount}
         />
         <div className="chart-legend">
           <div className="legend-item">
-            <span className="legend-dot blue"></span> 대여 중:{" "}
-            {data.borrowedCount}권
+            <span className="legend-dot blue"></span> 貸出中の本の総数
           </div>
           <div className="legend-item">
-            <span className="legend-dot gray"></span> 반납 완료:{" "}
-            {data.returnedCount}권
+            <span className="legend-dot gray"></span> 返却済みの本の総数
           </div>
         </div>
       </div>
@@ -95,15 +86,16 @@ const Dashboard: React.FC = () => {
               <div className="stat-icon">👤</div>
               <div className="stat-info">
                 <span className="stat-value">{data.totalUsers}</span>
-                <span className="stat-label">총 유저 수</span>
+                <span className="stat-label">総ユーザー数</span>
               </div>
             </div>
 
             <div className="stat-card">
               <div className="stat-icon">📚</div>
               <div className="stat-info">
-                <span className="stat-value">{data.totalBooks}</span>
-                <span className="stat-label">총 책 수</span>
+                <span className="stat-value">{data.totalBooks}</span>{" "}
+                {/* ✅ DB 値反映 */}
+                <span className="stat-label">総書籍数</span>
               </div>
             </div>
 
@@ -111,21 +103,18 @@ const Dashboard: React.FC = () => {
               <div className="stat-icon">🏢</div>
               <div className="stat-info">
                 <span className="stat-value">{data.totalBranches}</span>
-                <span className="stat-label">지점 개수</span>
+                <span className="stat-label">支店数</span>
               </div>
             </div>
           </div>
 
           <div className="admin-card dashboard-card">
-            <h4>Admins</h4>
-            {data.admins.length > 0 ? (
-              data.admins.map((a, idx) => (
-                <div className="list-item" key={idx}>
-                  <div className="list-item-name">
-                    <span>👨‍💻 {a.name}</span>
-                    <small>{a.id}</small>
-                  </div>
-                  <div className="list-item-status">{a.status}</div>
+            <h4>管理者一覧</h4>
+            {data.admins.map((a, idx) => (
+              <div className="list-item" key={idx}>
+                <div className="list-item-name">
+                  <span>👨‍💻 {a.name}</span>
+                  <small>{a.id}</small>
                 </div>
               ))
             ) : (
@@ -138,8 +127,8 @@ const Dashboard: React.FC = () => {
         <div className="bottom-section">
           {/* 책 목록 */}
           <div className="list-card">
-            <h4>책 목록</h4>
-            {data.books.map((b, idx) => (
+            <h4>延滞者リスト</h4>
+            {data.borrowers.map((b, idx) => (
               <div className="list-item" key={idx}>
                 <span>📖 {b.title}</span>
                 <div className="list-item-status">ID: {b.id}</div>
@@ -149,7 +138,7 @@ const Dashboard: React.FC = () => {
 
           {/* 지점 목록 */}
           <div className="list-card">
-            <h4>지점 목록</h4>
+            <h4>支店リスト</h4>
             {data.branches.map((b, idx) => (
               <div className="list-item" key={idx}>
                 <span>🏫 {b.name}</span>

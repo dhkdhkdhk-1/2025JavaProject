@@ -9,7 +9,7 @@ const WishList: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState("");
 
-  /** ✅ 내 찜 목록 불러오기 */
+  /** ✅ 自分のウィッシュリストを取得 */
   useEffect(() => {
     async function fetchWishlist() {
       try {
@@ -17,7 +17,7 @@ const WishList: React.FC = () => {
         const data = await getMyWishlist();
         setWishlist(data);
       } catch (e) {
-        setErr("찜 목록을 불러오지 못했습니다.");
+        setErr("ウィッシュリストを読み込めませんでした。");
       } finally {
         setLoading(false);
       }
@@ -25,33 +25,33 @@ const WishList: React.FC = () => {
     fetchWishlist();
   }, []);
 
-  /** ✅ 찜 해제 */
+  /** ✅ ウィッシュリストから削除 */
   const handleRemove = async (bookId: number) => {
-    if (!window.confirm("이 도서를 찜 목록에서 제거하시겠습니까?")) return;
+    if (!window.confirm("この本をウィッシュリストから削除しますか？")) return;
     try {
       await deleteWishlist(bookId);
       setWishlist((prev) => prev.filter((item) => item.bookId !== bookId));
     } catch {
-      alert("찜 해제 중 오류가 발생했습니다.");
+      alert("削除中にエラーが発生しました。");
     }
   };
 
-  /** ✅ 도서 상세보기 이동 */
+  /** ✅ 本の詳細ページへ移動 */
   const handleBookClick = (bookId: number) => {
     navigate(`/book/${bookId}`);
   };
 
-  if (loading) return <div className="wishlist-loading">불러오는 중...</div>;
+  if (loading) return <div className="wishlist-loading">読み込み中...</div>;
   if (err) return <div className="wishlist-error">{err}</div>;
 
   return (
     <div className="wishlist-container">
-      <h2 className="wishlist-title">내 찜한 도서</h2>
+      <h2 className="wishlist-title">マイウィッシュリスト</h2>
 
       {wishlist.length === 0 ? (
         <div className="wishlist-empty">
-          <p>아직 찜한 도서가 없습니다 💔</p>
-          <button onClick={() => navigate("/booklist")}>도서 둘러보기</button>
+          <p>まだウィッシュリストに本がありません 💔</p>
+          <button onClick={() => navigate("/booklist")}>本を探す</button>
         </div>
       ) : (
         <div className="wishlist-grid">
@@ -81,7 +81,7 @@ const WishList: React.FC = () => {
                   className="wishlist-remove-btn"
                   onClick={() => handleRemove(item.bookId)}
                 >
-                  ❌ 제거
+                  ❌ 削除
                 </button>
               </div>
             </div>

@@ -20,7 +20,10 @@ const Login: React.FC = () => {
 
   const handleLogin = async () => {
     const tokens = await login({ email, password });
-    if (!tokens) return;
+    if (!tokens) {
+      alert("ログインに失敗しました：メールアドレスとパスワードを確認してください。");
+      return;
+    }
 
     localStorage.setItem("accessToken", tokens.accessToken);
     localStorage.setItem("refreshToken", tokens.refreshToken);
@@ -42,21 +45,21 @@ const Login: React.FC = () => {
       if (me.role === "ADMIN") navigate("/admin");
       else navigate("/home");
     } catch (e) {
-      console.error("/user/me 조회 실패", e);
-      alert("로그인은 되었지만 사용자 정보를 불러오지 못했습니다.");
+      console.error("/user/me の取得に失敗しました", e);
+      alert("ログインは成功しましたが、ユーザー情報を取得できませんでした。");
       navigate("/home");
     }
   };
 
   return (
     <div className="login-page">
-      <TextContentTitle title="로그인" align="center" className="login-title" />
+      <TextContentTitle title="ログイン" align="center" className="login-title" />
 
       <div className="login-box">
         <InputField
           className="login-input"
           inputClassName="login-input-field"
-          label="Email"
+          label="メールアドレス"
           value={email}
           valueType="value"
           onChange={(e) => setEmail(e.target.value)}
@@ -66,7 +69,7 @@ const Login: React.FC = () => {
           <InputField
             className="login-input"
             inputClassName="login-input-field"
-            label="Password"
+            label="パスワード"
             value={password}
             valueType="value"
             onChange={(e) => setPassword(e.target.value)}
@@ -82,33 +85,35 @@ const Login: React.FC = () => {
           </button>
         </div>
 
+        {/* ✅ チェックボックス + テキストを同じ行に配置 */}
         <div className="remember-container">
           <input
             type="checkbox"
             checked={remember}
             onChange={(e) => setRemember(e.target.checked)}
           />
-          <span>계정 정보 저장</span>
+          <span>ログイン情報を保存</span>
         </div>
 
+        {/* ✅ 会員登録 + パスワード再設定 の順番を変更 */}
         <div className="login-link-container">
           <div
             className="login-signup clickable"
             onClick={() => navigate("/signup")}
           >
-            회원가입
+            新規登録
           </div>
           <div
             className="login-forgot clickable"
-            onClick={() => alert("비밀번호 찾기 기능 준비 중입니다.")}
+            onClick={() => alert("パスワード再設定機能は準備中です。")}
           >
-            비밀번호 찾기
+            パスワードをお忘れの方
           </div>
         </div>
 
         <VariantPrimaryWrapper
           className="login-button"
-          label="로그인"
+          label="ログイン"
           size="medium"
           variant="primary"
           onClick={handleLogin}

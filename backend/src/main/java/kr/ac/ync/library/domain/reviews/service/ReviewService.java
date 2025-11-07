@@ -24,4 +24,7 @@ public interface ReviewService {
     Page<ReviewResponse> getList(Pageable pageable);
 
     List<ReviewResponse> findByUserId(Long userId);
+
+    // ✅ 단일 리뷰 조회
+    Review findById(Long id); // 추가
 }

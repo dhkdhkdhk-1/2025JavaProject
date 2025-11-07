@@ -26,6 +26,9 @@ export default function Sidebar() {
         <NavLink to="/admin/branches" className="menu-item">
           <span>Branches</span>
         </NavLink>
+        <NavLink to="/admin/answer" className="menu-item">
+          <span>Cs Answer</span>
+        </NavLink>
       </nav>
     </aside>
   );

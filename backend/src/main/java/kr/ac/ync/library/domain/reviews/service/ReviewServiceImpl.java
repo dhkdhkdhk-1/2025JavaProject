@@ -10,6 +10,7 @@ import kr.ac.ync.library.domain.reviews.dto.ReviewModRequest;
 import kr.ac.ync.library.domain.reviews.dto.ReviewRegisterRequest;
 import kr.ac.ync.library.domain.reviews.dto.ReviewResponse;
 import kr.ac.ync.library.domain.reviews.entity.ReviewEntity;
+import kr.ac.ync.library.domain.reviews.exception.DuplicateReviewException;
 import kr.ac.ync.library.domain.reviews.exception.ReviewNotFoundException;
 import kr.ac.ync.library.domain.reviews.mapper.ReviewMapper;
 import kr.ac.ync.library.domain.reviews.repository.ReviewRepository;
@@ -43,6 +44,12 @@ public class ReviewServiceImpl implements ReviewService {
         BookEntity book = bookRepository.findById(bookId)
                 .orElseThrow(() -> BookNotFoundException.EXCEPTION);
 
+        // ✅ 이미 해당 유저가 이 책에 리뷰를 쓴 적 있는지 확인
+        boolean exists = reviewRepository.existsByBookAndUser(book, user);
+        if (exists) {
+            throw DuplicateReviewException.EXCEPTION;
+        }
+
         ReviewEntity reviewEntity = ReviewMapper.toEntity(request, user, book);
         reviewRepository.save(reviewEntity);
     }
@@ -62,7 +69,6 @@ public class ReviewServiceImpl implements ReviewService {
         ReviewEntity oldReview = reviewRepository.findById(request.getId())
                 .orElseThrow(() -> ReviewNotFoundException.EXCEPTION);
 
-        // 새 DTO 기반 엔티티 생성
         ReviewEntity updatedReview = ReviewEntity.builder()
                 .id(oldReview.getId())
                 .user(oldReview.getUser())
@@ -83,36 +89,42 @@ public class ReviewServiceImpl implements ReviewService {
         reviewRepository.deleteById(id);
     }
 
+    // 모든 리뷰 조회
     @Override
-    public List<ReviewResponse> getList()
-    {
-        // 모든 리뷰 조회 후 ReviewResponse로 변환
+    public List<ReviewResponse> getList() {
         return reviewRepository.findAll()
                 .stream().map(ReviewMapper::toResponse).toList();
     }
 
-    @Override // 리뷰 한페이지에15개
+    // 리뷰 목록을 페이지네이션
+    @Override
     public Page<ReviewResponse> getList(Pageable pageable) {
         Pageable fixedPageable = Pageable.ofSize(6).withPage(pageable.getPageNumber());
 
-        // DB에서 리뷰 조회
         Page<ReviewEntity> page = reviewRepository.findAll(fixedPageable);
+        List<ReviewResponse> responses = page.getContent()
+                .stream()
+                .map(ReviewMapper::toResponse)
+                .toList();
 
-        // 엔티티 -> DTO 변환
-        List<ReviewResponse> responses =
-                page.getContent().stream()
-                .map(ReviewMapper::toResponse).toList();
-
-        // Page<ReviewResponse> 반환
         return new PageImpl<>(responses, fixedPageable, page.getTotalElements());
     }
 
+    // 사용자 ID로 리뷰 목록 조회
     @Override
     public List<ReviewResponse> findByUserId(Long userId) {
         return reviewRepository.findByUserId(userId)
                 .stream()
                 .map(ReviewMapper::toResponse)
                 .toList();
+    }
+
+    // ✅ 단일 리뷰 조회
+    @Override
+    public Review findById(Long id) {
+        ReviewEntity entity = reviewRepository.findById(id)
+                .orElseThrow(() -> ReviewNotFoundException.EXCEPTION);
+        return ReviewMapper.toDTO(entity);
     }
 
 }

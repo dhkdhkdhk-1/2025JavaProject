@@ -9,7 +9,12 @@ import lombok.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "tbl_review")
+@Table(
+        name = "tbl_review",
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = {"book_id", "user_id"}) // ✅ 같은 책에 같은 유저 리뷰 1개만 허용
+        }
+)
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)

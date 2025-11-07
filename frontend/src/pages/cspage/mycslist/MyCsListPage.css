@@ -1,0 +1,157 @@
+/* =========================================================
+   🔷 Layout 구조 (헤더~푸터 포함 전체 레이아웃)
+   ========================================================= */
+.layout-wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: #f5f5f5;
+}
+
+.layout-main {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 40px 0;
+}
+
+/* =========================================================
+   🔷 1. 문의 내역 전체 컨테이너
+   ========================================================= */
+.board-container {
+  width: 100%;
+  max-width: 1000px;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 30px 40px 40px;
+  box-sizing: border-box;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+/* =========================================================
+   🔷 2. 제목 영역
+   ========================================================= */
+.board-title {
+  text-align: center;
+  font-size: 2rem;
+  font-weight: bold;
+  margin-bottom: 25px;
+  color: #000;
+  font-family: "Noto Sans JP", "Inter", -apple-system, Roboto, Helvetica, sans-serif;
+}
+
+/* =========================================================
+   🔷 3. 테이블 wrapper (전체 영역 차지, 하단 여백 최소화)
+   ========================================================= */
+.table-wrapper {
+  width: 100%;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background: #fff;
+  padding: 20px;
+  box-sizing: border-box;
+
+  /* ✅ 내용이 많아도 일정 높이 유지 */
+  height: 650px;
+
+  /* ✅ flex 제거 → 중앙 정렬 방지 */
+  display: block;
+}
+
+/* =========================================================
+   🔷 4. 테이블 스타일
+   ========================================================= */
+.board-table {
+  width: 100%;
+  height: 100%; /* ✅ wrapper를 꽉 채움 */
+  border-collapse: collapse;
+  font-size: 0.95rem;
+  color: #151619;
+}
+
+.board-table thead tr {
+  background: #f8f8f8;
+  border-bottom: 2px solid #ddd;
+}
+
+.board-table th,
+.board-table td {
+  padding: 14px 10px;
+  text-align: center;
+}
+
+.board-table th {
+  font-weight: 600;
+  color: #000;
+}
+
+.board-table tbody tr {
+  border-bottom: 1px solid #e5e5e5;
+  transition: background 0.2s ease;
+}
+
+.board-table tbody tr:hover {
+  background: #fafafa;
+}
+
+/* ✅ 행 높이 일정하게 유지 */
+.board-table tbody td {
+  height: 60px;
+}
+
+/* =========================================================
+   🔷 5. 버튼 영역 (오른쪽 끝 정렬 + 여백 최소)
+   ========================================================= */
+.table-footer {
+  display: flex;
+  justify-content: flex-end;
+  width: 100%;
+  margin-top: 10px; /* ✅ 공백 최소화 */
+}
+
+.board-button {
+  background: #000;
+  color: #fff;
+  border-radius: 8px;
+  border: none;
+  padding: 10px 18px;
+  font-size: 15px;
+  font-family: "Inter", -apple-system, Roboto, Helvetica, sans-serif;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.board-button:hover {
+  background: #333;
+}
+
+/* =========================================================
+   🔷 반응형 (모바일 대응)
+   ========================================================= */
+@media (max-width: 768px) {
+  .board-container {
+    padding: 20px;
+  }
+
+  .table-wrapper {
+    height: 500px; /* 모바일에서 조금 작게 */
+  }
+
+  .board-title {
+    font-size: 1.5rem;
+  }
+
+  .board-button {
+    width: 100%;
+  }
+
+  .table-footer {
+    justify-content: center;
+  }
+}
