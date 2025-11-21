@@ -6,6 +6,8 @@ import kr.ac.ync.library.domain.users.entity.UserEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.util.List;
+
 public interface BoardService {
     Page<BoardResponse> getAllBoards(String keyword, String searchType, String category, Pageable pageable);
     BoardResponse getBoard(Long id);
@@ -14,4 +16,6 @@ public interface BoardService {
     void deleteBoard(Long id, UserEntity user);
     void incrementViewCount(Long id);
     long getMaxBoardId();
+    // 최신 공지 3개 가져오기
+    List<BoardResponse> getLatestNotices();
 }

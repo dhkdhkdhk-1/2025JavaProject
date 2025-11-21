@@ -163,4 +163,14 @@ public class BoardServiceImpl implements BoardService {
                 .map(BoardEntity::getId)
                 .orElse(0L);
     }
+
+    @Override
+    public List<BoardResponse> getLatestNotices() {
+        // type = "공지" 인 최신 글 3개
+        List<BoardEntity> notices = boardRepository.findTop3ByTypeOrderByIdDesc("공지");
+
+        return notices.stream()
+                .map(BoardMapper::toResponse)
+                .toList();
+    }
 }

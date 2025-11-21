@@ -88,4 +88,10 @@ public class BoardController {
         boardService.incrementViewCount(id);
         return ResponseEntity.ok().build();
     }
+
+    @GetMapping("/notice/top3") //메인페이지에 공지 3개 끌어오기
+    public List<BoardResponse> getLatestNotice() {
+        return boardService.getLatestNotices();
+    }
+
 }
