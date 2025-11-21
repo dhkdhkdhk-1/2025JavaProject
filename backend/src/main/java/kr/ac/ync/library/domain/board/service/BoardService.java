@@ -13,7 +13,5 @@ public interface BoardService {
     BoardResponse updateBoard(Long id, BoardRequest request, UserEntity user);
     void deleteBoard(Long id, UserEntity user);
     void incrementViewCount(Long id);
-
-    // ✅ 추가
     long getMaxBoardId();
 }

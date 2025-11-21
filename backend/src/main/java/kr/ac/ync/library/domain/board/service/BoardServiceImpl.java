@@ -4,6 +4,7 @@ import jakarta.transaction.Transactional;
 import kr.ac.ync.library.domain.board.dto.BoardRequest;
 import kr.ac.ync.library.domain.board.dto.BoardResponse;
 import kr.ac.ync.library.domain.board.entity.BoardEntity;
+import kr.ac.ync.library.domain.board.mapper.BoardMapper;
 import kr.ac.ync.library.domain.board.repository.BoardRepository;
 import kr.ac.ync.library.domain.users.entity.UserEntity;
 import kr.ac.ync.library.domain.users.entity.enums.UserRole;
@@ -21,7 +22,7 @@ public class BoardServiceImpl implements BoardService {
 
     private final BoardRepository boardRepository;
 
-    /** ✅ 검색, 분류, 페이징 (DB에서 탈퇴회원/삭제글 자동 제외) */
+    // ✅ 검색, 분류, 페이징 (DB에서 탈퇴회원/삭제글 자동 제외)
     @Override
     public Page<BoardResponse> getAllBoards(String keyword, String searchType, String category, Pageable pageable) {
         Pageable sortedPageable = PageRequest.of(
@@ -81,13 +82,14 @@ public class BoardServiceImpl implements BoardService {
         }
 
         List<BoardResponse> list = pageResult.getContent().stream()
-                .map(this::toResponse)
+                .map(BoardMapper::toResponse)
                 .toList();
+
 
         return new PageImpl<>(list, pageable, pageResult.getTotalElements());
     }
 
-    /** ✅ 게시글 상세조회 (삭제/탈퇴회원 게시글 접근 차단) */
+    // ✅ 게시글 상세조회 (삭제/탈퇴회원 게시글 접근 차단)
     @Override
     public BoardResponse getBoard(Long id) {
         BoardEntity entity = boardRepository.findById(id)
@@ -97,29 +99,20 @@ public class BoardServiceImpl implements BoardService {
             throw new RuntimeException("삭제되었거나 탈퇴한 회원의 게시글은 볼 수 없습니다.");
         }
 
-        return toResponse(entity);
+        return BoardMapper.toResponse(entity);
     }
 
-    /** ✅ 게시글 등록 */
+    // ✅ 게시글 등록
     @Override
     public BoardResponse createBoard(BoardRequest request, UserEntity user) {
         if (!StringUtils.hasText(request.getTitle()) || !StringUtils.hasText(request.getContent())) {
             throw new IllegalArgumentException("제목과 내용을 모두 입력해야 합니다.");
         }
-
-        BoardEntity board = BoardEntity.builder()
-                .title(request.getTitle().trim())
-                .content(request.getContent().trim())
-                .type(request.getType() != null ? request.getType() : "일반")
-                .user(user)
-                .viewCount(0L)
-                .deleted(false)
-                .build();
-
-        return toResponse(boardRepository.save(board));
+        BoardEntity board = BoardMapper.toEntity(request, user);
+        return BoardMapper.toResponse(boardRepository.save(board));
     }
 
-    /** ✅ 수정 */
+    // ✅ 수정
     @Override
     public BoardResponse updateBoard(Long id, BoardRequest request, UserEntity user) {
         BoardEntity board = boardRepository.findById(id)
@@ -135,10 +128,10 @@ public class BoardServiceImpl implements BoardService {
         board.setContent(request.getContent().trim());
         board.setType(request.getType() != null ? request.getType() : "일반");
 
-        return toResponse(boardRepository.save(board));
+        return BoardMapper.toResponse(boardRepository.save(board));
     }
 
-    /** ✅ soft delete */
+    // ✅ soft delete
     @Override
     public void deleteBoard(Long id, UserEntity user) {
         BoardEntity board = boardRepository.findById(id)
@@ -154,7 +147,7 @@ public class BoardServiceImpl implements BoardService {
         boardRepository.save(board);
     }
 
-    /** ✅ 조회수 증가 */
+    // ✅ 조회수 증가
     @Override
     public void incrementViewCount(Long id) {
         BoardEntity board = boardRepository.findById(id)
@@ -163,26 +156,11 @@ public class BoardServiceImpl implements BoardService {
         boardRepository.save(board);
     }
 
-    /** ✅ 최대 게시글 ID 반환 */
+    // ✅ 최대 게시글 ID 반환
     @Override
     public long getMaxBoardId() {
         return boardRepository.findTopByOrderByIdDesc()
                 .map(BoardEntity::getId)
                 .orElse(0L);
-    }
-
-    /** ✅ Entity → DTO 변환 */
-    private BoardResponse toResponse(BoardEntity entity) {
-        return BoardResponse.builder()
-                .id(entity.getId())
-                .title(entity.getTitle())
-                .content(entity.getContent())
-                .type(entity.getType())
-                .username(entity.getUser() != null ? entity.getUser().getUsername() : "알 수 없음")
-                .viewCount(entity.getViewCount() == null ? 0L : entity.getViewCount())
-                .createdAt(entity.getCreatedDateTime())
-                .modifiedAt(entity.getModifiedDateTime())
-                .deleted(entity.isDeleted())
-                .build();
     }
 }
