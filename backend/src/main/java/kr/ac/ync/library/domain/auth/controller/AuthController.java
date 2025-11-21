@@ -28,7 +28,6 @@ public class AuthController {
         return ResponseEntity.ok(authService.auth(request));
     }
 
-    // ✅ 수정됨: refreshToken 유효성 검증 추가
     @PostMapping("/refresh")
     public ResponseEntity<JsonWebTokenResponse> refresh(@Valid @RequestBody RefreshTokenRequest request) {
         if (request == null || request.getRefreshToken() == null || request.getRefreshToken().isBlank()) {

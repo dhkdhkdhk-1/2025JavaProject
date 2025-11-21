@@ -9,6 +9,5 @@ import java.util.List;
 
 public interface RentalRepository extends JpaRepository<RentalEntity, Long> {
 
-    @Query("SELECT r FROM RentalEntity r WHERE r.user.id = :userId")
-    List<RentalEntity> findByUserId(@Param("userId") Long userId);
+    List<RentalEntity> findByUserId(Long userId);
 }

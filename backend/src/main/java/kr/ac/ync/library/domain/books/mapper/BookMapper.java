@@ -10,8 +10,6 @@ import java.util.stream.Collectors;
 
 public class BookMapper {
 
-    private BookMapper() {}
-
     public static BookEntity toEntity(BookRegisterRequest request) {
         return BookEntity.builder()
                 .title(request.getTitle())
