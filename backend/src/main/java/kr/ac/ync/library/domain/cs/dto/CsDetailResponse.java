@@ -1,6 +1,5 @@
 package kr.ac.ync.library.domain.cs.dto;
 
-import kr.ac.ync.library.domain.branch.entity.BranchEntity;
 import kr.ac.ync.library.domain.cs.entity.category.CsCategory;
 import kr.ac.ync.library.domain.cs.entity.csstatus.CsStatus;
 import lombok.Builder;
@@ -12,7 +11,7 @@ import java.time.LocalDateTime;
 @Builder
 @Getter
 @Setter
-public class CsResponse {
+public class CsDetailResponse {
     private Long id;
     private String title;
     private String content;
@@ -23,4 +22,5 @@ public class CsResponse {
     private CsStatus status;
     private CsCategory category;
     private LocalDateTime createdAt;
+    private LocalDateTime answerCreatedAt;
 }

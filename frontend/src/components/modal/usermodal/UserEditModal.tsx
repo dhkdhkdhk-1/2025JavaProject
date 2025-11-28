@@ -70,6 +70,7 @@ const UserEditModal: React.FC<Props> = ({ user, onClose, onUpdated }) => {
           <option value="">현재: {user.role}</option>
           <option value="USER">USER</option>
           <option value="ADMIN">ADMIN</option>
+          <option value="MANAGER">MANAGER</option>
         </select>
 
         <label>비밀번호 초기화 (선택)</label>

@@ -2,15 +2,16 @@ package kr.ac.ync.library.domain.cs.mapper;
 
 import kr.ac.ync.library.domain.branch.entity.BranchEntity;
 import kr.ac.ync.library.domain.cs.dto.CsAnswerRequest;
-import kr.ac.ync.library.domain.cs.dto.CsRequest;
-import kr.ac.ync.library.domain.cs.dto.CsResponse;
+import kr.ac.ync.library.domain.cs.dto.CsListResponse;
+import kr.ac.ync.library.domain.cs.dto.CsRegisterRequest;
+import kr.ac.ync.library.domain.cs.dto.CsDetailResponse;
 import kr.ac.ync.library.domain.cs.entity.CsEntity;
 import kr.ac.ync.library.domain.cs.entity.csstatus.CsStatus;
 import kr.ac.ync.library.domain.users.entity.UserEntity;
 
 public class CsMapper {
 
-    public CsEntity toEntity(CsRequest request, UserEntity userEntity, BranchEntity branchEntity) {
+    public static CsEntity toCsEntityRegisterRequest(CsRegisterRequest request, UserEntity userEntity, BranchEntity branchEntity) {
         return CsEntity.builder()
                 .title(request.getTitle())
                 .branch(branchEntity)
@@ -20,8 +21,8 @@ public class CsMapper {
                 .build();
     }
 
-    public CsResponse toDto(CsEntity csEntity) {
-        return CsResponse.builder()
+    public static CsDetailResponse toCsDetailResponse(CsEntity csEntity) {
+        return CsDetailResponse.builder()
                 .id(csEntity.getId())
                 .title(csEntity.getTitle())
                 .branchId(csEntity.getBranch().getId())
@@ -32,11 +33,18 @@ public class CsMapper {
                 .category(csEntity.getCsCategory())
                 .status(csEntity.getStatus())
                 .createdAt(csEntity.getCreatedDateTime())
+                .answerCreatedAt(csEntity.getAnswerCreatedAt())
                 .build();
     }
 
-    public void updateAnswer(CsEntity csEntity, CsAnswerRequest request) {
-        csEntity.setAnswerContent(request.getAnswerContent());
-        csEntity.setStatus(CsStatus.COMPLETED);
+    public static CsListResponse toCsListResponse(CsEntity csEntity) {
+
+        return CsListResponse.builder()
+                .id(csEntity.getId())
+                .title(csEntity.getTitle())
+                .csCategory(csEntity.getCsCategory())
+                .csStatus(csEntity.getStatus())
+                .build();
     }
+
 }

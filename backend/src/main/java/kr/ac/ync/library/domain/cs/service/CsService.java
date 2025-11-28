@@ -1,21 +1,22 @@
 package kr.ac.ync.library.domain.cs.service;
 
-
-import jakarta.validation.Valid;
 import kr.ac.ync.library.domain.cs.dto.CsAnswerRequest;
-import kr.ac.ync.library.domain.cs.dto.CsRequest;
-import kr.ac.ync.library.domain.cs.dto.CsResponse;
+import kr.ac.ync.library.domain.cs.dto.CsListResponse;
+import kr.ac.ync.library.domain.cs.dto.CsRegisterRequest;
+import kr.ac.ync.library.domain.cs.dto.CsDetailResponse;
+import kr.ac.ync.library.domain.cs.entity.CsEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 public interface CsService  {
 
-    void register(CsRequest request, Long userId, Long branchId);
+    void register(CsRegisterRequest request, Long branchId);
+
+    CsDetailResponse get(Long id);
+
+    Page<CsListResponse> getList(Pageable pageable);
 
     void answer(Long csId, CsAnswerRequest request);
 
-    CsResponse get(Long id);
-
-    Page<CsResponse> getList(Pageable pageable);
-
+    void updateAnswer(CsEntity csEntity, CsAnswerRequest request);
 }

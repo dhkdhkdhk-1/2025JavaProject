@@ -22,7 +22,7 @@ export const getUsers = async (page = 0, size = 10) => {
 };
 
 export const updateUser = async (id: number, data: any) => {
-  const res = await api.put(`/user/${id}`, data);
+  const res = await api.put(`/admin/${id}`, data);
   return res.data;
 };
 
