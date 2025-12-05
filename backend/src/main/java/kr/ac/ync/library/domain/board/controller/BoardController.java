@@ -10,6 +10,7 @@ import org.springframework.data.domain.*;
 import org.springframework.http.*;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.*;
 
 @RestController
@@ -19,21 +20,28 @@ public class BoardController {
 
     private final BoardService boardService;
 
-    /** ✅ 검색 + 분류 + 페이징 + maxId 포함 */
+    /** ✅ 검색 + 분류 + 페이징 + maxId + 게시판 타입(일반/공지) 구분 */
     @GetMapping
     public ResponseEntity<Map<String, Object>> getAllBoards(
             @RequestParam(value = "page", required = false, defaultValue = "0") int page,
             @RequestParam(value = "size", required = false, defaultValue = "10") int size,
             @RequestParam(value = "keyword", required = false) String keyword,
             @RequestParam(value = "searchType", required = false, defaultValue = "제목+내용") String searchType,
-            @RequestParam(value = "category", required = false, defaultValue = "전체") String category
+            @RequestParam(value = "category", required = false, defaultValue = "전체") String category,
+            @RequestParam(value = "type", required = false) String boardType   // ⭐ 추가
     ) {
         if (size > 50) size = 50;
         if (page < 0) page = 0;
 
+        // 프론트에서 "掲示板" / "告知" 로 오기 때문에, null 또는 "告知" 외에는 전부 일반으로 취급
+        if (boardType == null) {
+            boardType = "일반"; // 기본값
+        }
+
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));
 
-        Page<BoardResponse> boardPage = boardService.getAllBoards(keyword, searchType, category, pageable);
+        Page<BoardResponse> boardPage =
+                boardService.getAllBoards(keyword, searchType, category, boardType, pageable);
         long maxId = boardService.getMaxBoardId();
 
         Map<String, Object> result = new HashMap<>();
@@ -89,7 +97,7 @@ public class BoardController {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/notice/top3") //메인페이지에 공지 3개 끌어오기
+    @GetMapping("/notice/top3") // 메인페이지에 공지 3개 끌어오기
     public List<BoardResponse> getLatestNotice() {
         return boardService.getLatestNotices();
     }

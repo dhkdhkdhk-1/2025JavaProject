@@ -22,9 +22,18 @@ public class BoardServiceImpl implements BoardService {
 
     private final BoardRepository boardRepository;
 
-    // ✅ 검색, 분류, 페이징 (DB에서 탈퇴회원/삭제글 자동 제외)
+    /** 공지 타입 목록 (공지 / 入荷 / 行事) */
+    private static final List<String> NOTICE_TYPES = List.of("告知", "入荷", "行事");
+
+    // ✅ 검색, 분류, 페이징 (삭제글/탈퇴회원 제외 + 공지/일반 구분)
     @Override
-    public Page<BoardResponse> getAllBoards(String keyword, String searchType, String category, Pageable pageable) {
+    public Page<BoardResponse> getAllBoards(
+            String keyword,
+            String searchType,
+            String category,
+            String boardType,
+            Pageable pageable
+    ) {
         Pageable sortedPageable = PageRequest.of(
                 pageable.getPageNumber(),
                 pageable.getPageSize(),
@@ -33,9 +42,9 @@ public class BoardServiceImpl implements BoardService {
 
         Page<BoardEntity> pageResult;
         boolean hasKeyword = keyword != null && !keyword.trim().isEmpty();
-        boolean hasCategory = category != null && !"전체".equals(category);
+        boolean hasCategory = category != null && !"전체".equals(category) && !"すべて".equals(category);
 
-        // ✅ 조건별 조회 (삭제된 글/탈퇴회원은 DB 레벨에서 이미 제외)
+        // ✅ 기존 로직 그대로 유지 (DB 레벨 검색 + 분류)
         if (hasKeyword && hasCategory) {
             switch (searchType) {
                 case "제목":
@@ -81,12 +90,31 @@ public class BoardServiceImpl implements BoardService {
             pageResult = boardRepository.findAllVisible(sortedPageable);
         }
 
+        // ✅ 1차: Entity → DTO 변환
         List<BoardResponse> list = pageResult.getContent().stream()
                 .map(BoardMapper::toResponse)
                 .toList();
 
+        // ✅ 2차: "공지" 탭인지, "일반" 탭인지에 따라 필터링
+        boolean isNoticeBoard = "告知".equals(boardType);
 
-        return new PageImpl<>(list, pageable, pageResult.getTotalElements());
+        List<BoardResponse> filteredByBoardType = list.stream()
+                .filter(b -> {
+                    String type = b.getType();
+                    boolean isNoticeType = type != null && NOTICE_TYPES.contains(type);
+
+                    if (isNoticeBoard) {
+                        // 공지 탭: 공지/입하/행사만
+                        return isNoticeType;
+                    } else {
+                        // 일반 탭: 공지 계열은 제외
+                        return !isNoticeType;
+                    }
+                })
+                .toList();
+
+        // ✅ 최종 Page 생성 (총 개수도 필터된 기준으로)
+        return new PageImpl<>(filteredByBoardType, pageable, filteredByBoardType.size());
     }
 
     // ✅ 게시글 상세조회 (삭제/탈퇴회원 게시글 접근 차단)
@@ -166,7 +194,7 @@ public class BoardServiceImpl implements BoardService {
 
     @Override
     public List<BoardResponse> getLatestNotices() {
-        // type = "공지" 인 최신 글 3개
+        // type = "告知" 인 최신 글 3개
         List<BoardEntity> notices = boardRepository.findTop3ByTypeOrderByIdDesc("告知");
 
         return notices.stream()

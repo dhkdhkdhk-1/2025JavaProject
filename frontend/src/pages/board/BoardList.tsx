@@ -16,14 +16,21 @@ const BoardList: React.FC = () => {
   const [keyword, setKeyword] = useState("");
   const [category, setCategory] = useState("すべて");
   const [boardType, setBoardType] = useState<"掲示板" | "告知">("掲示板");
-  const userRole = localStorage.getItem("role") || "";
 
   const [baseAll, setBaseAll] = useState<BoardResponse[]>([]);
 
   const navigate = useNavigate();
   const location = useLocation();
 
-  /** ✅ 전체 게시판 기준 목록 캐싱 */
+  /** 📌 URL의 type 값 반영해서 현재 게시판 타입 자동 설정 */
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const typeParam = params.get("type");
+    if (typeParam === "告知") setBoardType("告知");
+    else setBoardType("掲示板");
+  }, [location.search]);
+
+  /** 전체 게시판 기준 목록 캐싱 */
   const fetchBaseList = useCallback(async () => {
     const res = await getBoardList(0, "", "タイトル+内容", "すべて", boardType);
     let base = res.data.content
@@ -41,7 +48,7 @@ const BoardList: React.FC = () => {
     setBaseAll(base);
   }, [boardType]);
 
-  /** ✅ 게시글 목록 불러오기 */
+  /** 게시글 목록 불러오기 */
   const fetchBoards = useCallback(
     async (
       pageNum: number,
@@ -64,7 +71,6 @@ const BoardList: React.FC = () => {
         let allBoards = res.data.content || [];
         allBoards = allBoards.filter((b) => b.deleted !== true);
 
-        // ✅ 게시판 타입 필터링
         let filtered: BoardResponse[] = [];
         if (boardType === "告知") {
           filtered = allBoards.filter((b) =>
@@ -76,12 +82,10 @@ const BoardList: React.FC = () => {
           );
         }
 
-        // ✅ 카테고리 필터
         if (categoryStr !== "すべて") {
           filtered = filtered.filter((b) => b.type === categoryStr);
         }
 
-        // ✅ 키워드 검색 로직
         if (keywordStr.trim()) {
           const kw = keywordStr.trim().toLowerCase();
 
@@ -90,30 +94,17 @@ const BoardList: React.FC = () => {
             const content = (b.content || "").toLowerCase();
             const username = (b.username || "").trim().toLowerCase();
 
-            if (searchTypeStr === "タイトル") {
-              return title.includes(kw);
-            }
-
-            if (searchTypeStr === "投稿者") {
-              // ✅ null-safe + 완전 일치 + 부분 일치
-              return (
-                username !== "" && (username === kw || username.includes(kw))
-              );
-            }
-
-            // ✅ "タイトル+内容"
+            if (searchTypeStr === "タイトル") return title.includes(kw);
+            if (searchTypeStr === "投稿者") return username.includes(kw);
             return title.includes(kw) || content.includes(kw);
           });
         }
 
-        // ✅ createdAt 기준 정렬 (첫 글 누락 방지)
-        filtered.sort((a, b) => {
-          const dateA = new Date(a.createdAt).getTime();
-          const dateB = new Date(b.createdAt).getTime();
-          return dateB - dateA; // 최신순
-        });
+        filtered.sort(
+          (a, b) =>
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
 
-        // ✅ displayId 유지
         let numbered: BoardResponse[];
         const isDefaultView = !keywordStr.trim() && categoryStr === "すべて";
 
@@ -122,14 +113,10 @@ const BoardList: React.FC = () => {
         } else {
           numbered = filtered.map((b) => {
             const found = baseAll.find((x) => x.id === b.id);
-            return {
-              ...b,
-              displayId: found ? found.displayId : b.id,
-            };
+            return { ...b, displayId: found ? found.displayId : b.id };
           });
         }
 
-        // ✅ 페이지 계산
         const totalPageCount = Math.ceil(numbered.length / 10);
         const startIdx = pageNum * 10;
         const paginated = numbered.slice(startIdx, startIdx + 10);
@@ -137,14 +124,12 @@ const BoardList: React.FC = () => {
         setBoards(paginated);
         setTotalPages(totalPageCount);
       } catch (error) {
-        console.error("❌ 投稿読み込みに失敗しました。:", error);
+        console.error("❌ 投稿読み込み失敗:", error);
         if (axios.isAxiosError(error) && error.response?.status === 401) {
-          alert(
-            "セッションの有効期限が切れました。もう一度ログインしてください。"
-          );
+          alert("ログインしてください。");
           navigate("/login");
         } else {
-          setErrorMsg("❌ データの読み込み中エラーが発生しました。");
+          setErrorMsg("❌ データ読み込みエラー");
         }
       } finally {
         setLoading(false);
@@ -164,14 +149,22 @@ const BoardList: React.FC = () => {
     const newCategory = params.get("category") || "すべて";
     const newPage = parseInt(params.get("page") || "0", 10);
     const refresh = params.get("refresh");
+    const typeParam = params.get("type");
 
     setSearchType(newSearchType);
     setKeyword(newKeyword);
     setCategory(newCategory);
     setPage(newPage);
 
+    // 🔵 추가된 부분 1
+    if (typeParam === "告知" && boardType !== "告知") return;
+
+    // 🔵 추가된 부분 2
+    if (typeParam !== "告知" && boardType !== "掲示板") return;
+
     fetchBoards(newPage, newKeyword, newSearchType, newCategory);
-    if (refresh) navigate("/board");
+
+    if (refresh) navigate(`/board?type=${boardType}`);
   }, [location.search, boardType, fetchBoards, navigate]);
 
   const handleBoardTypeChange = (type: "掲示板" | "告知") => {
@@ -181,7 +174,6 @@ const BoardList: React.FC = () => {
     navigate(`/board?type=${type}`);
   };
 
-  /** ✅ searchType 즉시 반영 + fetchBoards 직접 호출 */
   const handleSearch = () => {
     const query = new URLSearchParams();
     if (keyword.trim()) query.append("keyword", keyword);
@@ -189,9 +181,7 @@ const BoardList: React.FC = () => {
     if (category !== "すべて") query.append("category", category);
     query.append("page", "0");
 
-    navigate(`/board?${query.toString()}`);
-
-    // 🔥 즉시 실행 (URL 업데이트 기다리지 않음)
+    navigate(`/board?type=${boardType}&${query.toString()}`);
     fetchBoards(0, keyword, searchType, category);
   };
 
@@ -205,7 +195,8 @@ const BoardList: React.FC = () => {
     query.append("searchType", searchType);
     if (category !== "すべて") query.append("category", category);
     query.append("page", newPage.toString());
-    navigate(`/board?${query.toString()}`);
+
+    navigate(`/board?type=${boardType}&${query.toString()}`);
   };
 
   return (
@@ -236,12 +227,14 @@ const BoardList: React.FC = () => {
           onChange={(e) => {
             const newCategory = e.target.value;
             setCategory(newCategory);
+
             const query = new URLSearchParams();
             if (keyword.trim()) query.append("keyword", keyword);
             query.append("searchType", searchType);
             if (newCategory !== "すべて") query.append("category", newCategory);
             query.append("page", "0");
-            navigate(`/board?${query.toString()}`);
+
+            navigate(`/board?type=${boardType}&${query.toString()}`);
           }}
         >
           {boardType === "掲示板" ? (
@@ -279,6 +272,7 @@ const BoardList: React.FC = () => {
           onChange={(e) => setKeyword(e.target.value)}
           onKeyDown={handleKeyPress}
         />
+
         <button className="board-search-button" onClick={handleSearch}>
           🔍
         </button>
@@ -291,7 +285,8 @@ const BoardList: React.FC = () => {
       ) : (
         <BoardTable
           boards={boards}
-          onSelect={(id) => navigate(`/board/${id}`)}
+          /** ⭐ 여기 수정됨! 타입을 함께 넘겨주기 */
+          onSelect={(id) => navigate(`/board/${id}?type=${boardType}`)}
         />
       )}
 
@@ -307,8 +302,8 @@ const BoardList: React.FC = () => {
         {[...Array(Math.max(totalPages, 1))].map((_, num) => (
           <button
             key={num}
-            onClick={() => handlePageChange(num)}
             className={`page-number ${num === page ? "active" : ""}`}
+            onClick={() => handlePageChange(num)}
           >
             {num + 1}
           </button>
@@ -316,40 +311,12 @@ const BoardList: React.FC = () => {
 
         <button
           className="board-button"
-          onClick={() =>
-            handlePageChange(Math.min(page + 1, Math.max(totalPages - 1, 0)))
-          }
-          disabled={page >= totalPages - 1 || totalPages === 0}
+          onClick={() => handlePageChange(Math.min(page + 1, totalPages - 1))}
+          disabled={page >= totalPages - 1}
         >
           次へ →
         </button>
       </div>
-
-      {/* ✅ 글쓰기 버튼 */}
-      {userRole &&
-        (boardType === "掲示板"
-          ? (userRole === "USER" ||
-              userRole === "MANAGER" ||
-              userRole === "ADMIN") && (
-              <div style={{ textAlign: "right", marginTop: "20px" }}>
-                <button
-                  className="board-button"
-                  onClick={() => navigate("/board/write")}
-                >
-                  ✏️ 投稿する
-                </button>
-              </div>
-            )
-          : (userRole === "MANAGER" || userRole === "ADMIN") && (
-              <div style={{ textAlign: "right", marginTop: "20px" }}>
-                <button
-                  className="board-button"
-                  onClick={() => navigate("/board/notice/write?redirect=告知")}
-                >
-                  ✏️ 告知作成
-                </button>
-              </div>
-            ))}
     </div>
   );
 };
