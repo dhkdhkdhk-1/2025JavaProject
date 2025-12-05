@@ -130,7 +130,7 @@ export const updateUserInfo = async (data: {
   passwordCheck: string;
 }): Promise<void> => {
   try {
-    await api.put("/user/me/v2", data, {
+    await api.put("/user/me", data, {
       // ✅ v2 경로
       headers: { "Content-Type": "application/json" },
     });

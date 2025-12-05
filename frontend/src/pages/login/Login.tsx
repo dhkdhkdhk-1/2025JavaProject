@@ -11,14 +11,20 @@ import "./Login-Variables.css";
 import "./Login-Style.css";
 
 const Login: React.FC = () => {
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState(""); // 초기값 항상 빈 문자열
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [remember, setRemember] = useState(false);
 
   const navigate = useNavigate();
 
-  const handleLogin = async () => {
+  const handleLogin = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+
+    // ⭐ 이메일 저장 여부에 따라 저장 또는 삭제
+    if (remember) localStorage.setItem("savedEmail", email);
+    else localStorage.removeItem("savedEmail");
+
     const tokens = await login({ email, password });
     if (!tokens) return;
 
@@ -29,7 +35,6 @@ const Login: React.FC = () => {
     try {
       const me = await getMe();
 
-      // ✅ 탈퇴된 계정 차단
       if (me.deleted) {
         alert("脱退したアカウントです。再加入をした後に利用してください。");
         navigate("/signup");
@@ -39,8 +44,7 @@ const Login: React.FC = () => {
       localStorage.setItem("role", me.role);
       window.dispatchEvent(new Event("storage"));
 
-      if (me.role === "ADMIN") navigate("/admin");
-      else navigate("/home");
+      navigate(me.role === "ADMIN" ? "/admin" : "/home");
     } catch (e) {
       console.error("/user/me 照会失敗", e);
       alert("ログインはしましたが、会員情報の読み込みに失敗しました。");
@@ -50,13 +54,10 @@ const Login: React.FC = () => {
 
   return (
     <div className="login-page">
-      <TextContentTitle
-        title="ログイン"
-        align="center"
-        className="login-title"
-      />
+      <TextContentTitle title="ログイン" className="login-title" />
 
-      <div className="login-box">
+      <form className="login-box" onSubmit={handleLogin} autoComplete="on">
+        {/* ⭐ 자동완성 리스트는 뜨지만 자동입력은 안 됨 */}
         <InputField
           className="login-input"
           inputClassName="login-input-field"
@@ -64,9 +65,14 @@ const Login: React.FC = () => {
           value={email}
           valueType="value"
           onChange={(e) => setEmail(e.target.value)}
+          type="email"
+          name="username"
+          inputId="login-email"
+          autoComplete="username"
         />
 
         <div className="password-container">
+          {/* ⭐ 비밀번호 자동완성 완전 OFF */}
           <InputField
             className="login-input"
             inputClassName="login-input-field"
@@ -75,7 +81,11 @@ const Login: React.FC = () => {
             valueType="value"
             onChange={(e) => setPassword(e.target.value)}
             type={showPassword ? "text" : "password"}
+            name="password"
+            inputId="login-password"
+            autoComplete="new-password"
           />
+
           <button
             type="button"
             className="toggle-password-btn"
@@ -86,14 +96,14 @@ const Login: React.FC = () => {
           </button>
         </div>
 
-        <div className="remember-container">
+        <label className="remember-container clickable-text">
           <input
             type="checkbox"
             checked={remember}
             onChange={(e) => setRemember(e.target.checked)}
           />
           <span>アカウント情報保存</span>
-        </div>
+        </label>
 
         <div className="login-link-container">
           <div
@@ -115,9 +125,8 @@ const Login: React.FC = () => {
           label="ログイン"
           size="medium"
           variant="primary"
-          onClick={handleLogin}
         />
-      </div>
+      </form>
     </div>
   );
 };

@@ -30,28 +30,33 @@ export default function Home() {
       {/* Hero Section */}
       <section className="hero-section">
         <div className="hero-content">
-          <h1 className="hero-title">도서관리페이지</h1>
+          <h1 className="hero-title">図書管理ページ</h1>
         </div>
       </section>
-
       {/* Announcements Section */}
       <section className="announcements-section">
-        {notices.map((notice) => (
-          <div
-            key={notice.id}
-            className="announcement-item"
-            onClick={() => navigate(`/board/detail/${notice.id}`)}
-            style={{ cursor: "pointer" }}
-          >
-            <div className="announcement-title">{notice.title}</div>
-            <div className="announcement-date">
-              {notice.createdAt.slice(0, 10)}
+        {[...notices, ...Array(3 - notices.length).fill(null)].map(
+          (notice, index) => (
+            <div
+              key={notice ? notice.id : `empty-${index}`}
+              className="announcement-item"
+              onClick={() => notice && navigate(`/board/${notice.id}`)}
+              style={{
+                cursor: notice ? "pointer" : "default",
+              }}
+            >
+              <div className="announcement-line">
+                タイトル{" : "}
+                <span className="announcement-title">
+                  {notice ? notice.title : "告知がありません。"}
+                </span>
+                {"  "}投稿日{" : "}
+                <span className="announcement-date">
+                  {notice ? notice.createdAt.slice(0, 10) : "-"}
+                </span>
+              </div>
             </div>
-          </div>
-        ))}
-
-        {notices.length === 0 && (
-          <div className="announcement-item">등록된 공지사항이 없습니다.</div>
+          )
         )}
       </section>
 
@@ -71,7 +76,7 @@ export default function Home() {
             />
             <div className="book-info">
               <div className="book-title">{book.title}</div>
-              <div className="book-author">저자: {book.author}</div>
+              <div className="book-author">著者: {book.author}</div>
               <div className="book-description">{book.description}</div>
             </div>
           </div>

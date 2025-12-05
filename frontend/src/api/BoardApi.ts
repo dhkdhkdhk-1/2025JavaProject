@@ -156,8 +156,7 @@ export const updateBoard = async (id: number, data: BoardRequest) =>
 export const deleteBoard = async (id: number) =>
   api.delete<void>(`/board/${id}`);
 
-//메인 화면에 공지 최신글 기준으로 3개 가져오기
-
+// 메인 화면에 공지 최신글 3개 불러오기
 export const getLatestNotices = async () => {
   const res = await api.get("/board/notice/top3");
   return res.data;

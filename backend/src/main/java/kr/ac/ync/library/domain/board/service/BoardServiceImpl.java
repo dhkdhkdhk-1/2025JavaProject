@@ -167,7 +167,7 @@ public class BoardServiceImpl implements BoardService {
     @Override
     public List<BoardResponse> getLatestNotices() {
         // type = "공지" 인 최신 글 3개
-        List<BoardEntity> notices = boardRepository.findTop3ByTypeOrderByIdDesc("공지");
+        List<BoardEntity> notices = boardRepository.findTop3ByTypeOrderByIdDesc("告知");
 
         return notices.stream()
                 .map(BoardMapper::toResponse)
