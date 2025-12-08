@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { getBoardList, BoardResponse } from "../../api/BoardApi";
+import { getMe, User } from "../../api/AuthApi";
 import BoardTable from "./components/BoardTable";
 import axios from "axios";
 import "./board.css";
@@ -22,11 +23,25 @@ const BoardList: React.FC = () => {
   );
 
   const [baseAll, setBaseAll] = useState<BoardResponse[]>([]);
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
 
   const navigate = useNavigate();
   const location = useLocation();
 
-  /** URL로부터 boardType 결정 **/
+  /** ------------ 현재 로그인 사용자 정보 가져오기 -------------- */
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const me = await getMe();
+        setCurrentUser(me);
+      } catch {
+        setCurrentUser(null); // 비로그인
+      }
+    };
+    fetchUser();
+  }, []);
+
+  /** ------------ URL → type 상태 반영 -------------- */
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const typeParam = params.get("type");
@@ -40,7 +55,7 @@ const BoardList: React.FC = () => {
     }
   }, [location.search]);
 
-  /** baseList 불러오기 */
+  /** ------------ baseAll 불러오기 -------------- */
   const fetchBaseList = useCallback(async () => {
     if (apiBoardType === "") return;
 
@@ -65,12 +80,11 @@ const BoardList: React.FC = () => {
     setBaseAll(base);
   }, [apiBoardType]);
 
-  /** boardType이 바뀌면 baseList 새로 로드 */
   useEffect(() => {
     fetchBaseList();
   }, [fetchBaseList]);
 
-  /** 게시글 목록 불러오기 */
+  /** ------------ 게시글 목록 불러오기 -------------- */
   const fetchBoards = useCallback(
     async (pageNum: number, kw: string, st: string, ct: string) => {
       if (apiBoardType === "") return;
@@ -90,9 +104,7 @@ const BoardList: React.FC = () => {
           );
         }
 
-        if (ct !== "すべて") {
-          list = list.filter((b) => b.type === ct);
-        }
+        if (ct !== "すべて") list = list.filter((b) => b.type === ct);
 
         if (kw.trim()) {
           const kwLower = kw.toLowerCase();
@@ -134,10 +146,10 @@ const BoardList: React.FC = () => {
         setLoading(false);
       }
     },
-    [apiBoardType, baseAll, navigate] // ⚠️ navigate 포함해서 ESLint 해결
+    [apiBoardType, baseAll, navigate]
   );
 
-  /** URL이 바뀌면 fetchBoards 실행 */
+  /** ------------ URL 변경 시 fetchBoards 실행 -------------- */
   useEffect(() => {
     if (apiBoardType === "") return;
 
@@ -159,19 +171,17 @@ const BoardList: React.FC = () => {
     }
 
     fetchBoards(pg, kw, st, ct);
-  }, [location.search, apiBoardType, fetchBoards, navigate]); // ⚠️ deps 완전 정리됨
+  }, [location.search, apiBoardType, fetchBoards, navigate]);
 
-  /** 게시판 종류 변경 */
+  /** ------------ 게시판 전환 -------------- */
   const handleBoardTypeChange = (uiType: "掲示板" | "告知") => {
     const apiType = uiType === "告知" ? "notice" : "general";
-
     setUiBoardType(uiType);
     setApiBoardType(apiType);
-
     navigate(`/board?type=${apiType}`);
   };
 
-  /** 검색 실행 */
+  /** ------------ 검색 -------------- */
   const handleSearch = () => {
     const q = new URLSearchParams();
     if (keyword.trim()) q.append("keyword", keyword);
@@ -197,6 +207,7 @@ const BoardList: React.FC = () => {
         >
           掲示板
         </button>
+
         <button
           onClick={() => handleBoardTypeChange("告知")}
           className={`notice-button ${uiBoardType === "告知" ? "active" : ""}`}
@@ -260,6 +271,34 @@ const BoardList: React.FC = () => {
         <button className="board-search-button" onClick={handleSearch}>
           🔍
         </button>
+      </div>
+
+      {/* ------------ 글쓰기 버튼: 권한에 따라 노출 -------------- */}
+      <div
+        className="board-write-area"
+        style={{ textAlign: "right", margin: "10px 0" }}
+      >
+        {/* 일반 게시판 → 로그인 유저 모두 가능 */}
+        {apiBoardType === "general" && currentUser && (
+          <button
+            className="board-button"
+            onClick={() => navigate(`/board/write?type=一般`)}
+          >
+            投稿する
+          </button>
+        )}
+
+        {/* 공지 게시판 → 관리자 or 매니저만 */}
+        {apiBoardType === "notice" &&
+          currentUser &&
+          (currentUser.role === "ADMIN" || currentUser.role === "MANAGER") && (
+            <button
+              className="board-button"
+              onClick={() => navigate(`/board/write?type=告知`)}
+            >
+              お知らせ作成
+            </button>
+          )}
       </div>
 
       {loading ? (

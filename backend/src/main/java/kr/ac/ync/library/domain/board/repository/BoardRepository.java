@@ -41,7 +41,8 @@ public interface BoardRepository extends JpaRepository<BoardEntity, Long> {
     Optional<BoardEntity> findTopByOrderByIdDesc();
 
     // 최신 공지 3개 (홈페이지용)
-    List<BoardEntity> findTop3ByTypeOrderByIdDesc(String type);
+    List<BoardEntity> findTop3ByTypeAndDeletedFalseAndUser_DeletedFalseOrderByIdDesc(String type);
+
 
     // 특정 유저의 게시글 숨김/복구
     @Modifying(clearAutomatically = true, flushAutomatically = true)
