@@ -46,7 +46,11 @@ const BoardWrite: React.FC<BoardWriteProps> = ({ boardType = "一般" }) => {
     try {
       await createBoard(form);
       alert("投稿が登録されました。");
-      navigate(`/board?type=${typeParam}&refresh=1`);
+      const goType = ["告知", "入荷", "行事"].includes(form.type)
+        ? "notice"
+        : "general";
+
+      navigate(`/board?type=${goType}&refresh=1`);
     } catch (err) {
       console.error("投稿登録失敗:", err);
       alert("投稿を登録している中エラーが発生しました。");
