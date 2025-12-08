@@ -67,4 +67,8 @@
   .mypage-grid {
     grid-template-columns: 1fr; /* 태블릿/모바일은 한 열 */
   }
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> accountinfo

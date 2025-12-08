@@ -16,4 +16,5 @@ public class BoardResponse {
     private Long viewCount;
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
+    private boolean deleted;
 }

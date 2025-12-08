@@ -53,17 +53,17 @@ export const login = async (
   } catch (error: any) {
     if (
       axios.isAxiosError(error) &&
-      error.response?.data?.message?.includes("탈퇴")
+      error.response?.data?.message?.includes("脱退")
     ) {
-      alert("탈퇴된 계정입니다. 재가입 후 이용해주세요.");
+      alert("脱退されたアカウントです。再加入した後に利用してください。");
     } else {
-      alert("로그인 실패: 이메일 또는 비밀번호를 확인하세요.");
+      alert("ログイン失敗：メールまたはパスワードを確認してください。");
     }
     return null;
   }
 };
 
-/** ✅ 회원가입 (재가입 포함) */
+/** ✅ 회원가입 */
 export const signup = async (
   data: SignupRequest
 ): Promise<"OK" | "REJOIN" | "EXISTS" | "FAIL"> => {
@@ -75,21 +75,20 @@ export const signup = async (
       },
     });
 
-    // ✅ 서버 응답 메시지 파싱
     const msg = (res.data || "").toString().toLowerCase();
-    if (msg.includes("재가입") || msg.includes("복구")) return "REJOIN";
-    if (msg.includes("이미") || msg.includes("존재")) return "EXISTS";
+    if (msg.includes("再加入") || msg.includes("復元")) return "REJOIN";
+    if (msg.includes("既に") || msg.includes("存在")) return "EXISTS";
     return "OK";
   } catch (error: any) {
     if (axios.isAxiosError(error) && error.response?.status === 409) {
       return "EXISTS";
     }
-    console.error("회원가입 실패:", error);
+    console.error("会員登録失敗:", error);
     return "FAIL";
   }
 };
 
-/** ✅ 이메일 중복확인 (탈퇴 계정 확인 포함) */
+/** ✅ 이메일 중복확인 */
 export const checkEmail = async (
   email: string
 ): Promise<"OK" | "REJOIN" | "DUPLICATE" | "FAIL"> => {
@@ -105,15 +104,15 @@ export const checkEmail = async (
       return confirmRejoin ? "REJOIN" : "FAIL";
     }
 
-    alert(res.data.message || "✅ 사용 가능한 이메일입니다.");
+    alert(res.data.message || "✅ 使用可能なメールです。");
     return "OK";
   } catch (error: any) {
     if (axios.isAxiosError(error) && error.response?.status === 409) {
-      alert("이미 등록된 이메일입니다.");
+      alert("既に登録されたメールです。");
       return "DUPLICATE";
     }
-    console.error("이메일 확인 실패:", error);
-    alert("이메일 중복확인 중 오류가 발생했습니다.");
+    console.error("メール確認失敗:", error);
+    alert("メールの重複確認中エラーが発生しました。");
     return "FAIL";
   }
 };
@@ -122,6 +121,23 @@ export const checkEmail = async (
 export const getMe = async (): Promise<User> => {
   const res = await api.get<User>("/user/me");
   return res.data;
+};
+
+/** ✅ 회원정보 수정 (닉네임 변경 + 비밀번호 확인) */
+export const updateUserInfo = async (data: {
+  username: string;
+  password: string;
+  passwordCheck: string;
+}): Promise<void> => {
+  try {
+    await api.put("/user/me", data, {
+      // ✅ v2 경로
+      headers: { "Content-Type": "application/json" },
+    });
+  } catch (error: any) {
+    console.error("会員譲歩修正失敗:", error);
+    throw error;
+  }
 };
 
 /** ✅ 액세스 토큰 갱신 */
@@ -146,10 +162,9 @@ export const refreshAccessToken = async (): Promise<string | null> => {
     localStorage.setItem("accessToken", res.data.accessToken);
     localStorage.setItem("refreshToken", res.data.refreshToken);
     setAccessToken(res.data.accessToken);
-
     return res.data.accessToken;
   } catch (err) {
-    console.error("❌ 토큰 갱신 실패:", err);
+    console.error("❌ トークンの更新失敗:", err);
     localStorage.removeItem("accessToken");
     localStorage.removeItem("refreshToken");
     window.location.href = "/login";
@@ -157,7 +172,7 @@ export const refreshAccessToken = async (): Promise<string | null> => {
   }
 };
 
-/** ✅ 요청 인터셉터 */
+/** ✅ 요청 인터셉터 (중복 제거) */
 api.interceptors.request.use((config) => {
   if (config.headers?.skipAuthInterceptor === "true") {
     delete config.headers.skipAuthInterceptor;
@@ -167,15 +182,6 @@ api.interceptors.request.use((config) => {
 
   const token = localStorage.getItem("accessToken");
   if (token) config.headers.Authorization = `Bearer ${token}`;
-  return config;
-});
-
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem("accessToken");
-  if (token && !config.headers?.Authorization) {
-    config.headers = config.headers || {};
-    config.headers.Authorization = `Bearer ${token}`;
-  }
   return config;
 });
 
