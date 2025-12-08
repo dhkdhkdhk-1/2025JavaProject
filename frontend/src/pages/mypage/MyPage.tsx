@@ -15,14 +15,7 @@ const MyPage: React.FC = () => {
           <div className="mypage-card">
             <h3>貸出履歴</h3>
             <p>これまでに借りた本の履歴を確認できます。</p>
-<<<<<<< HEAD
-            <button
-              className="mypage-btn"
-              onClick={() => navigate("/rental")}
-            >
-=======
             <button className="mypage-btn" onClick={() => navigate("/rental")}>
->>>>>>> accountinfo
               確認する
             </button>
           </div>
@@ -51,16 +44,13 @@ const MyPage: React.FC = () => {
           <div className="mypage-card">
             <h3>会員情報</h3>
             <p>アカウント情報の確認・変更ができます。</p>
-<<<<<<< HEAD
             <button className="mypage-btn">編集する</button>
-=======
             <button
               className="mypage-btn"
               onClick={() => navigate("/account-info")}
             >
               編集する
             </button>
->>>>>>> accountinfo
           </div>
         </div>
       </main>

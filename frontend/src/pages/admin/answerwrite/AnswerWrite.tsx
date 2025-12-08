@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { getMe, User } from "../../../api/AuthApi"; // 로그인한 유저 정보 가져오는 API
+import { getMe, User } from "../../../api/AuthApi";
 import "./AnswerWrite.css";
 
 interface CsDetail {
@@ -16,17 +16,14 @@ interface CsDetail {
 }
 
 const MyCsListDetail: React.FC = () => {
+  const { id } = useParams();
   const navigate = useNavigate();
-<<<<<<< HEAD
 
-  return <div className="title">문의 페이지
-  </div>
-=======
   const [cs, setCs] = useState<CsDetail | null>(null);
-  const [, setUser] = useState<User | null>(null); // 유저 정보
+  const [, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // ✅ 더미데이터 목록
+  // ⭐ 더미 데이터 — 실제 API 연동 시 삭제 예정
   const dummyData: CsDetail[] = [
     {
       id: 1,
@@ -34,7 +31,7 @@ const MyCsListDetail: React.FC = () => {
       branchName: "서울지점",
       title: "도서 반납이 안돼요",
       content: "도서를 반납했는데 시스템에 반영이 안됐어요.",
-      answerContent: "확인 후 반영 완료했습니다. 이용해 주셔서 감사합니다 😊",
+      answerContent: "확인 후 반영 완료했습니다 😊",
       status: "COMPLETED",
       csCategory: "도서관련",
       createdAt: "2025-10-20T14:30:00",
@@ -63,7 +60,7 @@ const MyCsListDetail: React.FC = () => {
     },
   ];
 
-  // ✅ 페이지 진입 시 로그인 상태 및 유저 정보 확인
+  // ⭐ 로그인 체크 + 상세 조회
   useEffect(() => {
     const token = localStorage.getItem("accessToken");
     if (!token) {
@@ -72,18 +69,16 @@ const MyCsListDetail: React.FC = () => {
       return;
     }
 
-    // 유저 정보 가져오기
     getMe()
       .then((userData) => {
-        setUser(userData); // 로그인된 유저 정보 저장
-        // 더미 데이터에서 해당 ID의 내역을 찾기
+        setUser(userData);
+
         const found = dummyData.find((item) => item.id === Number(id));
-        setCs(found || null); // 해당 ID의 내역을 찾으면 설정
+        setCs(found || null);
         setLoading(false);
       })
-      .catch((error) => {
-        console.error("유저 정보를 가져오는 데 실패:", error);
-        navigate("/login", { replace: true }); // 로그인 페이지로 이동
+      .catch(() => {
+        navigate("/login", { replace: true });
       });
   }, [id, navigate]);
 
@@ -98,8 +93,7 @@ const MyCsListDetail: React.FC = () => {
       <div className="board-meta">
         <div className="board-meta-row">
           <span className="board-meta-left">
-            작성자: {cs.username} &nbsp; | &nbsp; {cs.branchName} |{" "}
-            {cs.csCategory}
+            작성자: {cs.username} | {cs.branchName} | {cs.csCategory}
           </span>
           <span className="board-meta-right">
             작성일: {new Date(cs.createdAt).toLocaleString()}
@@ -152,7 +146,6 @@ const MyCsListDetail: React.FC = () => {
       </div>
     </div>
   );
->>>>>>> abe061a853eb88c2e7b7d48611e5aa971b0df4cd
 };
 
 export default MyCsListDetail;

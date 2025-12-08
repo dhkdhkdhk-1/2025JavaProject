@@ -82,11 +82,6 @@ public class AuthController {
                         .body(Map.of("rejoin", false, "message", "既に存在しているメールです。"));
             }
         }
-
-<<<<<<< HEAD
-        return ResponseEntity.ok(Map.of("rejoin", false, "message", "사용 가능한 이메일입니다."));
-=======
         return ResponseEntity.ok(Map.of("rejoin", false, "message", "使用可能なメールです。"));
->>>>>>> accountinfo
     }
 }

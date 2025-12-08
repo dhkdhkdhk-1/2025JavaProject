@@ -21,17 +21,12 @@ import BookInfo from "./pages/bookinfo/BookInfo";
 import TotalReview from "./pages/review/booktotalreview/BookTotalReview";
 import RentalList from "./pages/rental/RentalList";
 import WishList from "./pages/wishlist/WishList";
-<<<<<<< HEAD
 import ReviewList from "./pages/review/myreviewlist/MyReviewList";
 import WriteReview from "./pages/review/writereview/WriteReview";
 import ReviewDetail from "./pages/review/reviewdetail/ReviewDetail";
 import CsListPage from "./pages/cspage/mycslist/MyCsListPage";
 import MyCsListDetail from "./pages/cspage/mycslistdetail/MyCsListDetail";
 import WriteCs from "./pages/cspage/writecs/WriteCs";
-=======
-import ReviewList from "./pages/review/reviewlist/ReviewList";
-import WriteReview from "./pages/review/writereview/WriteReview";
->>>>>>> accountinfo
 import Withdraw from "./pages/withdraw/Withdraw";
 import AccountInfo from "./pages/accountinfo/AccountInfo";
 import FindPassword from "./pages/findpassword/FindPassword";
@@ -108,7 +103,6 @@ const App: React.FC = () => {
         {/* 로그인 필요 */}
         <Route element={<ProtectedLayout />}>
           <Route path="/home" element={<Home />} />
-
           {/* ✅ 게시판 라우팅 */}
           <Route path="/board" element={<Outlet />}>
             <Route index element={<BoardList />} />
@@ -120,14 +114,12 @@ const App: React.FC = () => {
             />
             <Route path="edit/:id" element={<BoardEdit />} />
           </Route>
-
           {/* ✅ 기타 페이지 */}
           <Route path="/MyPage" element={<MyPage />} />
           <Route path="/withdraw" element={<Withdraw />} />
           <Route path="/account-info" element={<AccountInfo />} />
           <Route path="/booklist" element={<BookList />} />
           <Route path="/book/:id" element={<BookInfo />} />
-<<<<<<< HEAD
           {/* ✅ 리뷰 관련 */}
           <Route path="/review/book/:id" element={<TotalReview />} />{" "}
           {/* 내가 쓴 전체 리뷰들 보기 */}
@@ -147,13 +139,11 @@ const App: React.FC = () => {
           {/* 문의 내역 상세 페이지 */}
           <Route path="/writecs" element={<WriteCs />} />{" "}
           {/* 문의작성 페이지 */}
-=======
           <Route path="/review/book/:id" element={<TotalReview />} />
           <Route path="/reviewlist" element={<ReviewList />} />
           <Route path="/review/write/:id" element={<WriteReview />} />
           <Route path="/rental" element={<RentalList />} />
           <Route path="/wishlist" element={<WishList />} />
->>>>>>> accountinfo
         </Route>
 
         {/* ✅ 관리자 전용 */}

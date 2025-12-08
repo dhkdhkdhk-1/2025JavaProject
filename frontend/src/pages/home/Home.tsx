@@ -10,28 +10,21 @@ type BookCard = Book;
 export default function Home() {
   const navigate = useNavigate();
   const [books, setBooks] = useState<BookCard[]>([]);
-  const [notices, setNotices] = useState<any[]>([]); // BoardResponse 타입 있으면 변경 가능
+  const [notices, setNotices] = useState<any[]>([]); // BoardResponse 타입 있으면 교체 가능
 
-<<<<<<< HEAD
-  const announcements = [
-    "お知らせ １ - Test",
-    "お知らせ 2 - Test",
-    "お知らせ 3 - Test",
-  ];
-
-  // ✅ 최신 도서 불러오기 (API 함수만 사용)
-=======
-  // 최신 도서 & 최신 공지사항 가져오기
->>>>>>> accountinfo
   useEffect(() => {
-    // 최신 도서
+    // ⭐ 최신 도서 불러오기
     getRecentBooks(5)
       .then((data) => setBooks(data))
-      .catch((err) => console.error("❌ 최신 도서 불러오기 오류:", err));
+      .catch((err) => console.error("❌ 最新図書取得エラー:", err));
 
-    // 최신 공지사항 3개
+    // ⭐ 최신 공지사항 3개
     getLatestNotices()
-      .then((data) => setNotices(data))
+      .then((data) => {
+        // 🔥 혹시 삭제된 글이 섞여 있을 때 대비
+        const filtered = (data || []).filter((n: any) => !n.deleted);
+        setNotices(filtered);
+      })
       .catch((err) => console.error("❌ 최신 공지사항 불러오기 오류:", err));
   }, []);
 
@@ -43,6 +36,7 @@ export default function Home() {
           <h1 className="hero-title">図書管理ページ</h1>
         </div>
       </section>
+
       {/* Announcements Section */}
       <section className="announcements-section">
         {[...notices, ...Array(3 - notices.length).fill(null)].map(
@@ -50,17 +44,19 @@ export default function Home() {
             <div
               key={notice ? notice.id : `empty-${index}`}
               className="announcement-item"
-              onClick={() => notice && navigate(`/board/${notice.id}`)}
+              onClick={() =>
+                notice && navigate(`/board/${notice.id}?type=notice`)
+              }
               style={{
                 cursor: notice ? "pointer" : "default",
               }}
             >
               <div className="announcement-line">
-                タイトル{" : "}
+                タイトル {" : "}
                 <span className="announcement-title">
                   {notice ? notice.title : "告知がありません。"}
-                </span>
-                {"  "}投稿日{" : "}
+                </span>{" "}
+                投稿日 {" : "}
                 <span className="announcement-date">
                   {notice ? notice.createdAt.slice(0, 10) : "-"}
                 </span>
