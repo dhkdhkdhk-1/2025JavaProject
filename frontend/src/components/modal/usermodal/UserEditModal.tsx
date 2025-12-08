@@ -69,6 +69,7 @@ const UserEditModal: React.FC<Props> = ({ user, onClose, onUpdated }) => {
           <option value="">현재: {user.role}</option>
           <option value="USER">USER</option>
           <option value="ADMIN">ADMIN</option>
+          <option value="MANAGER">MANAGER</option>
         </select>
 
         <div className="modal-buttons">

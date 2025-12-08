@@ -1,4 +1,4 @@
-package kr.ac.ync.library.domain.email.entity;
+package kr.ac.ync.library.domain.rentals.email.entity;
 
 import static com.querydsl.core.types.PathMetadataFactory.*;
 
@@ -15,7 +15,7 @@ import com.querydsl.core.types.Path;
 @Generated("com.querydsl.codegen.DefaultEntitySerializer")
 public class QEmailLogEntity extends EntityPathBase<EmailLogEntity> {
 
-    private static final long serialVersionUID = 1034689842L;
+    private static final long serialVersionUID = 1362922899L;
 
     public static final QEmailLogEntity emailLogEntity = new QEmailLogEntity("emailLogEntity");
 

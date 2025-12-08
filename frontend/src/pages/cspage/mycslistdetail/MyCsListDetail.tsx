@@ -24,39 +24,7 @@ const MyCsListDetail: React.FC = () => {
 
   // ✅ 더미데이터 목록
   const dummyData: CsDetail[] = [
-    {
-      id: 1,
-      username: "홍길동",
-      branchName: "서울지점",
-      title: "도서 반납이 안돼요",
-      content: "도서를 반납했는데 시스템에 반영이 안됐어요.",
-      answerContent: "확인 후 반영 완료했습니다. 이용해 주셔서 감사합니다 😊",
-      status: "COMPLETED",
-      csCategory: "도서관련",
-      createdAt: "2025-10-20T14:30:00",
-    },
-    {
-      id: 2,
-      username: "홍길동",
-      branchName: "부산지점",
-      title: "로그인이 안돼요",
-      content: "비밀번호를 바꿨는데 접속이 안돼요.",
-      answerContent: "",
-      status: "WAITING",
-      csCategory: "계정관련",
-      createdAt: "2025-10-19T09:00:00",
-    },
-    {
-      id: 3,
-      username: "홍길동",
-      branchName: "대구지점",
-      title: "홈페이지 오류",
-      content: "문의 작성 버튼이 안 눌러집니다.",
-      answerContent: "현재 개발팀이 수정 중입니다.",
-      status: "ANSWERING",
-      csCategory: "기타",
-      createdAt: "2025-10-18T11:45:00",
-    },
+    
   ];
 
   // ✅ 페이지 진입 시 로그인 상태 및 유저 정보 확인

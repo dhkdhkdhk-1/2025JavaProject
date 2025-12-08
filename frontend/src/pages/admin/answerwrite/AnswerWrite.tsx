@@ -16,8 +16,12 @@ interface CsDetail {
 }
 
 const MyCsListDetail: React.FC = () => {
-  const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+<<<<<<< HEAD
+
+  return <div className="title">문의 페이지
+  </div>
+=======
   const [cs, setCs] = useState<CsDetail | null>(null);
   const [, setUser] = useState<User | null>(null); // 유저 정보
   const [loading, setLoading] = useState(true);
@@ -148,6 +152,7 @@ const MyCsListDetail: React.FC = () => {
       </div>
     </div>
   );
+>>>>>>> abe061a853eb88c2e7b7d48611e5aa971b0df4cd
 };
 
 export default MyCsListDetail;

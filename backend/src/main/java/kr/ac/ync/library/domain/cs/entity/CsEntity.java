@@ -9,6 +9,8 @@ import kr.ac.ync.library.domain.users.entity.UserEntity;
 import kr.ac.ync.library.global.common.entity.BaseTimeEntity;
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Table(name = "tbl_cs")
 @Getter
@@ -39,7 +41,6 @@ public class CsEntity extends BaseTimeEntity {
     @Column(nullable = false)
     private String content;
 
-    @NotBlank(message = "답변 입력")
     private String answerContent;
 
     @Enumerated(EnumType.STRING)
@@ -50,4 +51,5 @@ public class CsEntity extends BaseTimeEntity {
     @Column(nullable = false)
     private CsCategory csCategory;
 
+    private LocalDateTime answerCreatedAt;
 }

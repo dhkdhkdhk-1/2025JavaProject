@@ -26,6 +26,8 @@ public class QCsEntity extends EntityPathBase<CsEntity> {
 
     public final StringPath answerContent = createString("answerContent");
 
+    public final DateTimePath<java.time.LocalDateTime> answerCreatedAt = createDateTime("answerCreatedAt", java.time.LocalDateTime.class);
+
     public final kr.ac.ync.library.domain.branch.entity.QBranchEntity branch;
 
     public final StringPath content = createString("content");
