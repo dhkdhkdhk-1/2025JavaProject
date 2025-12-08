@@ -31,6 +31,14 @@ const Login: React.FC = () => {
 
     try {
       const me = await getMe();
+
+      // ✅ 추가: 탈퇴된 계정 차단
+      if (me.deleted) {
+        alert("탈퇴된 계정입니다. 재가입 후 이용해주세요.");
+        navigate("/signup");
+        return;
+      }
+
       localStorage.setItem("role", me.role);
       window.dispatchEvent(new Event("storage"));
 

@@ -20,8 +20,7 @@ const BranchModal: React.FC<BranchModalProps> = ({
   const [form, setForm] = useState<BranchRequest>({
     id: branch?.id,
     name: branch?.name || "",
-    address: branch?.address || "",
-    managerName: branch?.managerName || "",
+    location: branch?.location || "",
   });
 
   useEffect(() => {
@@ -29,8 +28,7 @@ const BranchModal: React.FC<BranchModalProps> = ({
       setForm({
         id: branch.id,
         name: branch.name,
-        address: branch.address,
-        managerName: branch.managerName,
+        location: branch.location,
       });
     }
   }, [branch]);
@@ -55,10 +53,7 @@ const BranchModal: React.FC<BranchModalProps> = ({
             <b>지점명:</b> {branch.name}
           </p>
           <p>
-            <b>주소:</b> {branch.address}
-          </p>
-          <p>
-            <b>관리자:</b> {branch.managerName}
+            <b>주소:</b> {branch.location}
           </p>
           <button className="close-btn" onClick={onClose}>
             CLOSE
@@ -81,13 +76,7 @@ const BranchModal: React.FC<BranchModalProps> = ({
             <button className="cancel-btn" onClick={onClose}>
               CANCEL
             </button>
-            <button
-              className="confirm-btn"
-              onClick={() => {
-                // 삭제는 부모 컴포넌트에서 처리
-                if (onUpdate) onUpdate(form);
-              }}
-            >
+            <button className="confirm-btn" onClick={() => onUpdate?.(form)}>
               CONFIRM
             </button>
           </div>
@@ -110,16 +99,9 @@ const BranchModal: React.FC<BranchModalProps> = ({
         />
         <input
           type="text"
-          name="address"
+          name="location"
           placeholder="주소"
-          value={form.address}
-          onChange={handleChange}
-        />
-        <input
-          type="text"
-          name="managerName"
-          placeholder="관리자 이름"
-          value={form.managerName}
+          value={form.location}
           onChange={handleChange}
         />
 

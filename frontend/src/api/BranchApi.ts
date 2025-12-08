@@ -3,15 +3,13 @@ import axios from "axios";
 export interface BranchResponse {
   id: number;
   name: string;
-  address: string;
-  managerName: string;
+  location: string;
 }
 
 export interface BranchRequest {
   id?: number;
   name: string;
-  address: string;
-  managerName: string;
+  location: string;
 }
 
 export interface PageResponse<T> {
@@ -23,32 +21,32 @@ export interface PageResponse<T> {
 
 const BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
-/** ✅ 지점 목록 조회 (페이징) */
+/** ✅ 지점 목록 조회 */
 export const getBranches = async (
-  page: number = 0,
-  size: number = 10
+  page = 0,
+  size = 10
 ): Promise<PageResponse<BranchResponse>> => {
-  const response = await axios.get<PageResponse<BranchResponse>>(
+  const res = await axios.get<PageResponse<BranchResponse>>(
     `${BASE_URL}/branch/list`,
     { params: { page, size } }
   );
-  return response.data;
+  return res.data;
 };
 
 /** ✅ 지점 등록 */
 export const addBranch = async (
   data: BranchRequest
 ): Promise<BranchResponse> => {
-  const response = await axios.post<BranchResponse>(`${BASE_URL}/branch`, data);
-  return response.data;
+  const res = await axios.post<BranchResponse>(`${BASE_URL}/branch`, data);
+  return res.data;
 };
 
 /** ✅ 지점 수정 */
 export const updateBranch = async (
   data: BranchRequest
 ): Promise<BranchResponse> => {
-  const response = await axios.put<BranchResponse>(`${BASE_URL}/branch`, data);
-  return response.data;
+  const res = await axios.put<BranchResponse>(`${BASE_URL}/branch`, data);
+  return res.data;
 };
 
 /** ✅ 지점 삭제 */
@@ -56,8 +54,8 @@ export const deleteBranch = async (id: number): Promise<void> => {
   await axios.delete(`${BASE_URL}/branch/${id}`);
 };
 
-/** ✅ 단일 지점 조회 */
+/** ✅ 단일 조회 */
 export const getBranchById = async (id: number): Promise<BranchResponse> => {
-  const response = await axios.get<BranchResponse>(`${BASE_URL}/branch/${id}`);
-  return response.data;
+  const res = await axios.get<BranchResponse>(`${BASE_URL}/branch/${id}`);
+  return res.data;
 };

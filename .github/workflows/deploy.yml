@@ -1,9 +1,11 @@
-name: 🚀 Deploy Backend to EC2
+name: 🚀 Deploy Backend to EC2 (Clean + Lightweight)
 
 on:
   push:
     branches: ["main"]
-  workflow_dispatch: # 수동 실행 가능
+    paths:
+      - "backend/**"
+  workflow_dispatch:
 
 jobs:
   deploy:
@@ -13,46 +15,73 @@ jobs:
       - name: ✅ Checkout repository
         uses: actions/checkout@v4
 
-      - name: 🧩 Setup Java 17
+      - name: ☕ Setup Java 17
         uses: actions/setup-java@v3
         with:
           java-version: 17
           distribution: temurin
 
-      - name: 🔧 Deploy to EC2 (via SSH)
+      - name: 🏗️ Build Spring Boot JAR
+        run: |
+          cd backend
+          chmod +x ./gradlew
+          ./gradlew clean bootJar -x test --console=plain --no-daemon
+
+      - name: 📦 Upload latest JAR to EC2
+        uses: appleboy/scp-action@v0.1.5
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ubuntu
+          key: ${{ secrets.EC2_KEY }}
+          source: "backend/build/libs/library-0.0.1-SNAPSHOT.jar"
+          target: "/home/ubuntu/app/2025JavaProject/backend/build/libs/"
+
+      - name: 🚀 Deploy on EC2 (Clean Old + Restart Container)
         uses: appleboy/ssh-action@v1.0.0
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ubuntu
           key: ${{ secrets.EC2_KEY }}
           script_stop: true
-          pty: true
-          timeout: 10m
-          command_timeout: 5m
           script: |
             echo "===== 🚀 Deploy Start $(date) ====="
-            source /etc/profile
-            source ~/.bashrc
 
-            cd /home/ubuntu/app/2025JavaProject/backend
+            cd /home/ubuntu/app/2025JavaProject/backend/build/libs
 
-            echo "> 🧭 Fetch latest code from GitHub"
-            git fetch --all
-            git reset --hard origin/admin
-            git pull origin admin
+            echo "> 🧹 Clean up Docker resources"
+            sudo docker stop library-app || true
+            sudo docker rm library-app || true
+            # 👇 오래된 이미지, 캐시, dangling layers 전부 삭제
+            sudo docker system prune -af || true
 
-            echo "> 🧹 Clean up old containers"
-            docker stop library-app || true
-            docker rm library-app || true
+            echo "> 🧹 Clean up old JAR files"
+            # 최신 JAR만 남기고 나머지는 삭제
+            sudo find /home/ubuntu/app/2025JavaProject/backend/build/libs -type f -name "*.jar" ! -name "library-0.0.1-SNAPSHOT.jar" -delete
 
-            echo "> 🏗️ Build Spring Boot JAR"
-            chmod +x ./gradlew
-            ./gradlew clean bootJar -x test --console=plain --no-daemon 2>&1 | tee gradle.log
-
-            echo "> 🐋 Build Docker image"
-            docker build -t library-backend . 2>&1 | tee docker.log
-
-            echo "> 🚀 Run new container"
-            docker run -d -p 8080:8080 --name library-app library-backend
+            echo "> 🐋 Run latest container"
+            sudo docker run -d \
+              --name library-app \
+              -p 8080:8080 \
+              -v /home/ubuntu/app/2025JavaProject/backend/build/libs:/app \
+              openjdk:17 \
+              java -jar /app/library-0.0.1-SNAPSHOT.jar
 
             echo "===== ✅ Deploy Complete $(date) ====="
+
+      - name: 💬 Discord Notification
+        if: always()
+        run: |
+          if [ "${{ job.status }}" == "success" ]; then
+            STATUS="✅ Backend 배포 성공!"
+            COLOR=3066993
+          else
+            STATUS="❌ Backend 배포 실패!"
+            COLOR=15158332
+          fi
+          MESSAGE="**${STATUS}** 
+          브랜치: ${{ github.ref_name }} 
+          커밋: ${{ github.actor }} - ${{ github.event.head_commit.message }}
+          서버: ${{ secrets.EC2_HOST }}"
+          curl -H "Content-Type: application/json" \
+            -d "{\"embeds\":[{\"title\":\"Backend Deploy\",\"description\":\"${MESSAGE}\",\"color\":${COLOR}}]}" \
+            ${{ secrets.DISCORD_WEBHOOK_URL }}

@@ -28,7 +28,7 @@ import ReviewDetail from "./pages/review/reviewdetail/ReviewDetail";
 import CsListPage from "./pages/cspage/mycslist/MyCsListPage";
 import MyCsListDetail from "./pages/cspage/mycslistdetail/MyCsListDetail";
 import WriteCs from "./pages/cspage/writecs/WriteCs";
-
+import Withdraw from "./pages/withdraw/Withdraw";
 
 // ✅ 관리자 페이지
 import Dashboard from "./pages/admin/dashboard/Dashboard";
@@ -112,13 +112,16 @@ const App: React.FC = () => {
             <Route path="edit/:id" element={<BoardEdit />} /> {/* 수정 */}
           </Route>
           <Route path="/MyPage" element={<MyPage />} />
+          <Route path="/withdraw" element={<Withdraw />} />
           {/* ✅ 도서 목록 및 상세 */}
           <Route path="/booklist" element={<BookList />} />
           <Route path="/book/:id" element={<BookInfo />} />
           {/* ✅ 리뷰 관련 */}
-          <Route path="/review/book/:id" element={<TotalReview />} /> {/* 내가 쓴 전체 리뷰들 보기 */}
-          <Route path="/review/list" element={<ReviewList />} /> {/* 그 책에 대한 전체리뷰) */}
-          <Route path="/review/write/:id" element={<WriteReview />} /> 
+          <Route path="/review/book/:id" element={<TotalReview />} />{" "}
+          {/* 내가 쓴 전체 리뷰들 보기 */}
+          <Route path="/review/list" element={<ReviewList />} />{" "}
+          {/* 그 책에 대한 전체리뷰) */}
+          <Route path="/review/write/:id" element={<WriteReview />} />
           <Route path="/review/detail/:id" element={<ReviewDetail />} />
           {/* ✅ 대여 및 찜 목록 */}
           <Route path="/rental" element={<RentalList />} />
@@ -126,9 +129,12 @@ const App: React.FC = () => {
           <Route path="/booklist" element={<BookList />} />
           <Route path="/book/:id" element={<BookInfo />} />{" "}
           {/* 문의내역 보는 곳 */}
-          <Route path="/mycslistpage" element={<CsListPage />} /> {/* 내 전체 문의 내역 */}
-          <Route path="/cs/detail/:id" element={<MyCsListDetail />} /> {/* 문의 내역 상세 페이지 */}
-          <Route path="/writecs" element={<WriteCs />} /> {/* 문의작성 페이지 */}
+          <Route path="/mycslistpage" element={<CsListPage />} />{" "}
+          {/* 내 전체 문의 내역 */}
+          <Route path="/cs/detail/:id" element={<MyCsListDetail />} />{" "}
+          {/* 문의 내역 상세 페이지 */}
+          <Route path="/writecs" element={<WriteCs />} />{" "}
+          {/* 문의작성 페이지 */}
         </Route>
 
         {/* ✅ 관리자 전용 영역 */}
@@ -140,7 +146,6 @@ const App: React.FC = () => {
           <Route path="branches" element={<Branches />} />
           <Route path="answer" element={<Answer />} />
           <Route path="" element={<AnswerWrite />} />
-          
         </Route>
 
         {/* ✅ 기본 및 잘못된 경로 처리 */}

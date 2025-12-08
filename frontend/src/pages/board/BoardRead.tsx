@@ -3,16 +3,16 @@ import { useParams, useNavigate } from "react-router-dom";
 import {
   getBoard,
   incrementViewCount,
-  deleteBoard, // ✅ 삭제 기능 import
+  deleteBoard,
   BoardResponse,
 } from "../../api/BoardApi";
-import { getMe, User } from "../../api/AuthApi"; // ✅ 현재 로그인 사용자 확인용
+import { getMe, User } from "../../api/AuthApi";
 import "./board.css";
 
 const BoardRead: React.FC = () => {
   const { id } = useParams();
   const [board, setBoard] = useState<BoardResponse | null>(null);
-  const [currentUser, setCurrentUser] = useState<User | null>(null); // ✅ 현재 로그인 사용자
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -21,9 +21,15 @@ const BoardRead: React.FC = () => {
       try {
         await incrementViewCount(Number(id));
         const res = await getBoard(Number(id));
-        setBoard(res.data);
 
-        // ✅ 로그인 사용자 정보 가져오기
+        // ✅ soft deleted 글 접근 차단
+        if (res.data.deleted) {
+          alert("삭제된 게시글입니다.");
+          navigate("/board");
+          return;
+        }
+
+        setBoard(res.data);
         const me = await getMe();
         setCurrentUser(me);
       } catch (err) {
@@ -32,9 +38,8 @@ const BoardRead: React.FC = () => {
     };
 
     fetchBoard();
-  }, [id]);
+  }, [id, navigate]);
 
-  // ✅ 수정 및 삭제 버튼 표시 조건
   const canEditOrDelete =
     currentUser &&
     board &&
@@ -42,7 +47,6 @@ const BoardRead: React.FC = () => {
       currentUser.role === "MANAGER" ||
       currentUser.role === "ADMIN");
 
-  // ✅ 삭제 핸들러
   const handleDelete = async () => {
     if (!board) return;
     const confirmed = window.confirm("정말로 이 글을 삭제하시겠습니까?");
@@ -92,7 +96,6 @@ const BoardRead: React.FC = () => {
           목록
         </button>
 
-        {/* ✅ 작성자 / MANAGER / ADMIN만 표시 */}
         {canEditOrDelete && (
           <>
             <button

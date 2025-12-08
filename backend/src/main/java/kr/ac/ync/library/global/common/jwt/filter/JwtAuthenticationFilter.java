@@ -26,16 +26,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     FilterChain filterChain) throws ServletException, IOException {
 
         String path = request.getRequestURI();
-        if (path.startsWith("/auth")) {
-            filterChain.doFilter(request, response);
-            return;
-        }
 
         // ✅ Preflight 요청 통과 (CORS OPTIONS)
         if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
             filterChain.doFilter(request, response);
             return;
         }
+
+        if (path.startsWith("/auth")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+
 
         // ✅ 인증 제외 경로 (로그인, 회원가입, 책, 지점, 조회수 증가 등)
         if (isExcludedPath(path)) {

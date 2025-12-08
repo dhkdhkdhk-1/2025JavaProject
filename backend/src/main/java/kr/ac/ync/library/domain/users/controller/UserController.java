@@ -1,9 +1,7 @@
 package kr.ac.ync.library.domain.users.controller;
 
-import kr.ac.ync.library.domain.users.dto.PasswordUpdateRequest;
-import kr.ac.ync.library.domain.users.dto.User;
-import kr.ac.ync.library.domain.users.dto.UserResponse;
-import kr.ac.ync.library.domain.users.dto.UserUpdateRequest;
+import jakarta.validation.Valid;
+import kr.ac.ync.library.domain.users.dto.*;
 import kr.ac.ync.library.domain.users.service.UserService;
 import kr.ac.ync.library.global.common.security.UserSecurity;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +12,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/user")
@@ -44,7 +44,28 @@ public class UserController {
         return ResponseEntity.ok("비밀번호가 변경되었습니다.");
     }
 
+    @GetMapping("/list")
+    public ResponseEntity<Page<UserResponse>> list(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
+        return ResponseEntity.ok(userService.getList(pageable));
+    }
 
+    @PutMapping("/admin/{id}")
+    public ResponseEntity<UserResponse> adminUpdate(
+            @PathVariable Long id,
+            @Valid @RequestBody AdminUserUpdateRequest request
+    ) {
+        return ResponseEntity.ok(userService.adminUpdateUser(id, request));
+    }
 
-
+    @GetMapping("/list/admin")
+    public ResponseEntity<Page<UserResponse>> listAdmins(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
+        return ResponseEntity.ok(userService.getAdmins(pageable));
+    }
 }

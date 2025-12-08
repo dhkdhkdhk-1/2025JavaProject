@@ -26,13 +26,15 @@ const BoardEdit: React.FC = () => {
         });
       } catch (err) {
         console.error("게시글 불러오기 실패:", err);
+        alert("게시글 정보를 불러오는 중 오류가 발생했습니다.");
+        navigate("/board");
       }
     };
 
     fetchBoard();
-  }, [id]);
+  }, [id, navigate]);
 
-  // ✅ 타입 수정 (BoardForm과 호환)
+  // ✅ 입력값 변경 핸들러 (BoardForm과 동일한 형태)
   const handleChange = (
     e:
       | React.ChangeEvent<
@@ -44,15 +46,33 @@ const BoardEdit: React.FC = () => {
     setForm({ ...form, [name]: value });
   };
 
+  // ✅ 게시글 수정 처리
   const handleSubmit = async () => {
     if (!id) return;
+
+    // 🔸 제목·내용 공백 검증 추가
+    if (!form.title.trim() || !form.content.trim()) {
+      alert("제목과 내용을 모두 입력해주세요.");
+      return;
+    }
+
     try {
       await updateBoard(Number(id), form);
       alert("게시글이 수정되었습니다.");
       navigate("/board");
-    } catch (err) {
+    } catch (err: any) {
       console.error("게시글 수정 중 오류:", err);
-      alert("수정 중 오류가 발생했습니다.");
+
+      // 🔸 백엔드 검증 에러 (400 Bad Request)
+      if (err.response?.status === 400) {
+        alert(
+          err.response.data?.message || "제목과 내용을 모두 입력해야 합니다."
+        );
+      } else if (err.response?.status === 403) {
+        alert("수정 권한이 없습니다.");
+      } else {
+        alert("게시글 수정 중 오류가 발생했습니다.");
+      }
     }
   };
 
