@@ -28,20 +28,24 @@ public class BoardController {
             @RequestParam(value = "keyword", required = false) String keyword,
             @RequestParam(value = "searchType", required = false, defaultValue = "제목+내용") String searchType,
             @RequestParam(value = "category", required = false, defaultValue = "전체") String category,
-            @RequestParam(value = "type", required = false) String boardType   // ⭐ 추가
+            @RequestParam(value = "type", required = false) String boardTypeFromFront   // "掲示板" / "告知"
     ) {
         if (size > 50) size = 50;
         if (page < 0) page = 0;
 
-        // 프론트에서 "掲示板" / "告知" 로 오기 때문에, null 또는 "告知" 외에는 전부 일반으로 취급
-        if (boardType == null) {
-            boardType = "일반"; // 기본값
+        // ⭐ 프론트에서 "掲示板" / "告知" 로 오기 때문에 내부적으로 general / notice 로 변환
+        String internalBoardType;
+        if ("告知".equals(boardTypeFromFront)) {
+            internalBoardType = "notice";   // 공지 게시판
+        } else {
+            // null, "掲示板", 그 외 값 → 전부 일반 게시판 취급
+            internalBoardType = "general";
         }
 
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));
 
         Page<BoardResponse> boardPage =
-                boardService.getAllBoards(keyword, searchType, category, boardType, pageable);
+                boardService.getAllBoards(keyword, searchType, category, internalBoardType, pageable);
         long maxId = boardService.getMaxBoardId();
 
         Map<String, Object> result = new HashMap<>();
@@ -101,5 +105,4 @@ public class BoardController {
     public List<BoardResponse> getLatestNotice() {
         return boardService.getLatestNotices();
     }
-
 }

@@ -22,10 +22,13 @@ public class BoardServiceImpl implements BoardService {
 
     private final BoardRepository boardRepository;
 
-    /** 공지 타입 목록 (공지 / 入荷 / 行事) */
+    /** 공지 타입 목록 (告知 / 入荷 / 行事) */
     private static final List<String> NOTICE_TYPES = List.of("告知", "入荷", "行事");
 
-    // ✅ 검색, 분류, 페이징 (삭제글/탈퇴회원 제외 + 공지/일반 구분)
+    /**
+     * 검색, 분류, 페이징 (삭제글/탈퇴회원 제외 + 공지/일반 구분)
+     * @param boardType "general"(일반 게시판) / "notice"(공지 게시판)
+     */
     @Override
     public Page<BoardResponse> getAllBoards(
             String keyword,
@@ -42,9 +45,11 @@ public class BoardServiceImpl implements BoardService {
 
         Page<BoardEntity> pageResult;
         boolean hasKeyword = keyword != null && !keyword.trim().isEmpty();
-        boolean hasCategory = category != null && !"전체".equals(category) && !"すべて".equals(category);
+        boolean hasCategory = category != null &&
+                !"전체".equals(category) &&
+                !"すべて".equals(category);
 
-        // ✅ 기존 로직 그대로 유지 (DB 레벨 검색 + 분류)
+        // ✅ 1차: DB 검색 + 분류 (삭제/탈퇴 회원 제외)
         if (hasKeyword && hasCategory) {
             switch (searchType) {
                 case "제목":
@@ -90,13 +95,13 @@ public class BoardServiceImpl implements BoardService {
             pageResult = boardRepository.findAllVisible(sortedPageable);
         }
 
-        // ✅ 1차: Entity → DTO 변환
+        // ✅ Entity → DTO 변환
         List<BoardResponse> list = pageResult.getContent().stream()
                 .map(BoardMapper::toResponse)
                 .toList();
 
-        // ✅ 2차: "공지" 탭인지, "일반" 탭인지에 따라 필터링
-        boolean isNoticeBoard = "告知".equals(boardType);
+        // ✅ 2차: "공지" 탭인지, "일반" 탭인지에 따라 필터링 (boardType: general/notice)
+        boolean isNoticeBoard = "notice".equals(boardType);
 
         List<BoardResponse> filteredByBoardType = list.stream()
                 .filter(b -> {

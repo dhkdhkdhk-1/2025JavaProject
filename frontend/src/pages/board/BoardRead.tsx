@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams, useNavigate, useLocation } from "react-router-dom"; // ⭐ 추가됨
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import {
   getBoard,
   incrementViewCount,
@@ -15,9 +15,9 @@ const BoardRead: React.FC = () => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const navigate = useNavigate();
 
-  const location = useLocation(); // ⭐ URL 읽기용 추가
+  const location = useLocation();
   const params = new URLSearchParams(location.search);
-  const typeParam = params.get("type") || "一般"; // ⭐ URL 의 type 값 사용
+  const typeParam = params.get("type") === "notice" ? "notice" : "general";
 
   useEffect(() => {
     const fetchBoard = async () => {
@@ -27,7 +27,7 @@ const BoardRead: React.FC = () => {
         const res = await getBoard(Number(id));
 
         if (res.data.deleted) {
-          alert("この投稿はすでに削除されました。");
+          alert("この投稿は削除されました。");
           navigate(`/board?type=${typeParam}`);
           return;
         }
@@ -37,20 +37,15 @@ const BoardRead: React.FC = () => {
         const me = await getMe();
         setCurrentUser(me);
       } catch (err) {
-        console.error("投稿読み込み失敗:", err);
-        alert("投稿を読み込めませんでした。");
+        alert("投稿読み込み失敗");
       }
     };
 
     fetchBoard();
   }, [id, navigate, typeParam]);
 
-  if (!board) return <div className="board-container">投稿読み込み中...</div>;
+  if (!board) return <div className="board-container">読み込み中...</div>;
 
-  /** ✔ URL 기준으로 공지/일반 결정 */
-  const listType = typeParam === "告知" ? "告知" : "一般";
-
-  /** 수정/삭제 권한 */
   const canEditOrDelete =
     currentUser &&
     (currentUser.username === board.username ||
@@ -58,17 +53,11 @@ const BoardRead: React.FC = () => {
       currentUser.role === "ADMIN");
 
   const handleDelete = async () => {
-    if (!window.confirm("本当に削除しますか？")) return;
+    if (!window.confirm("削除しますか？")) return;
 
-    try {
-      await deleteBoard(board.id);
-      alert("削除しました。");
-
-      navigate(`/board?type=${listType}&refresh=1`);
-    } catch (err) {
-      console.error("削除失敗:", err);
-      alert("削除中にエラーが発生しました。");
-    }
+    await deleteBoard(board.id);
+    alert("削除しました。");
+    navigate(`/board?type=${typeParam}&refresh=1`);
   };
 
   return (
@@ -77,30 +66,24 @@ const BoardRead: React.FC = () => {
 
       <div className="board-meta">
         <div className="board-meta-row">
-          <span className="board-meta-left">
-            投稿者: {board.username} &nbsp; | &nbsp; [{board.type}]
+          <span>
+            投稿者: {board.username} | [{board.type}]
           </span>
-          <span className="board-meta-right">
-            作成日: {new Date(board.createdAt).toLocaleString()}
-          </span>
+          <span>作成日: {new Date(board.createdAt).toLocaleString()}</span>
         </div>
-
         <div className="board-meta-row">
-          <span className="board-meta-left">閲覧数: {board.viewCount}</span>
-          <span className="board-meta-right">
-            最終修正日: {new Date(board.modifiedAt).toLocaleString()}
-          </span>
+          <span>閲覧数: {board.viewCount}</span>
+          <span>最終修正日: {new Date(board.modifiedAt).toLocaleString()}</span>
         </div>
       </div>
 
       <div className="board-content">{board.content}</div>
 
       <div style={{ textAlign: "right", marginTop: "20px" }}>
-        {/* ✔ 리스트로 이동할 때 URL 의 type 유지 */}
+        {/* 리스트로 돌아가기 */}
         <button
           className="board-button"
-          onClick={() => navigate(`/board?type=${listType}`)}
-          style={{ marginRight: "10px" }}
+          onClick={() => navigate(`/board?type=${typeParam}`)}
         >
           リスト
         </button>
@@ -110,9 +93,8 @@ const BoardRead: React.FC = () => {
             <button
               className="board-button"
               onClick={() =>
-                navigate(`/board/edit/${board.id}?type=${listType}`)
+                navigate(`/board/edit/${board.id}?type=${typeParam}`)
               }
-              style={{ marginRight: "10px" }}
             >
               修正
             </button>

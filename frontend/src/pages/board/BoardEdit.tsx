@@ -59,6 +59,7 @@ const BoardEdit: React.FC = () => {
 
   const handleSubmit = async () => {
     if (!id) return;
+
     if (!form.title.trim() || !form.content.trim()) {
       alert("タイトルと内容を全部書いてください。");
       return;
@@ -67,7 +68,13 @@ const BoardEdit: React.FC = () => {
     try {
       await updateBoard(Number(id), form);
       alert("投稿を修正しました。");
-      navigate(`/board?type=${boardType}&refresh=1`);
+
+      // 🔥 수정 후 이동할 게시판 타입 결정
+      const goType = ["告知", "入荷", "行事"].includes(form.type)
+        ? "notice"
+        : "general";
+
+      navigate(`/board?type=${goType}&refresh=1`);
     } catch (err: any) {
       console.error("投稿修正エラー:", err);
       if (err.response?.status === 403) {

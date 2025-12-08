@@ -105,16 +105,21 @@ export const getBoardList = async (
   keyword: string = "",
   searchType: string = "タイトル＋内容",
   category: string = "すべて",
-  boardType: "掲示板" | "告知" = "掲示板" // 게시판 유형
+  boardType: "general" | "notice" = "general" // <-- 여기 타입 변경
 ) => {
+  // ⭐ URL에서 받은 타입(general / notice)을 백엔드가 이해할 타입으로 변환
+  const mappedType = boardType === "notice" ? "告知" : "";
+
   const params = new URLSearchParams();
   params.append("page", page.toString());
-  params.append("size", "9999"); // 전체 데이터 한 번에 불러옴
+  params.append("size", "9999");
 
   if (keyword.trim()) params.append("keyword", keyword);
   if (searchType !== "タイトル＋内容") params.append("searchType", searchType);
   if (category !== "すべて") params.append("category", category);
-  params.append("type", boardType); // 게시판 유형 필터 추가
+
+  // ⭐ 여기 수정 : notice → 告知
+  params.append("type", mappedType);
 
   const res = await api.get<PageResponse<BoardResponse>>(
     `/board?${params.toString()}`
