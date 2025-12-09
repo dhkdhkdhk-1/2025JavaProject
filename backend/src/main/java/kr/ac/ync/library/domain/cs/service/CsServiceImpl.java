@@ -8,6 +8,7 @@ import kr.ac.ync.library.domain.cs.dto.CsRegisterRequest;
 import kr.ac.ync.library.domain.cs.dto.CsDetailResponse;
 import kr.ac.ync.library.domain.cs.entity.CsEntity;
 import kr.ac.ync.library.domain.cs.entity.csstatus.CsStatus;
+import kr.ac.ync.library.domain.cs.exception.CsAccessDenyException;
 import kr.ac.ync.library.domain.cs.exception.CsNotFoundException;
 import kr.ac.ync.library.domain.cs.mapper.CsMapper;
 import kr.ac.ync.library.domain.cs.repository.CsRepository;
@@ -49,8 +50,11 @@ public class CsServiceImpl implements CsService{
 
         CsEntity cs = csRepository.findById(id)
                 .orElseThrow(() -> CsNotFoundException.EXCEPTION);
-
         User user = userSecurity.getUser();
+        if (!cs.getUser().getId().equals(user.getId())) {
+            throw CsAccessDenyException.EXCEPTION;
+        }
+        return CsMapper.toCsDetailResponse(cs);
     }
 
     @Override // 유저 문의내역 전체 출력
