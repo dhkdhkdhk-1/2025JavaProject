@@ -46,7 +46,11 @@ public class CsServiceImpl implements CsService{
 
     @Override
     public CsDetailResponse get(Long id) {
-        return null;
+
+        CsEntity cs = csRepository.findById(id)
+                .orElseThrow(() -> CsNotFoundException.EXCEPTION);
+
+        User user = userSecurity.getUser();
     }
 
     @Override // 유저 문의내역 전체 출력
@@ -67,14 +71,11 @@ public class CsServiceImpl implements CsService{
     public void answer(Long csId, CsAnswerRequest request) {
         CsEntity cs = csRepository.findById(csId)
                 .orElseThrow(() -> CsNotFoundException.EXCEPTION);
-        updateAnswer(cs, request);
         csRepository.save(cs);
     }
 
     @Override
-    public void updateAnswer(CsEntity csEntity, CsAnswerRequest request) {
-        csEntity.setAnswerContent(request.getAnswerContent());
-        csEntity.setStatus(CsStatus.COMPLETED);
-        csEntity.setAnswerCreatedAt(LocalDateTime.now());
+    public Page<CsListResponse> getAll(Pageable pageable) {
+        return null;
     }
 }

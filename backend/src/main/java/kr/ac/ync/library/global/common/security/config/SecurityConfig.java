@@ -54,6 +54,8 @@ public class SecurityConfig {
                         .requestMatchers("/review/**").permitAll()
                         .requestMatchers("/book/**").permitAll()
                         .requestMatchers("/branch/**").permitAll()
+                        // ✅ cs 관련 코드
+                        .requestMatchers("/cs/**").authenticated()
 
                         // ✅ 나머지는 로그인 필요
                         .anyRequest().authenticated()

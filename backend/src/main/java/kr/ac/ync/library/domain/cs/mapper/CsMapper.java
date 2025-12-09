@@ -18,6 +18,7 @@ public class CsMapper {
                 .user(userEntity)
                 .content(request.getContent())
                 .csCategory(request.getCategory())
+                .status(CsStatus.WAITING)
                 .build();
     }
 

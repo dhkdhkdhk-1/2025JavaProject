@@ -1,17 +1,15 @@
 package kr.ac.ync.library.domain.cs.dto;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import kr.ac.ync.library.domain.cs.entity.category.CsCategory;
-import kr.ac.ync.library.domain.cs.entity.csstatus.CsStatus;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.time.LocalDateTime;
 
 @Getter
 @Setter
 public class CsRegisterRequest {
-    @NotBlank
+    @NotNull
     private Long branchId;
 
     @NotBlank(message = "")
@@ -20,9 +18,6 @@ public class CsRegisterRequest {
     @NotBlank(message = "")
     private String content;
 
-    @NotBlank
+    @NotNull
     private CsCategory category;
-
-
-
 }

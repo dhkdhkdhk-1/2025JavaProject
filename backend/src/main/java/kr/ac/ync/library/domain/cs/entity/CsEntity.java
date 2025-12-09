@@ -48,7 +48,7 @@ public class CsEntity extends BaseTimeEntity {
     private CsStatus status = CsStatus.WAITING;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column
     private CsCategory csCategory;
 
     private LocalDateTime answerCreatedAt;
