@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 public class CsRegisterRequest {
+    @NotBlank
     private Long branchId;
 
     @NotBlank(message = "")
@@ -19,6 +20,7 @@ public class CsRegisterRequest {
     @NotBlank(message = "")
     private String content;
 
+    @NotBlank
     private CsCategory category;
 
 

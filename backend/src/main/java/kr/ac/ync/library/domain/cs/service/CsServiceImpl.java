@@ -36,10 +36,10 @@ public class CsServiceImpl implements CsService{
     private final UserSecurity userSecurity;
 
     @Override
-    public void register(CsRegisterRequest request, Long branchId) {
+    public void register(CsRegisterRequest request) {
         User user = userSecurity.getUser();
         UserEntity userEntity = userRepository.getReferenceById(user.getId());
-        BranchEntity branchEntity = branchRepository.getReferenceById(branchId);
+        BranchEntity branchEntity = branchRepository.getReferenceById(request.getBranchId());
         CsEntity csEntity = CsMapper.toCsEntityRegisterRequest(request, userEntity, branchEntity);
         csRepository.save(csEntity);
     }
@@ -49,10 +49,19 @@ public class CsServiceImpl implements CsService{
         return null;
     }
 
-    @Override
-    public Page<CsListResponse> getList(Pageable pageable) {
-        return null;
-        }
+    @Override // 유저 문의내역 전체 출력
+    public Page<CsListResponse> getMyList(Long userId, Pageable pageable) {
+
+        Page<CsEntity> page = csRepository.findByUserId(userId, pageable);
+
+        List<CsListResponse> getUserList = page
+                .getContent()
+                .stream()
+                .map(CsMapper::toCsListResponse)
+                .toList();
+
+        return new PageImpl<>(getUserList, pageable, page.getTotalElements());
+    }
 
     @Override
     public void answer(Long csId, CsAnswerRequest request) {

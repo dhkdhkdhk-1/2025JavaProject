@@ -10,11 +10,11 @@ import org.springframework.data.domain.Pageable;
 
 public interface CsService  {
 
-    void register(CsRegisterRequest request, Long branchId);
+    void register(CsRegisterRequest request);
 
     CsDetailResponse get(Long id);
 
-    Page<CsListResponse> getList(Pageable pageable);
+    Page<CsListResponse> getMyList(Long userId, Pageable pageable);
 
     void answer(Long csId, CsAnswerRequest request);
 
