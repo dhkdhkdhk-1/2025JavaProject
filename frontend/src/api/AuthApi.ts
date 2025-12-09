@@ -185,5 +185,48 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+/** ✅ 비밀번호 찾기: 인증번호 발송 */
+export const sendPasswordResetCode = async (
+  email: string
+): Promise<"OK" | "NOT_FOUND" | "FAIL"> => {
+  try {
+    const res = await api.post(
+      "/auth/find-password/send-code",
+      { email },
+      { headers: { skipAuthInterceptor: "true" } }
+    );
+
+    alert(res.data.message || "認証番号が送信されました。");
+    return "OK";
+  } catch (error: any) {
+    if (axios.isAxiosError(error) && error.response?.status === 404) {
+      alert("登録されていないメールです。");
+      return "NOT_FOUND";
+    }
+
+    alert("認証番号送信中にエラーが発生しました。");
+    return "FAIL";
+  }
+};
+
+/** ✅ 비밀번호 찾기: 인증번호 검증 */
+export const verifyPasswordResetCode = async (
+  email: string,
+  code: string
+): Promise<boolean> => {
+  try {
+    const res = await api.post(
+      "/auth/find-password/verify-code",
+      { email, code },
+      { headers: { skipAuthInterceptor: "true" } }
+    );
+
+    return res.data.verified === true;
+  } catch (error) {
+    console.error("認証番号確認失敗:", error);
+    return false;
+  }
+};
+
 /** ✅ 앱 시작 시 저장된 토큰 적용 */
 setAccessToken(localStorage.getItem("accessToken"));

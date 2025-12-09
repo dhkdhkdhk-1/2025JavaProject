@@ -9,12 +9,14 @@ import kr.ac.ync.library.domain.auth.dto.response.JsonWebTokenResponse;
 import kr.ac.ync.library.domain.auth.service.AuthService;
 import kr.ac.ync.library.domain.users.entity.UserEntity;
 import kr.ac.ync.library.domain.users.repository.UserRepository;
+import kr.ac.ync.library.global.common.mail.service.MailService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @RestController
 @RequestMapping("/auth")
@@ -23,6 +25,8 @@ public class AuthController {
 
     private final AuthService authService;
     private final UserRepository userRepository;
+    private final MailService mailService; // ⭐ 기존 방식 그대로 주입
+    private final Map<String, String> verifyCodeStore = new ConcurrentHashMap<>();
 
     @PostMapping
     public ResponseEntity<JsonWebTokenResponse> auth(@Valid @RequestBody AuthenticationRequest request) {
@@ -85,4 +89,42 @@ public class AuthController {
 
         return ResponseEntity.ok(Map.of("rejoin", false, "message", "使用可能なメールです。"));
     }
+
+    @PostMapping("/find-password/send-code")
+    public ResponseEntity<?> sendVerifyCode(@RequestBody Map<String, String> request) {
+        String email = request.get("email");
+
+        // 1) 이메일이 등록되어 있는지 확인
+        var userOpt = userRepository.findByEmail(email);
+        if (userOpt.isEmpty()) {
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("message", "登録されていないメールです。"));
+        }
+
+        // 2) 인증번호 생성
+        String code = String.valueOf((int)(Math.random() * 900000) + 100000);
+        verifyCodeStore.put(email, code);
+
+        // 3) 이메일 내용 작성
+        String subject = "[パスワード再設定 認証番号]";
+        String text = """
+        こんにちは。
+
+        パスワード再設定のための認証番号は以下の通りです。
+
+        認証番号: %s
+
+        認証番号は10分間のみ有効です。
+
+        -- YNC Library System --
+        """.formatted(code);
+
+        // 4) 메일 발송
+        mailService.sendEmail(email, subject, text);
+
+        // 5) 성공 응답
+        return ResponseEntity.ok(Map.of("message", "認証番号をメールに送信しました。"));
+    }
+
 }
