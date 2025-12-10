@@ -48,11 +48,6 @@ public class AuthController {
 
     @PostMapping("/signup")
     public ResponseEntity<String> signup(@Valid @RequestBody SignupRequest request) {
-        System.out.println("🔥 signup 요청 도착:");
-        System.out.println("email = " + request.getEmail());
-        System.out.println("username = " + request.getUsername());
-        System.out.println("restorePosts = " + request.isRestorePosts());
-        System.out.println("rejoinConfirm = " + request.getRejoinConfirm());
         String result = authService.signup(request);
 
         if ("EXISTS".equals(result)) {
