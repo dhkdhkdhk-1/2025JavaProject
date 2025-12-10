@@ -1,9 +1,12 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+
 import { InputField } from "../login/components/InputField";
 import { VariantPrimaryWrapper } from "../login/components/VariantPrimaryWrapper";
 import { TextContentTitle } from "../login/components/TextContentTitle";
+
 import { signup, checkEmail } from "../../api/AuthApi";
+
 import "./Signup-Variables.css";
 import "./Signup-Style.css";
 
@@ -14,41 +17,48 @@ const Signup: React.FC = () => {
   const [username, setUsername] = useState("");
   const [isEmailChecked, setIsEmailChecked] = useState(false);
   const [loading, setLoading] = useState(false);
+
   const navigate = useNavigate();
 
   const emailRegex = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
 
-  /** ✅ 이메일 중복 확인 */
+  /** 이메일 중복 확인 */
   const handleEmailCheck = async () => {
-    if (!email.trim()) {
-      alert("メールを入力してください。");
-      return;
-    }
-    if (!emailRegex.test(email)) {
-      alert("正しい形で入力してください。(例: example@domain.com)");
-      return;
-    }
+    if (!email.trim()) return alert("メールを入力してください。");
+    if (!emailRegex.test(email))
+      return alert("正しい形で入力してください。(例: example@domain.com)");
 
     const result = await checkEmail(email);
-    if (result === "OK" || result === "REJOIN") {
+
+    // 🔥 재가입 계정일 때 → alert를 사용하지 않고 confirm만 띄우기
+    if (result.rejoin) {
+      const confirmRejoin = window.confirm(
+        "脱退したアカウントです。再加入しますか？"
+      );
+      if (!confirmRejoin) return;
+
       setIsEmailChecked(true);
+      return;
     }
+
+    // 🔥 신규 계정일 때 → alert로 "사용 가능한 이메일입니다" 메시지 출력
+    alert(result.message);
+
+    setIsEmailChecked(true);
   };
 
-  /** ✅ 회원가입 처리 */
+  /** 회원가입 처리 */
   const handleSignup = async () => {
     if (!email || !password || !passwordCheck || !username) {
       alert("すべての情報を入力してください。");
       return;
     }
-    if (!emailRegex.test(email)) {
-      alert("正しい形で入力してください。(例: example@domain.com)");
-      return;
-    }
+
     if (!isEmailChecked) {
       alert("先にメールの重複確認をしてください。");
       return;
     }
+
     if (password !== passwordCheck) {
       alert("パスワードが一致していません。");
       return;
@@ -56,68 +66,56 @@ const Signup: React.FC = () => {
 
     setLoading(true);
 
-    try {
-      const result = await signup({
+    // 🔥 1단계 요청
+    const result = await signup({
+      email,
+      username,
+      password,
+      passwordCheck,
+      restorePosts: false,
+      rejoinConfirm: false,
+    });
+
+    setLoading(false);
+
+    if (result === "EXISTS") {
+      alert("既に存在しているメールです。");
+      return;
+    }
+
+    if (result === "REJOIN") {
+      const confirmRejoin = window.confirm(
+        "以前に脱退したアカウントです。再加入しますか？"
+      );
+
+      if (!confirmRejoin) return;
+
+      const restore = window.confirm("以前の投稿を復元しますか？");
+
+      const second = await signup({
         email,
         username,
         password,
         passwordCheck,
-        restorePosts: false,
+        restorePosts: restore,
+        rejoinConfirm: true,
       });
 
-      setLoading(false);
-
-      if (result === "EXISTS") {
-        alert("既に存在しているメールです。");
-        return;
-      }
-
-      // ✅ 탈퇴한 계정이라면 재가입 프로세스 시작
-      if (result === "REJOIN") {
-        const confirmRejoin = window.confirm(
-          "以前に脱退したメールです。もう一度加入しますか？"
+      if (second === "OK") {
+        alert(
+          restore
+            ? "アカウントと投稿が復元されました。"
+            : "アカウントが復元されました。（投稿は非公開のままです）"
         );
-        if (!confirmRejoin) {
-          alert("再加入がキャンセルされました。");
-          return;
-        }
-
-        const restore = window.confirm(
-          "以前の投稿を復元しますか？\n'確認'を選びましたら再び投稿が表示されます。"
-        );
-
-        const rejoinResult = await signup({
-          email,
-          username,
-          password,
-          passwordCheck,
-          restorePosts: restore,
-        });
-
-        if (rejoinResult === "OK" || rejoinResult === "REJOIN") {
-          alert(
-            restore
-              ? "✅ アカウントと投稿が復元されました！"
-              : "✅ アカウントが復元されました。投稿は引き続き非公開です。"
-          );
-          navigate("/login");
-          return;
-        } else {
-          alert("再加入の途中エラーが発生しました。");
-          return;
-        }
-      }
-
-      if (result === "OK") {
-        alert("会員登録が完了されました。");
         navigate("/login");
-      } else {
-        alert("会員登録に失敗しました。もう一度再確認してください。");
       }
-    } catch (e) {
-      console.error("会員登録失敗:", e);
-      alert("サーバーにエラーが発生しました。");
-      setLoading(false);
+
+      return;
+    }
+
+    if (result === "OK") {
+      alert("会員登録が完了されました。");
+      navigate("/login");
     }
   };
 
@@ -128,6 +126,7 @@ const Signup: React.FC = () => {
         align="center"
         className="signup-title"
       />
+
       <div className="signup-box">
         <div className="input-with-button">
           <InputField
@@ -151,6 +150,7 @@ const Signup: React.FC = () => {
           valueType="value"
           onChange={(e) => setPassword(e.target.value)}
         />
+
         <InputField
           label="Password Check"
           type="password"
@@ -158,6 +158,7 @@ const Signup: React.FC = () => {
           valueType="value"
           onChange={(e) => setPasswordCheck(e.target.value)}
         />
+
         <InputField
           label="Name"
           value={username}
@@ -167,7 +168,7 @@ const Signup: React.FC = () => {
 
         <VariantPrimaryWrapper
           className="signup-button"
-          label={loading ? "ロード中です..." : "会員登録"}
+          label={loading ? "ロード中..." : "会員登録"}
           size="medium"
           variant="primary"
           onClick={handleSignup}

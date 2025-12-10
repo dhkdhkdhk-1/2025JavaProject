@@ -22,13 +22,8 @@ public class BoardServiceImpl implements BoardService {
 
     private final BoardRepository boardRepository;
 
-    /** 공지 타입 목록 (告知 / 入荷 / 行事) */
     private static final List<String> NOTICE_TYPES = List.of("告知", "入荷", "行事");
 
-    /**
-     * 검색, 분류, 페이징 (삭제글/탈퇴회원 제외 + 공지/일반 구분)
-     * @param boardType "general"(일반 게시판) / "notice"(공지 게시판)
-     */
     @Override
     public Page<BoardResponse> getAllBoards(
             String keyword,
@@ -49,7 +44,6 @@ public class BoardServiceImpl implements BoardService {
                 !"전체".equals(category) &&
                 !"すべて".equals(category);
 
-        // ✅ 1차: DB 검색 + 분류 (삭제/탈퇴 회원 제외)
         if (hasKeyword && hasCategory) {
             switch (searchType) {
                 case "제목":
@@ -62,8 +56,6 @@ public class BoardServiceImpl implements BoardService {
                     pageResult = boardRepository.findByTypeAndUser_UsernameContaining(category, keyword, sortedPageable);
                     break;
 
-                case "제목+내용":
-                case "タイトル+内容":
                 default:
                     pageResult = boardRepository.findByTypeAndTitleContainingOrTypeAndContentContaining(
                             category, keyword, category, keyword, sortedPageable
@@ -82,8 +74,6 @@ public class BoardServiceImpl implements BoardService {
                     pageResult = boardRepository.findByUser_UsernameContaining(keyword, sortedPageable);
                     break;
 
-                case "제목+내용":
-                case "タイトル+内容":
                 default:
                     pageResult = boardRepository.findByTitleContainingOrContentContaining(keyword, keyword, sortedPageable);
                     break;
@@ -91,51 +81,40 @@ public class BoardServiceImpl implements BoardService {
         } else if (hasCategory) {
             pageResult = boardRepository.findByType(category, sortedPageable);
         } else {
-            // ✅ 모든 게시글 중 표시 가능한 글만
             pageResult = boardRepository.findAllVisible(sortedPageable);
         }
 
-        // ✅ Entity → DTO 변환
         List<BoardResponse> list = pageResult.getContent().stream()
                 .map(BoardMapper::toResponse)
                 .toList();
 
-        // ✅ 2차: "공지" 탭인지, "일반" 탭인지에 따라 필터링 (boardType: general/notice)
         boolean isNoticeBoard = "notice".equals(boardType);
 
         List<BoardResponse> filteredByBoardType = list.stream()
                 .filter(b -> {
                     String type = b.getType();
                     boolean isNoticeType = type != null && NOTICE_TYPES.contains(type);
-
-                    if (isNoticeBoard) {
-                        // 공지 탭: 공지/입하/행사만
-                        return isNoticeType;
-                    } else {
-                        // 일반 탭: 공지 계열은 제외
-                        return !isNoticeType;
-                    }
+                    return isNoticeBoard ? isNoticeType : !isNoticeType;
                 })
                 .toList();
 
-        // ✅ 최종 Page 생성 (총 개수도 필터된 기준으로)
         return new PageImpl<>(filteredByBoardType, pageable, filteredByBoardType.size());
     }
 
-    // ✅ 게시글 상세조회 (삭제/탈퇴회원 게시글 접근 차단)
     @Override
     public BoardResponse getBoard(Long id) {
         BoardEntity entity = boardRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("게시글을 찾을 수 없습니다."));
 
-        if (entity.isDeleted() || (entity.getUser() != null && entity.getUser().isDeleted())) {
+        if (Boolean.TRUE.equals(entity.getDeleted()) ||
+                (entity.getUser() != null && Boolean.TRUE.equals(entity.getUser().getDeleted()))) {
+
             throw new RuntimeException("삭제되었거나 탈퇴한 회원의 게시글은 볼 수 없습니다.");
         }
 
         return BoardMapper.toResponse(entity);
     }
 
-    // ✅ 게시글 등록
     @Override
     public BoardResponse createBoard(BoardRequest request, UserEntity user) {
         if (!StringUtils.hasText(request.getTitle()) || !StringUtils.hasText(request.getContent())) {
@@ -145,7 +124,6 @@ public class BoardServiceImpl implements BoardService {
         return BoardMapper.toResponse(boardRepository.save(board));
     }
 
-    // ✅ 수정
     @Override
     public BoardResponse updateBoard(Long id, BoardRequest request, UserEntity user) {
         BoardEntity board = boardRepository.findById(id)
@@ -164,7 +142,6 @@ public class BoardServiceImpl implements BoardService {
         return BoardMapper.toResponse(boardRepository.save(board));
     }
 
-    // ✅ soft delete
     @Override
     public void deleteBoard(Long id, UserEntity user) {
         BoardEntity board = boardRepository.findById(id)
@@ -180,7 +157,6 @@ public class BoardServiceImpl implements BoardService {
         boardRepository.save(board);
     }
 
-    // ✅ 조회수 증가
     @Override
     public void incrementViewCount(Long id) {
         BoardEntity board = boardRepository.findById(id)
@@ -189,7 +165,6 @@ public class BoardServiceImpl implements BoardService {
         boardRepository.save(board);
     }
 
-    // ✅ 최대 게시글 ID 반환
     @Override
     public long getMaxBoardId() {
         return boardRepository.findTopByOrderByIdDesc()

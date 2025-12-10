@@ -31,7 +31,8 @@ public class UserEntity extends BaseTimeEntity {
     private UserRole role;
 
     @Column(nullable = false)
-    private boolean deleted = false;
+    private Boolean deleted = false;
+
     public void changeUsername(String username) {
         if (username != null && !username.isBlank()) {
             this.username = username;

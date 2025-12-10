@@ -48,6 +48,11 @@ public class AuthController {
 
     @PostMapping("/signup")
     public ResponseEntity<String> signup(@Valid @RequestBody SignupRequest request) {
+        System.out.println("🔥 signup 요청 도착:");
+        System.out.println("email = " + request.getEmail());
+        System.out.println("username = " + request.getUsername());
+        System.out.println("restorePosts = " + request.isRestorePosts());
+        System.out.println("rejoinConfirm = " + request.getRejoinConfirm());
         String result = authService.signup(request);
 
         if ("EXISTS".equals(result)) {
@@ -55,7 +60,7 @@ public class AuthController {
         }
 
         if ("REJOIN".equals(result)) {
-            return ResponseEntity.ok("再加入成功：投稿の復縁をしますか？");
+            return ResponseEntity.ok("REJOIN");
         }
 
         return ResponseEntity.ok(result);
@@ -78,7 +83,7 @@ public class AuthController {
 
         if (userOpt.isPresent()) {
             UserEntity user = userOpt.get();
-            if (user.isDeleted()) {
+            if (Boolean.TRUE.equals(user.getDeleted())) {
                 return ResponseEntity.status(HttpStatus.OK)
                         .body(Map.of("rejoin", true, "message", "脱退したアカウントです。もう一度加入しますか？"));
             } else {
@@ -125,6 +130,34 @@ public class AuthController {
 
         // 5) 성공 응답
         return ResponseEntity.ok(Map.of("message", "認証番号をメールに送信しました。"));
+    }
+
+    @PostMapping("/find-password/verify-code")
+    public ResponseEntity<?> verifyCode(@RequestBody Map<String, String> request) {
+        String email = request.get("email");
+        String code = request.get("code");
+
+        String savedCode = verifyCodeStore.get(email);
+        boolean verified = savedCode != null && savedCode.equals(code);
+
+        return ResponseEntity.ok(Map.of("verified", verified));
+    }
+
+    @PostMapping("/find-password/reset-password")
+    public ResponseEntity<?> resetPassword(@RequestBody Map<String, String> request) {
+        String email = request.get("email");
+        String newPassword = request.get("newPassword");
+
+        var userOpt = userRepository.findByEmail(email);
+        if (userOpt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("success", false, "message", "メールが存在しません。"));
+        }
+
+        UserEntity user = userOpt.get();
+        authService.updatePasswordByEmail(email, newPassword);
+
+        return ResponseEntity.ok(Map.of("success", true));
     }
 
 }

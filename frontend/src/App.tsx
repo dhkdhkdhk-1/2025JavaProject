@@ -26,7 +26,7 @@ import WriteReview from "./pages/review/writereview/WriteReview";
 import Withdraw from "./pages/withdraw/Withdraw";
 import AccountInfo from "./pages/accountinfo/AccountInfo";
 import FindPassword from "./pages/findpassword/FindPassword";
-
+import ResetPassword from "./pages/findpassword/ResetPassword";
 // ✅ 관리자 페이지
 import Dashboard from "./pages/admin/dashboard/Dashboard";
 import BookManager from "./pages/admin/bookmanager/BookManager";
@@ -93,6 +93,7 @@ const App: React.FC = () => {
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/findpassword" element={<FindPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
 
         {/* 로그인 필요 */}
         <Route element={<ProtectedLayout />}>

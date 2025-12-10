@@ -39,8 +39,10 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public JsonWebTokenResponse auth(AuthenticationRequest request) {
+
+        // 🔥 deleted: Boolean 대응 → null-safe
         UserEntity userEntity = userRepository.findByEmail(request.getEmail())
-                .filter(u -> !u.isDeleted())
+                .filter(u -> !Boolean.TRUE.equals(u.getDeleted()))
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않거나 탈퇴한 계정입니다."));
 
         Authentication authentication = authenticationManager.authenticate(
@@ -83,39 +85,40 @@ public class AuthServiceImpl implements AuthService {
     @Override
     @Transactional
     public String signup(SignupRequest request) {
-        Optional<UserEntity> existingUser = userRepository.findByEmail(request.getEmail());
 
-        if (existingUser.isPresent()) {
-            UserEntity user = existingUser.get();
+        Optional<UserEntity> existingUserOpt = userRepository.findByEmail(request.getEmail());
 
-            // ✅ 탈퇴한 유저가 재가입을 시도한 첫 번째 단계
-            if (user.isDeleted() && !request.isRestorePosts()) {
-                System.out.println("🔁 탈퇴 계정 감지: 재가입 확인 요청");
-                return "REJOIN";
-            }
+        if (existingUserOpt.isPresent()) {
+            UserEntity user = existingUserOpt.get();
 
-            // ✅ 실제 재가입 확정 처리 (restorePosts 포함)
-            if (user.isDeleted()) {
+            // 🔥 Boolean deleted 대응
+            if (Boolean.TRUE.equals(user.getDeleted())) {
+
+                // 🔥 1단계 – 재가입 의사 확인
+                Boolean confirm = request.getRejoinConfirm();
+                if (confirm == null || !confirm) {
+                    return "REJOIN";
+                }
+
+                // 🔥 2단계 – 실제 재가입 처리
                 user.setDeleted(false);
                 user.setUsername(request.getUsername());
                 user.setPassword(passwordEncoder.encode(request.getPassword()));
                 userRepository.saveAndFlush(user);
 
-                if (request.isRestorePosts()) {
+                // 🔥 restorePosts
+                if (Boolean.TRUE.equals(request.isRestorePosts())) {
                     boardRepository.updateDeletedByUserId(user.getId(), false);
-                    System.out.println("✅ 게시글 복구 완료: userId=" + user.getId());
-                } else {
-                    System.out.println("🚫 게시글은 복원하지 않음 (DB에는 유지됨)");
                 }
 
-                boardRepository.updateUsernameByUserId(user.getId(), request.getUsername());
                 return "OK";
             }
 
+            // 이미 사용 중인 이메일
             return "EXISTS";
         }
 
-        // 신규 유저 등록
+        // 🔥 신규 가입
         if (!request.getPassword().equals(request.getPasswordCheck())) {
             throw InvalidPasswordException.EXCEPTION;
         }
@@ -124,17 +127,16 @@ public class AuthServiceImpl implements AuthService {
             throw new IllegalArgumentException("이미 존재하는 닉네임입니다.");
         }
 
-        String encodedPassword = passwordEncoder.encode(request.getPassword());
-
-        UserEntity user = UserEntity.builder()
+        UserEntity newUser = UserEntity.builder()
                 .email(request.getEmail())
                 .username(request.getUsername())
-                .password(encodedPassword)
+                .password(passwordEncoder.encode(request.getPassword()))
                 .role(UserRole.USER)
                 .deleted(false)
                 .build();
 
-        userRepository.saveAndFlush(user);
+        userRepository.saveAndFlush(newUser);
+
         return "OK";
     }
 
@@ -151,41 +153,46 @@ public class AuthServiceImpl implements AuthService {
         user.setDeleted(true);
         userRepository.saveAndFlush(user);
 
-        // ✅ 게시글도 함께 숨김 처리
+        // 🔥 게시글 soft delete
         boardRepository.updateDeletedByUserId(user.getId(), true);
         System.out.println("❌ 회원탈퇴 완료: userId=" + user.getId());
     }
 
-    // ✅ 새 버전 (PUT /user/me/v2 전용)
     @Override
     @Transactional
     public UserResponse updateMyInfo(String email, UserUpdateRequest request) {
         UserEntity user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
 
-        // ✅ 비밀번호 일치 검증
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
         }
 
-        // ✅ 비밀번호 확인 일치 여부
         if (!request.getPassword().equals(request.getPasswordCheck())) {
             throw new IllegalArgumentException("비밀번호 확인이 일치하지 않습니다.");
         }
 
-        // ✅ 닉네임 중복 체크 (본인 제외)
         if (!user.getUsername().equals(request.getUsername())
                 && userRepository.existsByUsername(request.getUsername())) {
             throw new IllegalArgumentException("이미 존재하는 닉네임입니다.");
         }
 
-        // ✅ 닉네임 변경
         user.setUsername(request.getUsername());
         userRepository.saveAndFlush(user);
 
-        // ✅ 게시판 작성자명도 일괄 변경
+        // 게시판 작성자명도 변경
         boardRepository.updateUsernameByUserId(user.getId(), request.getUsername());
 
         return new UserResponse(user);
+    }
+
+    @Override
+    @Transactional
+    public void updatePasswordByEmail(String email, String newPassword) {
+        UserEntity user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.saveAndFlush(user);
     }
 }

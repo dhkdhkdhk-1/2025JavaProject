@@ -20,7 +20,7 @@ public class BoardMapper {
                 .viewCount(entity.getViewCount() == null ? 0L : entity.getViewCount())
                 .createdAt(entity.getCreatedDateTime())
                 .modifiedAt(entity.getModifiedDateTime())
-                .deleted(entity.isDeleted())
+                .deleted(Boolean.TRUE.equals(entity.getDeleted()))
                 .build();
     }
 

@@ -18,4 +18,7 @@ public interface AuthService {
     void withdraw(WithdrawRequest request);
 
     UserResponse updateMyInfo(String email, UserUpdateRequest request);
+
+    void updatePasswordByEmail(String email, String newPassword);
+
 }

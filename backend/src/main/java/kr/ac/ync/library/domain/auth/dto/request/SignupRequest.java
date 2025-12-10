@@ -23,4 +23,6 @@ public class SignupRequest {
     private String passwordCheck;
 
     private boolean restorePosts; // ✅ 게시글 복원 여부
+
+    private Boolean rejoinConfirm;  // 재가입 확정 여부 (1단계/2단계 구분)
 }

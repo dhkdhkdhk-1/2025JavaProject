@@ -38,5 +38,6 @@ public class BoardEntity extends BaseTimeEntity {
 
     /** ✅ 게시글 soft delete 플래그 (DB에 남기지만 표시 안 함) */
     @Column(nullable = false)
-    private boolean deleted = false;
+    private Boolean deleted = false;
+
 }
