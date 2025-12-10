@@ -8,16 +8,16 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class CsRegisterRequest {
-    @NotNull
+public class CsUserRegisterRequest {
+    @NotNull(message = "지점을 선택해주세요.")
     private Long branchId;
 
-    @NotBlank(message = "")
+    @NotBlank(message = "제목을 입력해주세요.")
     private String title;
 
-    @NotBlank(message = "")
+    @NotBlank(message = "내용을 입력해주세요.")
     private String content;
 
-    @NotNull
+    @NotNull(message = "카테고리를 선택해주세요.")
     private CsCategory category;
 }

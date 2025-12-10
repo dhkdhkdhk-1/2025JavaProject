@@ -55,6 +55,7 @@ public class SecurityConfig {
                         .requestMatchers("/book/**").permitAll()
                         .requestMatchers("/branch/**").permitAll()
                         // ✅ cs 관련 코드
+                        .requestMatchers("/cs/admin/**").hasAnyRole("ADMIN", "MANAGER")
                         .requestMatchers("/cs/**").authenticated()
 
                         // ✅ 나머지는 로그인 필요

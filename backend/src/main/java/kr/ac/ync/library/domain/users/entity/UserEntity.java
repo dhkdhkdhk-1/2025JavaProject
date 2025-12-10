@@ -1,6 +1,7 @@
 package kr.ac.ync.library.domain.users.entity;
 
 import jakarta.persistence.*;
+import kr.ac.ync.library.domain.branch.entity.BranchEntity;
 import kr.ac.ync.library.domain.users.entity.enums.UserRole;
 import kr.ac.ync.library.global.common.entity.BaseTimeEntity;
 import lombok.*;
@@ -34,6 +35,10 @@ public class UserEntity extends BaseTimeEntity {
     @Builder.Default
     private boolean deleted = false;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "branch_id")
+    private BranchEntity branch;
+
     public void changeUsername(String username) {
         if (username != null && !username.isBlank()) {
             this.username = username;
@@ -51,5 +56,4 @@ public class UserEntity extends BaseTimeEntity {
             this.role = newRole;
         }
     }
-
 }
