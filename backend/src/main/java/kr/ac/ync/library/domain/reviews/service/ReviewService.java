@@ -1,6 +1,6 @@
 package kr.ac.ync.library.domain.reviews.service;
 
-import kr.ac.ync.library.domain.reviews.dto.Review;
+import kr.ac.ync.library.domain.reviews.dto.ReviewDetailResponse;
 import kr.ac.ync.library.domain.reviews.dto.ReviewModRequest;
 import kr.ac.ync.library.domain.reviews.dto.ReviewRegisterRequest;
 import kr.ac.ync.library.domain.reviews.dto.ReviewResponse;
@@ -13,11 +13,13 @@ public interface ReviewService {
 
     void register(ReviewRegisterRequest request, Long bookId, Long userId);
 
-    List<Review> findByBookId(Long bookId);
+    List<ReviewDetailResponse> findTop6ByBookId(Long bookId);
 
-    void modify(ReviewModRequest request);
+    Page<ReviewDetailResponse> findByBookIdPaged(Long bookId, Pageable pageable);
 
-    void remove(Long id);
+    void modify(ReviewModRequest request, Long userId);
+
+    void remove(Long id, Long userId);
 
     List<ReviewResponse> getList();
 
@@ -25,6 +27,5 @@ public interface ReviewService {
 
     List<ReviewResponse> findByUserId(Long userId);
 
-    // ✅ 단일 리뷰 조회
-    Review findById(Long id); // 추가
+    ReviewDetailResponse findById(Long id);
 }

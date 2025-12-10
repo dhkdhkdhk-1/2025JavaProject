@@ -1,8 +1,7 @@
 package kr.ac.ync.library.domain.reviews.mapper;
 
-import kr.ac.ync.library.domain.books.dto.BookResponse;
 import kr.ac.ync.library.domain.books.entity.BookEntity;
-import kr.ac.ync.library.domain.reviews.dto.Review;
+import kr.ac.ync.library.domain.reviews.dto.ReviewDetailResponse;
 import kr.ac.ync.library.domain.reviews.dto.ReviewRegisterRequest;
 import kr.ac.ync.library.domain.reviews.dto.ReviewResponse;
 import kr.ac.ync.library.domain.reviews.entity.ReviewEntity;
@@ -10,7 +9,6 @@ import kr.ac.ync.library.domain.users.entity.UserEntity;
 
 public class ReviewMapper {
 
-    // 등록용
     public static ReviewEntity toEntity(ReviewRegisterRequest request, UserEntity user, BookEntity book) {
         return ReviewEntity.builder()
                 .user(user)
@@ -21,9 +19,8 @@ public class ReviewMapper {
                 .build();
     }
 
-    // 조회용
-    public static Review toDTO(ReviewEntity entity) {
-        return Review.builder()
+    public static ReviewDetailResponse toDTO(ReviewEntity entity) {
+        return ReviewDetailResponse.builder()
                 .id(entity.getId())
                 .bookId(entity.getBook().getId())
                 .bookTitle(entity.getBook().getTitle())
@@ -42,7 +39,7 @@ public class ReviewMapper {
                 .bookId(entity.getBook().getId())
                 .bookTitle(entity.getBook().getTitle())
                 .userId(entity.getUser().getId())
-                .username(entity.getUser().getUsername()) // UserEntity에 username 필드 있어야 함
+                .username(entity.getUser().getUsername())
                 .title(entity.getTitle())
                 .comment(entity.getComment())
                 .rating(entity.getRating())

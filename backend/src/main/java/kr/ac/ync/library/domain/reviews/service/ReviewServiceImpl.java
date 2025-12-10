@@ -1,17 +1,16 @@
 package kr.ac.ync.library.domain.reviews.service;
 
-import kr.ac.ync.library.domain.books.dto.BookResponse;
 import kr.ac.ync.library.domain.books.entity.BookEntity;
 import kr.ac.ync.library.domain.books.exception.BookNotFoundException;
-import kr.ac.ync.library.domain.books.mapper.BookMapper;
 import kr.ac.ync.library.domain.books.repository.BookRepository;
-import kr.ac.ync.library.domain.reviews.dto.Review;
+import kr.ac.ync.library.domain.reviews.dto.ReviewDetailResponse;
 import kr.ac.ync.library.domain.reviews.dto.ReviewModRequest;
 import kr.ac.ync.library.domain.reviews.dto.ReviewRegisterRequest;
 import kr.ac.ync.library.domain.reviews.dto.ReviewResponse;
 import kr.ac.ync.library.domain.reviews.entity.ReviewEntity;
 import kr.ac.ync.library.domain.reviews.exception.DuplicateReviewException;
 import kr.ac.ync.library.domain.reviews.exception.ReviewNotFoundException;
+import kr.ac.ync.library.domain.reviews.exception.UserNotMatchedException;
 import kr.ac.ync.library.domain.reviews.mapper.ReviewMapper;
 import kr.ac.ync.library.domain.reviews.repository.ReviewRepository;
 import kr.ac.ync.library.domain.users.entity.UserEntity;
@@ -35,7 +34,6 @@ public class ReviewServiceImpl implements ReviewService {
     private final UserRepository userRepository;
     private final BookRepository bookRepository;
 
-    // 리뷰 등록
     @Override
     public void register(ReviewRegisterRequest request, Long bookId, Long userId) {
         UserEntity user = userRepository.findById(userId)
@@ -44,73 +42,88 @@ public class ReviewServiceImpl implements ReviewService {
         BookEntity book = bookRepository.findById(bookId)
                 .orElseThrow(() -> BookNotFoundException.EXCEPTION);
 
-        // ✅ 이미 해당 유저가 이 책에 리뷰를 쓴 적 있는지 확인
-        boolean exists = reviewRepository.existsByBookAndUser(book, user);
-        if (exists) {
+        if (reviewRepository.existsByBookAndUser(book, user)) {
             throw DuplicateReviewException.EXCEPTION;
         }
 
-        ReviewEntity reviewEntity = ReviewMapper.toEntity(request, user, book);
-        reviewRepository.save(reviewEntity);
+        ReviewEntity entity = ReviewMapper.toEntity(request, user, book);
+        reviewRepository.save(entity);
     }
 
-    // 책별 리뷰 조회
     @Override
-    public List<Review> findByBookId(Long bookId) {
-        return reviewRepository.findByBookId(bookId)
+    public List<ReviewDetailResponse> findTop6ByBookId(Long bookId) {
+        return reviewRepository.findTop6ByBookId(bookId, Pageable.ofSize(6))
                 .stream()
                 .map(ReviewMapper::toDTO)
                 .toList();
     }
 
-    // 리뷰 수정
     @Override
-    public void modify(ReviewModRequest request) {
-        ReviewEntity oldReview = reviewRepository.findById(request.getId())
+    public Page<ReviewDetailResponse> findByBookIdPaged(Long bookId, Pageable pageable) {
+        Page<ReviewEntity> page = reviewRepository.findByBookIdPaged(bookId, pageable);
+
+        List<ReviewDetailResponse> list = page.getContent()
+                .stream()
+                .map(ReviewMapper::toDTO)
+                .toList();
+
+        return new PageImpl<>(list, pageable, page.getTotalElements());
+    }
+
+    @Override
+    public void modify(ReviewModRequest request, Long userId) {
+
+        ReviewEntity old = reviewRepository.findById(request.getId())
                 .orElseThrow(() -> ReviewNotFoundException.EXCEPTION);
 
-        ReviewEntity updatedReview = ReviewEntity.builder()
-                .id(oldReview.getId())
-                .user(oldReview.getUser())
-                .book(oldReview.getBook())
+        if (!old.getUser().getId().equals(userId)) {
+            throw UserNotMatchedException.EXCEPTION;
+        }
+
+        ReviewEntity updated = ReviewEntity.builder()
+                .id(old.getId())
+                .user(old.getUser())
+                .book(old.getBook())
                 .title(request.getTitle())
                 .comment(request.getComment())
                 .rating(request.getRating())
                 .build();
 
-        reviewRepository.save(updatedReview);
+        reviewRepository.save(updated);
     }
 
-    // 리뷰 삭제
     @Override
-    public void remove(Long id) {
-        reviewRepository.findById(id)
+    public void remove(Long id, Long userId) {
+        ReviewEntity review = reviewRepository.findById(id)
                 .orElseThrow(() -> ReviewNotFoundException.EXCEPTION);
-        reviewRepository.deleteById(id);
+
+        if (!review.getUser().getId().equals(userId)) {
+            throw UserNotMatchedException.EXCEPTION;
+        }
+
+        reviewRepository.delete(review);
     }
 
-    // 모든 리뷰 조회
     @Override
     public List<ReviewResponse> getList() {
         return reviewRepository.findAll()
-                .stream().map(ReviewMapper::toResponse).toList();
+                .stream()
+                .map(ReviewMapper::toResponse)
+                .toList();
     }
 
-    // 리뷰 목록을 페이지네이션
     @Override
     public Page<ReviewResponse> getList(Pageable pageable) {
-        Pageable fixedPageable = Pageable.ofSize(6).withPage(pageable.getPageNumber());
+        Page<ReviewEntity> page = reviewRepository.findAll(pageable);
 
-        Page<ReviewEntity> page = reviewRepository.findAll(fixedPageable);
-        List<ReviewResponse> responses = page.getContent()
+        List<ReviewResponse> list = page.getContent()
                 .stream()
                 .map(ReviewMapper::toResponse)
                 .toList();
 
-        return new PageImpl<>(responses, fixedPageable, page.getTotalElements());
+        return new PageImpl<>(list, pageable, page.getTotalElements());
     }
 
-    // 사용자 ID로 리뷰 목록 조회
     @Override
     public List<ReviewResponse> findByUserId(Long userId) {
         return reviewRepository.findByUserId(userId)
@@ -119,12 +132,11 @@ public class ReviewServiceImpl implements ReviewService {
                 .toList();
     }
 
-    // ✅ 단일 리뷰 조회
     @Override
-    public Review findById(Long id) {
+    public ReviewDetailResponse findById(Long id) {
         ReviewEntity entity = reviewRepository.findById(id)
                 .orElseThrow(() -> ReviewNotFoundException.EXCEPTION);
+
         return ReviewMapper.toDTO(entity);
     }
-
 }
