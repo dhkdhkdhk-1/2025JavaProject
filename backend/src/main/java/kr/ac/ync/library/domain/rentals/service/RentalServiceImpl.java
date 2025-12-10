@@ -84,11 +84,17 @@ public class RentalServiceImpl implements RentalService{
 
     @Override
     public RentalResponse findById(Long id) {
-        return RentalMapper.toResponse(rentalRepository.findById(id).orElseThrow(() -> RentalNotFoundException.EXCEPTION));
+        return RentalMapper.toResponse(
+                rentalRepository.findById(id)
+                        .orElseThrow(() -> RentalNotFoundException.EXCEPTION)
+        );
     }
 
     @Override
     public List<RentalResponse> findOverdueRentals(){
-        return rentalRepository.findOverdueRentals().stream().map(RentalMapper::toResponse).toList();
+        return rentalRepository.findOverdueRentals()
+                .stream()
+                .map(RentalMapper::toResponse)
+                .toList();
     }
 }

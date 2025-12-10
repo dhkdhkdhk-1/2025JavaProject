@@ -60,7 +60,7 @@ public class QRentalEntity extends EntityPathBase<RentalEntity> {
         super(type, metadata, inits);
         this.book = inits.isInitialized("book") ? new kr.ac.ync.library.domain.books.entity.QBookEntity(forProperty("book")) : null;
         this.branch = inits.isInitialized("branch") ? new kr.ac.ync.library.domain.branch.entity.QBranchEntity(forProperty("branch")) : null;
-        this.user = inits.isInitialized("user") ? new kr.ac.ync.library.domain.users.entity.QUserEntity(forProperty("user")) : null;
+        this.user = inits.isInitialized("user") ? new kr.ac.ync.library.domain.users.entity.QUserEntity(forProperty("user"), inits.get("user")) : null;
     }
 
 }

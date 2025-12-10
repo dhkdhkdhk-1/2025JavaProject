@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @Builder
-public class ReviewResponse {
+public class ReviewDetailResponse {
 
     private Long id;
     private Long bookId;
