@@ -12,6 +12,7 @@ interface InputFieldProps {
   autoComplete?: string;
   name?: string;
   inputId?: string;
+  onFocus?: () => void;
 }
 
 export const InputField: React.FC<InputFieldProps> = ({
@@ -26,6 +27,7 @@ export const InputField: React.FC<InputFieldProps> = ({
   autoComplete,
   name,
   inputId,
+  onFocus,
 }) => {
   return (
     <div className={className || "signup-input"}>
@@ -43,6 +45,7 @@ export const InputField: React.FC<InputFieldProps> = ({
         onChange={onChange}
         placeholder={placeholder}
         autoComplete={autoComplete}
+        onFocus={onFocus}
       />
     </div>
   );
