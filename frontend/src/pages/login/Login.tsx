@@ -17,7 +17,6 @@ const Login: React.FC = () => {
   const [remember, setRemember] = useState(false);
 
   const [savedEmails, setSavedEmails] = useState<string[]>([]);
-  const [showDropdown, setShowDropdown] = useState(false);
 
   const navigate = useNavigate();
 
@@ -68,20 +67,6 @@ const Login: React.FC = () => {
     }
   };
 
-  /** 이메일 입력창 Focus 시 dropdown 표시 */
-  const handleEmailFocus = () => {
-    if (savedEmails.length > 0) {
-      setShowDropdown(true);
-    }
-  };
-
-  /** 다른 곳 클릭 시 dropdown 닫기 */
-  useEffect(() => {
-    const handleClickOutside = () => setShowDropdown(false);
-    document.addEventListener("click", handleClickOutside);
-    return () => document.removeEventListener("click", handleClickOutside);
-  }, []);
-
   return (
     <div className="login-page">
       <TextContentTitle title="ログイン" className="login-title" />
@@ -96,47 +81,11 @@ const Login: React.FC = () => {
             value={email}
             valueType="value"
             onChange={(e) => setEmail(e.target.value)}
-            onFocus={handleEmailFocus}
             type="email"
-            name="email"
+            name="username"
             inputId="login-email"
-            autoComplete="off"
+            autoComplete="username" // 🔥 자동완성 활성화
           />
-
-          {/* Dropdown */}
-          {showDropdown && savedEmails.length > 0 && (
-            <div className="email-dropdown">
-              {savedEmails.map((item, idx) => (
-                <div key={idx} className="dropdown-item">
-                  <span
-                    className="dropdown-email-text"
-                    onClick={() => {
-                      setEmail(item);
-                      setShowDropdown(false);
-                    }}
-                  >
-                    {item}
-                  </span>
-
-                  {/* X 삭제 버튼 */}
-                  <span
-                    className="dropdown-delete-btn"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      const updated = savedEmails.filter((v) => v !== item);
-                      setSavedEmails(updated);
-                      localStorage.setItem(
-                        "savedEmails",
-                        JSON.stringify(updated)
-                      );
-                    }}
-                  >
-                    ✖
-                  </span>
-                </div>
-              ))}
-            </div>
-          )}
         </div>
 
         {/* 비밀번호 입력 */}
