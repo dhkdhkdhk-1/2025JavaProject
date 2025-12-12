@@ -25,9 +25,28 @@ public class AuthController {
 
     private final AuthService authService;
     private final UserRepository userRepository;
-    private final MailService mailService; // ⭐ 기존 방식 그대로 주입
+    private final MailService mailService;
+
+    // ✅ 비밀번호 찾기용 (기존 그대로 유지)
     private final Map<String, String> verifyCodeStore = new ConcurrentHashMap<>();
 
+    // ✅ 회원가입 인증번호용 구조체 + Map 추가
+    private static class VerifyData {
+        String code;
+        long timestamp;
+
+        VerifyData(String code, long timestamp) {
+            this.code = code;
+            this.timestamp = timestamp;
+        }
+    }
+
+    // 회원가입용 인증번호 저장소
+    private final Map<String, VerifyData> signupVerifyStore = new ConcurrentHashMap<>();
+
+    // ========================
+    // 로그인 / 토큰
+    // ========================
     @PostMapping
     public ResponseEntity<JsonWebTokenResponse> auth(@Valid @RequestBody AuthenticationRequest request) {
         return ResponseEntity.ok(authService.auth(request));
@@ -46,6 +65,9 @@ public class AuthController {
         return ResponseEntity.ok(authService.refresh(request.getRefreshToken()));
     }
 
+    // ========================
+    // 회원가입
+    // ========================
     @PostMapping("/signup")
     public ResponseEntity<String> signup(@Valid @RequestBody SignupRequest request) {
         String result = authService.signup(request);
@@ -61,12 +83,18 @@ public class AuthController {
         return ResponseEntity.ok(result);
     }
 
+    // ========================
+    // 회원탈퇴
+    // ========================
     @PostMapping("/withdraw")
     public ResponseEntity<String> withdraw(@Valid @RequestBody WithdrawRequest request) {
         authService.withdraw(request);
         return ResponseEntity.ok("会員脱退が完了されました。");
     }
 
+    // ========================
+    // 이메일 중복 확인
+    // ========================
     @PostMapping("/check-email")
     public ResponseEntity<?> checkEmail(@RequestBody Map<String, String> request) {
         String email = request.get("email");
@@ -90,6 +118,9 @@ public class AuthController {
         return ResponseEntity.ok(Map.of("rejoin", false, "message", "使用可能なメールです。"));
     }
 
+    // ========================
+    // 비밀번호 찾기 : 인증번호 발송 (기존 로직)
+    // ========================
     @PostMapping("/find-password/send-code")
     public ResponseEntity<?> sendVerifyCode(@RequestBody Map<String, String> request) {
         String email = request.get("email");
@@ -149,12 +180,14 @@ public class AuthController {
                     .body(Map.of("success", false, "message", "メールが存在しません。"));
         }
 
-        UserEntity user = userOpt.get();
         authService.updatePasswordByEmail(email, newPassword);
 
         return ResponseEntity.ok(Map.of("success", true));
     }
 
+    // ========================
+    // 회원가입용 인증번호 발송 (3분 유효)
+    // ========================
     @PostMapping("/signup/send-code")
     public ResponseEntity<?> sendSignupVerifyCode(@RequestBody Map<String, String> request) {
         String email = request.get("email");
@@ -164,7 +197,7 @@ public class AuthController {
             return ResponseEntity.badRequest().body(Map.of("message", "メールを入力してください。"));
         }
 
-        // 2) 이미 가입된 이메일인지 확인
+        // 2) 이미 가입된 이메일인지 확인 (탈퇴 X)
         var userOpt = userRepository.findByEmail(email);
         if (userOpt.isPresent() && !userOpt.get().getDeleted()) {
             return ResponseEntity.status(409).body(Map.of("message", "既に存在しているメールです。"));
@@ -173,8 +206,8 @@ public class AuthController {
         // 3) 인증번호 생성
         String code = String.valueOf((int)(Math.random() * 900000) + 100000);
 
-        // 메모리 저장소에 저장 (10분 등 유효시간 로직은 프론트 타이머로 처리)
-        verifyCodeStore.put(email, code);
+        // ⭐ timestamp 포함해서 저장
+        signupVerifyStore.put(email, new VerifyData(code, System.currentTimeMillis()));
 
         // 4) 메일 템플릿
         String subject = "[会員登録 認証番号]";
@@ -188,7 +221,7 @@ public class AuthController {
         認証番号は3分間のみ有効です。
 
         -- YNC Library System --
-    """.formatted(code);
+        """.formatted(code);
 
         // 5) 이메일 발송
         mailService.sendEmail(email, subject, text);
@@ -196,50 +229,80 @@ public class AuthController {
         return ResponseEntity.ok(Map.of("message", "認証番号をメールに送信しました。"));
     }
 
+    // ========================
+    // 회원가입용 인증번호 검증 (만료 여부 포함)
+    // ========================
     @PostMapping("/signup/verify-code")
     public ResponseEntity<?> verifySignupCode(@RequestBody Map<String, String> request) {
         String email = request.get("email");
         String code = request.get("code");
 
         if (email == null || code == null) {
-            return ResponseEntity.badRequest().body(Map.of("verified", false));
+            return ResponseEntity.badRequest().body(Map.of(
+                    "verified", false,
+                    "expired", true
+            ));
         }
 
-        String savedCode = verifyCodeStore.get(email);
-        boolean verified = savedCode != null && savedCode.equals(code);
+        VerifyData data = signupVerifyStore.get(email);
 
-        return ResponseEntity.ok(Map.of("verified", verified));
+        // 저장된 데이터가 없으면 → 만료 또는 발송 안됨
+        if (data == null) {
+            return ResponseEntity.ok(Map.of(
+                    "verified", false,
+                    "expired", true
+            ));
+        }
+
+        long now = System.currentTimeMillis();
+        long diffSec = (now - data.timestamp) / 1000;
+
+        // 3분(180초) 초과 → 만료 처리
+        if (diffSec > 180) {
+            signupVerifyStore.remove(email);
+            return ResponseEntity.ok(Map.of(
+                    "verified", false,
+                    "expired", true
+            ));
+        }
+
+        boolean verified = data.code.equals(code);
+
+        return ResponseEntity.ok(Map.of(
+                "verified", verified,
+                "expired", false
+        ));
     }
 
+    // ========================
+    // 닉네임 중복 확인 (재가입 시 본인 닉네임 허용)
+    // ========================
     @PostMapping("/check-username")
     public ResponseEntity<?> checkUsername(@RequestBody Map<String, String> request) {
         String username = request.get("username");
-        String email = request.get("email"); // 📌 추가
+        String email = request.get("email"); // 재가입 / 본인 수정 시 사용
 
         if (username == null || username.isBlank()) {
             return ResponseEntity.badRequest().body(Map.of("available", false));
         }
 
-        // 📌 email 이 있는 경우 = 재가입 체크 (또는 현재 본인 정보 수정)
+        // email 이 있는 경우 = 재가입 or 내 정보 수정
         if (email != null && !email.isBlank()) {
             var userOpt = userRepository.findByEmail(email);
 
             if (userOpt.isPresent()) {
                 UserEntity user = userOpt.get();
 
-                // 📌 기존 유저 닉네임과 완전히 동일하다면 → 중복 아님
+                // 기존 유저 닉네임과 동일하면 → 사용 가능
                 if (username.equals(user.getUsername())) {
                     return ResponseEntity.ok(Map.of("available", true));
                 }
             }
         }
 
-        // ▼ 일반 중복 체크
         boolean exists = userRepository.existsByUsername(username);
 
         return ResponseEntity.ok(Map.of("available", !exists));
     }
-
-
 
 }

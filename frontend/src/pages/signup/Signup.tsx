@@ -99,9 +99,15 @@ const Signup: React.FC = () => {
       return;
     }
 
-    const ok = await verifySignupCode(email, verifyCode);
+    const result = await verifySignupCode(email, verifyCode);
 
-    if (!ok) {
+    if (result.expired) {
+      alert("認証番号の有効期限が切れました。再送信してください。");
+      setIsVerified(false);
+      return;
+    }
+
+    if (!result.verified) {
       alert("認証番号が間違っています。");
       return;
     }

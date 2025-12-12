@@ -259,16 +259,20 @@ export const sendSignupVerifyCode = async (email: string): Promise<boolean> => {
 export const verifySignupCode = async (
   email: string,
   code: string
-): Promise<boolean> => {
+): Promise<{ verified: boolean; expired: boolean }> => {
   try {
     const res = await api.post(
       "/auth/signup/verify-code",
       { email, code },
       { headers: { skipAuthInterceptor: "true" } }
     );
-    return res.data.verified === true;
+
+    return {
+      verified: res.data.verified === true,
+      expired: res.data.expired === true,
+    };
   } catch {
-    return false;
+    return { verified: false, expired: true };
   }
 };
 
