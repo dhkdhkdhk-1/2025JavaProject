@@ -1,158 +1,259 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { getMe, User } from "../../../api/AuthApi"; // 로그인한 유저 정보 가져오는 API
+import { getMe } from "../../../api/AuthApi";
+import {
+  getCsDetail,
+  answerCs,
+  CsDetailResponse,
+  CsCategory,
+  CsAdminAnswerRequest,
+} from "../../../api/CsApi";
 import "./AnswerWrite.css";
 
-interface CsDetail {
-  id: number;
-  username: string;
-  branchName: string;
-  title: string;
-  content: string;
-  answerContent?: string;
-  status: string;
-  csCategory: string;
-  createdAt: string;
-}
+// ✅ 카테고리 한글 변환
+const getCategoryLabel = (category: CsCategory): string => {
+  switch (category) {
+    case CsCategory.BOOK:
+      return "書籍関連";
+    case CsCategory.ACCOUNT:
+      return "アカウント関連";
+    case CsCategory.ETC:
+      return "その他";
+    default:
+      return category;
+  }
+};
 
-const MyCsListDetail: React.FC = () => {
+const AnswerWrite: React.FC = () => {
+  const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-<<<<<<< HEAD
-
-  return <div className="title">문의 페이지
-  </div>
-=======
-  const [cs, setCs] = useState<CsDetail | null>(null);
-  const [, setUser] = useState<User | null>(null); // 유저 정보
+  const [cs, setCs] = useState<CsDetailResponse | null>(null);
+  const [answerContent, setAnswerContent] = useState("");
   const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  // ✅ 더미데이터 목록
-  const dummyData: CsDetail[] = [
-    {
-      id: 1,
-      username: "홍길동",
-      branchName: "서울지점",
-      title: "도서 반납이 안돼요",
-      content: "도서를 반납했는데 시스템에 반영이 안됐어요.",
-      answerContent: "확인 후 반영 완료했습니다. 이용해 주셔서 감사합니다 😊",
-      status: "COMPLETED",
-      csCategory: "도서관련",
-      createdAt: "2025-10-20T14:30:00",
-    },
-    {
-      id: 2,
-      username: "홍길동",
-      branchName: "부산지점",
-      title: "로그인이 안돼요",
-      content: "비밀번호를 바꿨는데 접속이 안돼요.",
-      answerContent: "",
-      status: "WAITING",
-      csCategory: "계정관련",
-      createdAt: "2025-10-19T09:00:00",
-    },
-    {
-      id: 3,
-      username: "홍길동",
-      branchName: "대구지점",
-      title: "홈페이지 오류",
-      content: "문의 작성 버튼이 안 눌러집니다.",
-      answerContent: "현재 개발팀이 수정 중입니다.",
-      status: "ANSWERING",
-      csCategory: "기타",
-      createdAt: "2025-10-18T11:45:00",
-    },
-  ];
-
-  // ✅ 페이지 진입 시 로그인 상태 및 유저 정보 확인
+  // ✅ 페이지 진입 시 로그인 상태 및 문의 상세 정보 로딩
   useEffect(() => {
-    const token = localStorage.getItem("accessToken");
-    if (!token) {
-      alert("로그인이 필요합니다.");
-      navigate("/login", { replace: true });
+    const loadData = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        const token = localStorage.getItem("accessToken");
+        if (!token) {
+          alert("ログインが必要です。");
+          navigate("/login", { replace: true });
+          return;
+        }
+
+        // 유저 정보 가져오기
+        const userData = await getMe();
+
+        // 관리자 권한 확인
+        if (userData.role !== "ADMIN" && userData.role !== "MANAGER") {
+          alert("このページにアクセスする権限がありません。");
+          navigate("/admin/answer", { replace: true });
+          return;
+        }
+
+        // 문의 상세 정보 가져오기
+        if (id) {
+          const csData = await getCsDetail(Number(id));
+          setCs(csData);
+          // 이미 답변이 있으면 답변 내용을 초기값으로 설정
+          if (csData.answerContent) {
+            setAnswerContent(csData.answerContent);
+          }
+        }
+      } catch (err: any) {
+        console.error("데이터 로딩 실패:", err);
+        if (err.response?.status === 401) {
+          alert("ログインが必要です。");
+          navigate("/login", { replace: true });
+        } else if (err.response?.status === 403) {
+          setError("このお問い合わせにアクセスする権限がありません。");
+        } else if (err.response?.status === 404) {
+          setError("お問い合わせが見つかりません。");
+        } else {
+          setError("お問い合わせの読み込みに失敗しました。");
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadData();
+  }, [id, navigate]);
+
+  // ✅ 답변 제출 핸들러
+  const handleSubmit = async () => {
+    if (!id) {
+      alert("お問い合わせIDが見つかりません。");
       return;
     }
 
-    // 유저 정보 가져오기
-    getMe()
-      .then((userData) => {
-        setUser(userData); // 로그인된 유저 정보 저장
-        // 더미 데이터에서 해당 ID의 내역을 찾기
-        const found = dummyData.find((item) => item.id === Number(id));
-        setCs(found || null); // 해당 ID의 내역을 찾으면 설정
-        setLoading(false);
-      })
-      .catch((error) => {
-        console.error("유저 정보를 가져오는 데 실패:", error);
-        navigate("/login", { replace: true }); // 로그인 페이지로 이동
-      });
-  }, [id, navigate]);
+    if (!answerContent.trim()) {
+      alert("回答内容を入力してください。");
+      return;
+    }
 
-  if (loading) return <div className="board-container">불러오는 중...</div>;
-  if (!cs)
-    return <div className="board-container">문의 내역을 찾을 수 없습니다.</div>;
+    try {
+      setSubmitting(true);
+      setError(null);
+
+      const request: CsAdminAnswerRequest = {
+        answerContent: answerContent.trim(),
+      };
+
+      await answerCs(Number(id), request);
+      alert("回答が登録されました。");
+      navigate("/admin/answer");
+    } catch (err: any) {
+      console.error("답변 등록 실패:", err);
+      if (err.response?.status === 401) {
+        alert("ログインが必要です。");
+        navigate("/login", { replace: true });
+      } else if (err.response?.status === 403) {
+        setError("このお問い合わせに回答する権限がありません。");
+      } else if (err.response?.status === 404) {
+        setError("お問い合わせが見つかりません。");
+      } else if (err.response?.status === 400) {
+        const errorMessage =
+          err.response?.data?.message || "入力内容を確認してください。";
+        setError(errorMessage);
+      } else {
+        setError("回答の登録に失敗しました。");
+      }
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="board-container">
+        <div style={{ textAlign: "center", padding: "50px" }}>読み込み中...</div>
+      </div>
+    );
+  }
+
+  if (error && !cs) {
+    return (
+      <div className="board-container">
+        <div style={{ textAlign: "center", padding: "50px", color: "red" }}>
+          {error}
+        </div>
+        <div style={{ textAlign: "right", marginTop: "20px" }}>
+          <button
+            className="board-button"
+            onClick={() => navigate("/admin/answer")}
+          >
+            リストに戻る
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (!cs) {
+    return (
+      <div className="board-container">
+        <div style={{ textAlign: "center", padding: "50px" }}>
+          お問い合わせが見つかりません。
+        </div>
+        <div style={{ textAlign: "right", marginTop: "20px" }}>
+          <button
+            className="board-button"
+            onClick={() => navigate("/admin/answer")}
+          >
+            リストに戻る
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="board-container">
-      <h1 className="board-title">{cs.title}</h1>
+      <h1 className="board-title">お問い合わせ回答</h1>
 
-      <div className="board-meta">
-        <div className="board-meta-row">
-          <span className="board-meta-left">
-            작성자: {cs.username} &nbsp; | &nbsp; {cs.branchName} |{" "}
-            {cs.csCategory}
-          </span>
-          <span className="board-meta-right">
-            작성일: {new Date(cs.createdAt).toLocaleString()}
-          </span>
-        </div>
-        <div className="board-meta-row">
-          <span className="board-meta-left">
-            상태:{" "}
-            <span
-              style={{
-                color:
-                  cs.status === "WAITING"
-                    ? "orange"
-                    : cs.status === "ANSWERING"
-                    ? "blue"
-                    : "green",
-                fontWeight: 600,
-              }}
-            >
-              {cs.status}
-            </span>
-          </span>
-        </div>
-      </div>
-
+      {/* ✅ 문의 내용 */}
       <div className="board-content">
-        <h3>📩 문의 내용</h3>
-        <p>{cs.content}</p>
+        <h3>📩 お問い合わせ内容</h3>
+        <p style={{ whiteSpace: "pre-wrap" }}>{cs.content}</p>
+            
+        {/* ✅ 문의 정보 표시 */}
+        <div className="board-meta">
+          <div className="board-meta-row">
+            <span className="board-meta-left">
+            件名: <strong>{cs.title}</strong>
+            </span>
+          <span className="board-meta-right">
+          <br />
+            作成日: {new Date(cs.createdAt).toLocaleString()}
+            
+          </span>
+        </div>
+        <div className="board-meta-row">
+          <span className="board-meta-left">
+            支店: {cs.branchName} <br />
+            分類: {getCategoryLabel(cs.category)}
+          </span>
+        </div>
+      </div>
       </div>
 
-      {cs.answerContent ? (
-        <div className="board-answer">
-          <h3>💬 관리자 답변</h3>
-          <p>{cs.answerContent}</p>
-        </div>
-      ) : (
-        <div className="board-answer waiting">
-          <h3>⌛ 답변 대기 중</h3>
+      {/* ✅ 답변 작성 영역 */}
+      <div style={{ marginTop: "30px" }}>
+        <label style={{ display: "block", marginBottom: "10px", fontWeight: 600 }}>
+          {cs.answerContent ? "回答を修正" : "回答を入力"}
+        </label>
+        <textarea
+          className="board-textarea"
+          rows={10}
+          value={answerContent}
+          onChange={(e) => setAnswerContent(e.target.value)}
+          placeholder="回答内容を入力してください"
+          disabled={submitting}
+        />
+      </div>
+
+      {/* ✅ 에러 메시지 */}
+      {error && (
+        <div
+          style={{
+            marginTop: "15px",
+            padding: "10px",
+            backgroundColor: "#ffe6e6",
+            color: "red",
+            borderRadius: "6px",
+          }}
+        >
+          {error}
         </div>
       )}
 
+      {/* ✅ 버튼 영역 */}
       <div style={{ textAlign: "right", marginTop: "20px" }}>
         <button
           className="board-button"
-          onClick={() => navigate("/cs")}
+          onClick={() => navigate("/admin/answer")}
           style={{ marginRight: "10px" }}
+          disabled={submitting}
         >
-          목록으로
+          キャンセル
+        </button>
+        <button
+          className="board-button"
+          onClick={handleSubmit}
+          disabled={submitting || !answerContent.trim()}
+        >
+          {submitting ? "登録中..." : cs.answerContent ? "回答を更新" : "回答を登録"}
         </button>
       </div>
     </div>
   );
->>>>>>> abe061a853eb88c2e7b7d48611e5aa971b0df4cd
 };
 
-export default MyCsListDetail;
+export default AnswerWrite;

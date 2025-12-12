@@ -145,7 +145,7 @@ const App: React.FC = () => {
           <Route path="users" element={<Users />} />
           <Route path="branches" element={<Branches />} />
           <Route path="answer" element={<Answer />} />
-          <Route path="" element={<AnswerWrite />} />
+          <Route path="answerwrite/:id" element={<AnswerWrite />} />
         </Route>
 
         {/* ✅ 기본 및 잘못된 경로 처리 */}
