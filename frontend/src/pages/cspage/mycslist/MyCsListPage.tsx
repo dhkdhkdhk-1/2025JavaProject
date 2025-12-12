@@ -1,23 +1,101 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { getMyCsList, CsUserListResponse, CsStatus, CsCategory } from "../../../api/CsApi";
 import "./MyCsListPage.css";
 
-interface CsResponse {
-  id: number;
-  userId: number;
-  username: string;
-  branchName: string;
-  title: string;
-  content: string;
-  answerContent?: string;
-  status: string;
-  csCategory: string;
-  createdAt: string;
-}
+// ✅ 카테고리 한글 변환
+const getCategoryLabel = (category: CsCategory): string => {
+  switch (category) {
+    case CsCategory.BOOK:
+      return "書籍関連";
+    case CsCategory.ACCOUNT:
+      return "アカウント関連";
+    case CsCategory.ETC:
+      return "その他";
+    default:
+      return category;
+  }
+};
+
+// ✅ 상태 한글 변환
+const getStatusLabel = (status: CsStatus): string => {
+  switch (status) {
+    case CsStatus.WAITING:
+      return "回答待ち";
+    case CsStatus.COMPLETED:
+      return "回答完了";
+    default:
+      return status;
+  }
+};
 
 const MyCsListPage: React.FC = () => {
   const navigate = useNavigate();
-  const [csList] = useState<CsResponse[]>([]);
+  const [csList, setCsList] = useState<CsUserListResponse[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
+  const [totalElements, setTotalElements] = useState(0);
+  const pageSize = 10;
+
+  // ✅ 문의 목록 로딩
+  useEffect(() => {
+    const loadCsList = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const token = localStorage.getItem("accessToken");
+        if (!token) {
+          alert("ログインが必要です。");
+          navigate("/login", { replace: true });
+          return;
+        }
+
+        const response = await getMyCsList(currentPage, pageSize);
+        setCsList(response.content);
+        setTotalPages(response.totalPages);
+        setTotalElements(response.totalElements);
+      } catch (err: any) {
+        console.error("문의 목록 로딩 실패:", err);
+        if (err.response?.status === 401) {
+          alert("ログインが必要です。");
+          navigate("/login", { replace: true });
+        } else {
+          setError("お問い合わせリストの読み込みに失敗しました。");
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadCsList();
+  }, [currentPage, navigate]);
+
+  // ✅ 페이지 변경 핸들러
+  const handlePageChange = (newPage: number) => {
+    if (newPage >= 0 && newPage < totalPages) {
+      setCurrentPage(newPage);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="board-container">
+        <div style={{ textAlign: "center", padding: "50px" }}>読み込み中...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="board-container">
+        <div style={{ textAlign: "center", padding: "50px", color: "red" }}>
+          {error}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="board-container">
@@ -30,7 +108,7 @@ const MyCsListPage: React.FC = () => {
             <tr>
               <th>番号</th>
               <th>タイトル</th>
-              <th>支店</th>
+              <th>分類</th>
               <th>状態</th>
               <th>作成日</th>
             </tr>
@@ -57,21 +135,17 @@ const MyCsListPage: React.FC = () => {
                   style={{ cursor: "pointer" }}
                   onClick={() => navigate(`/cs/detail/${c.id}`)}
                 >
-                  <td>{csList.length - index}</td>
+                  <td>{totalElements - (currentPage * pageSize + index)}</td>
                   <td style={{ textAlign: "left" }}>{c.title}</td>
-                  <td>{c.branchName}</td>
+                  <td>{getCategoryLabel(c.csCategory)}</td>
                   <td
                     style={{
                       color:
-                        c.status === "WAITING"
-                          ? "orange"
-                          : c.status === "ANSWERING"
-                          ? "blue"
-                          : "green",
+                        c.csStatus === CsStatus.WAITING ? "orange" : "green",
                       fontWeight: 600,
                     }}
                   >
-                    {c.status}
+                    {getStatusLabel(c.csStatus)}
                   </td>
                   <td>{new Date(c.createdAt).toLocaleDateString()}</td>
                 </tr>
@@ -80,6 +154,47 @@ const MyCsListPage: React.FC = () => {
           </tbody>
         </table>
       </div>
+
+      {/* ✅ 페이지네이션 */}
+      {totalPages > 1 && (
+        <div className="pagination" style={{ marginTop: "20px", justifyContent: "center" }}>
+          <button
+            className="board-button"
+            onClick={() => handlePageChange(0)}
+            disabled={currentPage === 0}
+            style={{ marginRight: "10px" }}
+          >
+            처음
+          </button>
+          <button
+            className="board-button"
+            onClick={() => handlePageChange(currentPage - 1)}
+            disabled={currentPage === 0}
+            style={{ marginRight: "10px" }}
+          >
+            이전
+          </button>
+          <span style={{ margin: "0 15px", lineHeight: "35px" }}>
+            {currentPage + 1} / {totalPages}
+          </span>
+          <button
+            className="board-button"
+            onClick={() => handlePageChange(currentPage + 1)}
+            disabled={currentPage >= totalPages - 1}
+            style={{ marginLeft: "10px" }}
+          >
+            다음
+          </button>
+          <button
+            className="board-button"
+            onClick={() => handlePageChange(totalPages - 1)}
+            disabled={currentPage >= totalPages - 1}
+            style={{ marginLeft: "10px" }}
+          >
+            마지막
+          </button>
+        </div>
+      )}
 
       {/* ✅ 버튼은 테이블 아래 오른쪽 정렬 */}
       <div className="table-footer">

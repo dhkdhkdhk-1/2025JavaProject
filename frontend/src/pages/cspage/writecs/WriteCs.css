@@ -34,7 +34,16 @@
   transition: all 0.2s ease;
 }
 
-.board-button:hover {
+.board-button:hover:not(:disabled) {
+  background-color: #444;
+}
+
+.board-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.board-button.active {
   background-color: #444;
 }
 

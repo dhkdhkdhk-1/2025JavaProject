@@ -67,6 +67,30 @@
   white-space: pre-wrap;
   word-break: break-word;
   overflow-wrap: break-word;
+  margin-bottom: 20px;
+}
+
+.board-answer {
+  background-color: #e8f4f8;
+  padding: 20px;
+  border-radius: 8px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  margin-top: 20px;
+  border-left: 4px solid #1a73e8;
+}
+
+.board-answer.waiting {
+  background-color: #fff9e6;
+  border-left-color: #ff9800;
+}
+
+.board-answer h3 {
+  margin-top: 0;
+  margin-bottom: 10px;
+  color: #333;
 }
 
 .board-table {

@@ -66,7 +66,7 @@ useEffect(() => {
   }
 
   fetchData();
-}, [id]);
+}, [id, navigate]);
 
 
   /** ✅ 찜하기/취소 */
@@ -94,6 +94,12 @@ useEffect(() => {
       alert("支店を選択してください。");
       return;
     }
+
+    // ✅ 수령 안내 알림: 3일 내 미수령 시 자동 취소 (한국어)
+    const proceed = window.confirm(
+      "3일 이내에 지점에서 수령해주세요. 수령하지 않으면 자동으로 취소됩니다. 계속 진행할까요?"
+    );
+    if (!proceed) return;
 
     try {
       await registerRental({

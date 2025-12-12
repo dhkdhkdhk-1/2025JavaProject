@@ -1,0 +1,105 @@
+/* ===== 전체 컨테이너 ===== */
+.board-container {
+  max-width: 1000px;
+  margin: 60px auto;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  padding: 40px 50px;
+}
+
+/* ===== 제목 ===== */
+.board-title {
+  text-align: center;
+  font-size: 4rem;
+  font-weight: 700;
+  margin-bottom: 30px;
+}
+
+/* ===== 메타 정보 영역 ===== */
+.board-meta {
+  font-size: 1.3rem;
+  color: #666;
+  margin-bottom: 20px;
+}
+
+.board-meta-row {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 5px;
+}
+
+.board-meta-left,
+.board-meta-right {
+  flex: 1;
+}
+
+.board-meta-right {
+  text-align: right;
+  white-space: nowrap;
+}
+
+/* ===== 문의 내용 박스 ===== */
+.board-content {
+  background-color: #f8f8f8;
+  padding: 22px;
+  border-radius: 8px;
+  margin-bottom: 27px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.board-content h3 {
+  margin-top: 0;
+  margin-bottom: 12px;
+  color: #333;
+}
+
+/* ===== textarea ===== */
+.board-textarea {
+  width: 700px;
+  padding: 12px;
+  border: 2px solid #ddd;
+  border-radius: 6px;
+  font-size: 2em;
+  min-height: 180px;
+  resize: vertical;
+}
+
+/* ===== 버튼 ===== */
+.board-button {
+  background-color: #222;
+  color: #fff;
+  padding: 8px 18px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.board-button:hover:not(:disabled) {
+  background-color: #444;
+}
+
+.board-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ===== 반응형 ===== */
+@media (max-width: 768px) {
+  .board-container {
+    padding: 25px;
+    margin: 20px;
+  }
+
+  .board-meta-row {
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .board-meta-right {
+    text-align: left;
+  }
+}
