@@ -97,7 +97,7 @@ export const login = async (
 /** 회원가입 */
 export const signup = async (
   data: SignupRequest
-): Promise<"OK" | "REJOIN" | "EXISTS" | "FAIL"> => {
+): Promise<"OK" | "REJOIN" | "EXISTS" | "NICKNAME_EXISTS" | "FAIL"> => {
   try {
     const res = await api.post("/auth/signup", data, {
       headers: {
@@ -113,9 +113,20 @@ export const signup = async (
 
     return "OK";
   } catch (error: any) {
-    if (axios.isAxiosError(error) && error.response?.status === 409) {
-      return "EXISTS";
+    if (axios.isAxiosError(error)) {
+      const msg = error.response?.data?.message || "";
+
+      // ⭐ 닉네임 중복 처리 추가
+      if (msg.includes("닉네임") || msg.includes("ニックネーム")) {
+        return "NICKNAME_EXISTS";
+      }
+
+      // 기존 이메일 중복 처리
+      if (error.response?.status === 409) {
+        return "EXISTS";
+      }
     }
+
     return "FAIL";
   }
 };
@@ -229,6 +240,53 @@ export const resetPassword = async (
   } catch (error) {
     console.error("パスワード再設定失敗:", error);
     return false;
+  }
+};
+
+export const sendSignupVerifyCode = async (email: string): Promise<boolean> => {
+  try {
+    await api.post(
+      "/auth/signup/send-code",
+      { email },
+      { headers: { skipAuthInterceptor: "true" } }
+    );
+    return true;
+  } catch {
+    return false;
+  }
+};
+
+export const verifySignupCode = async (
+  email: string,
+  code: string
+): Promise<boolean> => {
+  try {
+    const res = await api.post(
+      "/auth/signup/verify-code",
+      { email, code },
+      { headers: { skipAuthInterceptor: "true" } }
+    );
+    return res.data.verified === true;
+  } catch {
+    return false;
+  }
+};
+
+/** 닉네임 중복 확인 */
+export const checkUsername = async (
+  username: string,
+  email?: string
+): Promise<{ available: boolean }> => {
+  try {
+    const res = await api.post(
+      "/auth/check-username",
+      { username, email },
+      { headers: { skipAuthInterceptor: "true" } }
+    );
+
+    return res.data;
+  } catch {
+    return { available: false };
   }
 };
 
