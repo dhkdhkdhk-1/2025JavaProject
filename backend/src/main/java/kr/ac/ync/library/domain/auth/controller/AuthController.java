@@ -27,8 +27,8 @@ public class AuthController {
     private final UserRepository userRepository;
     private final MailService mailService;
 
-    // ✅ 비밀번호 찾기용 (기존 그대로 유지)
-    private final Map<String, String> verifyCodeStore = new ConcurrentHashMap<>();
+    // 비밀번호 찾기용 인증번호 저장소
+    private final Map<String, VerifyData> passwordVerifyStore = new ConcurrentHashMap<>();
 
     // ✅ 회원가입 인증번호용 구조체 + Map 추가
     private static class VerifyData {
@@ -122,22 +122,20 @@ public class AuthController {
     // 비밀번호 찾기 : 인증번호 발송 (기존 로직)
     // ========================
     @PostMapping("/find-password/send-code")
-    public ResponseEntity<?> sendVerifyCode(@RequestBody Map<String, String> request) {
+    public ResponseEntity<?> sendPasswordCode(@RequestBody Map<String, String> request) {
         String email = request.get("email");
 
-        // 1) 이메일이 등록되어 있는지 확인
         var userOpt = userRepository.findByEmail(email);
         if (userOpt.isEmpty()) {
-            return ResponseEntity
-                    .status(HttpStatus.NOT_FOUND)
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(Map.of("message", "登録されていないメールです。"));
         }
 
-        // 2) 인증번호 생성
         String code = String.valueOf((int)(Math.random() * 900000) + 100000);
-        verifyCodeStore.put(email, code);
 
-        // 3) 이메일 내용 작성
+        // ⭐ 비밀번호 찾기도 timestamp 적용
+        passwordVerifyStore.put(email, new VerifyData(code, System.currentTimeMillis()));
+
         String subject = "[パスワード再設定 認証番号]";
         String text = """
         こんにちは。
@@ -146,27 +144,50 @@ public class AuthController {
 
         認証番号: %s
 
-        認証番号は10分間のみ有効です。
+        認証番号は3分間のみ有効です。
 
         -- YNC Library System --
         """.formatted(code);
 
-        // 4) 메일 발송
         mailService.sendEmail(email, subject, text);
 
-        // 5) 성공 응답
         return ResponseEntity.ok(Map.of("message", "認証番号をメールに送信しました。"));
     }
 
     @PostMapping("/find-password/verify-code")
-    public ResponseEntity<?> verifyCode(@RequestBody Map<String, String> request) {
+    public ResponseEntity<?> verifyPasswordCode(@RequestBody Map<String, String> request) {
         String email = request.get("email");
         String code = request.get("code");
 
-        String savedCode = verifyCodeStore.get(email);
-        boolean verified = savedCode != null && savedCode.equals(code);
+        VerifyData data = passwordVerifyStore.get(email);
 
-        return ResponseEntity.ok(Map.of("verified", verified));
+        if (data == null) {
+            return ResponseEntity.ok(Map.of(
+                    "verified", false,
+                    "expired", true
+            ));
+        }
+
+        long now = System.currentTimeMillis();
+        long diffSec = (now - data.timestamp) / 1000;
+
+        // ⭐ 유효기간 5분(300초) 또는 3분(180초) 선택 가능
+        int expireSec = 300; // ← 여기만 180으로 바꾸면 바로 3분 적용됨
+
+        if (diffSec > expireSec) {
+            passwordVerifyStore.remove(email);
+            return ResponseEntity.ok(Map.of(
+                    "verified", false,
+                    "expired", true
+            ));
+        }
+
+        boolean verified = data.code.equals(code);
+
+        return ResponseEntity.ok(Map.of(
+                "verified", verified,
+                "expired", false
+        ));
     }
 
     @PostMapping("/find-password/reset-password")

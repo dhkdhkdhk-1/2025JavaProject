@@ -206,10 +206,11 @@ export const sendPasswordResetCode = async (
 };
 
 /** 인증번호 검증 */
+/** 인증번호 검증 */
 export const verifyPasswordResetCode = async (
   email: string,
   code: string
-): Promise<boolean> => {
+): Promise<{ verified: boolean; expired: boolean }> => {
   try {
     const res = await api.post(
       "/auth/find-password/verify-code",
@@ -217,10 +218,13 @@ export const verifyPasswordResetCode = async (
       { headers: { skipAuthInterceptor: "true" } }
     );
 
-    return res.data.verified === true;
+    return {
+      verified: res.data.verified === true,
+      expired: res.data.expired === true,
+    };
   } catch (error) {
     console.error("認証番号確認失敗:", error);
-    return false;
+    return { verified: false, expired: true };
   }
 };
 
