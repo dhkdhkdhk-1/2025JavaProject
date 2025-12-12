@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
 import "./ReviewSection.css";
-import { getReviewsByBookId, Review } from "../../../api/ReviewApi";
+import { getPagedReviewsByBookId, Review } from "../../../api/ReviewApi";
 
 interface ReviewProps {
   bookId: number;
   limit?: number; // 몇 개만 보여줄지
-  onMoreClick?: () => void; // ✅ 추가 (BookInfo에서 navigate 전달받음)
+  onMoreClick?: () => void;
 }
 
 const ReviewSection: React.FC<ReviewProps> = ({ bookId, limit, onMoreClick }) => {
@@ -17,13 +17,20 @@ const ReviewSection: React.FC<ReviewProps> = ({ bookId, limit, onMoreClick }) =>
     async function fetchReviews() {
       try {
         setLoading(true);
-        const data = await getReviewsByBookId(bookId);
+
+        // ⭐ 페이징 API 호출
+        const pageData = await getPagedReviewsByBookId(bookId, 0);
+
+        // pageData.content 가 리뷰 배열
+        const data: Review[] = pageData.content;
+
         // 최신순 정렬
         data.sort(
           (a, b) =>
             new Date(b.createdDateTime).getTime() -
             new Date(a.createdDateTime).getTime()
         );
+
         setReviews(data);
       } catch (err) {
         console.error(err);
@@ -41,6 +48,7 @@ const ReviewSection: React.FC<ReviewProps> = ({ bookId, limit, onMoreClick }) =>
   if (reviews.length === 0)
     return <div style={{ padding: 16 }}>登録されたレビューはありません。</div>;
 
+  // ⭐ limit가 있다면 일부만 표시
   const displayedReviews = limit ? reviews.slice(0, limit) : reviews;
 
   return (
@@ -91,7 +99,7 @@ const ReviewSection: React.FC<ReviewProps> = ({ bookId, limit, onMoreClick }) =>
           ))}
         </div>
 
-        {/* ✅ 리뷰 더보기 (전체 리뷰 페이지로 이동) */}
+        {/* 리뷰 더보기 */}
         {onMoreClick && (
           <div className="view-more-reviews" onClick={onMoreClick}>
             レビューをもっと見る

@@ -9,7 +9,7 @@ import {
   isWishlisted,
 } from "../../api/WishlistApi";
 import { registerRental } from "../../api/RentalApi";
-import { api } from "../../api/AuthApi"; // ✅ 추가 (axios 대신 사용)
+import { api } from "../../api/AuthApi";
 
 interface BranchStatus {
   branchId: number;
@@ -29,47 +29,40 @@ const BookInfo: React.FC = () => {
   const [selectedBranchId, setSelectedBranchId] = useState<number | "">("");
   const [wished, setWished] = useState(false);
 
-  const placeholder = "https://placehold.co/357x492?text=No+Image"; // ✅ 안전한 이미지 URL
+  const placeholder = "https://placehold.co/357x492?text=No+Image";
 
-  /** ✅ 도서 + 지점 + 찜 여부 불러오기 */
-useEffect(() => {
-  async function fetchData() {
-    try {
-      if (!id) return;
-      setLoading(true);
+  /** ⭐ 도서 + 지점 + 찜 여부 불러오기 (로그인 체크 제거) */
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        if (!id) return;
+        setLoading(true);
 
-      // ❌ axios → ✅ api (AuthApi 인스턴스)
-      const [bookRes, branchRes] = await Promise.all([
-        getBook(Number(id)),
-        api.get<BranchStatus[]>(`/book/${id}/branches`),
-      ]);
+        const [bookRes, branchRes] = await Promise.all([
+          getBook(Number(id)),
+          api.get<BranchStatus[]>(`/book/${id}/branches`),
+        ]);
 
-      setBook(bookRes);
-      setBranches(branchRes.data);
+        setBook(bookRes);
+        setBranches(branchRes.data);
 
-      const matchedBranch = branchRes.data.find((b) => b.available);
-      setSelectedBranchId(matchedBranch?.branchId ?? "");
+        const matchedBranch = branchRes.data.find((b) => b.available);
+        setSelectedBranchId(matchedBranch?.branchId ?? "");
 
-      const wishStatus = await isWishlisted(Number(id));
-      setWished(wishStatus);
-    } catch (e: any) {
-      console.error("도서 데이터 불러오기 오류:", e);
-      if (e.response?.status === 401) {
-        alert("セッションが切れたか、ログインが必要です。");
-        navigate("/login");
-      } else {
+        const wishStatus = await isWishlisted(Number(id));
+        setWished(wishStatus);
+      } catch (e) {
+        console.error("도서 데이터 불러오기 오류:", e);
         setErr("本の情報を取得できませんでした。");
+      } finally {
+        setLoading(false);
       }
-    } finally {
-      setLoading(false);
     }
-  }
 
-  fetchData();
-}, [id, navigate]);
+    fetchData();
+  }, [id]);
 
-
-  /** ✅ 찜하기/취소 */
+  /** ⭐ 찜하기 / 취소 */
   const handleWishlist = async () => {
     if (!id) return;
     try {
@@ -83,21 +76,19 @@ useEffect(() => {
         alert("お気に入りに追加しました！");
       }
     } catch {
-      alert("ログインが必要です。");
-      navigate("/login");
+      alert("お気に入り処理でエラーが発生しました。");
     }
   };
 
-  /** ✅ 도서 대여 */
+  /** ⭐ 대여 처리 */
   const handleRent = async () => {
     if (!id || !selectedBranchId) {
       alert("支店を選択してください。");
       return;
     }
 
-    // ✅ 수령 안내 알림: 3일 내 미수령 시 자동 취소 (한국어)
     const proceed = window.confirm(
-      "3일 이내에 지점에서 수령해주세요. 수령하지 않으면 자동으로 취소됩니다. 계속 진행할까요?"
+      "3日以内に支店で受け取ってください。受け取らない場合、自動的にキャンセルされます。進めますか？"
     );
     if (!proceed) return;
 
@@ -109,18 +100,12 @@ useEffect(() => {
 
       alert(`「${book?.title}」を正常にレンタルしました！`);
       navigate("/rental");
-    } catch (error: any) {
-      if (error.response?.status === 400) {
-        alert("すでにレンタル中、またはレンタルできない本です。");
-      } else if (error.response?.status === 401) {
-        alert("ログインが必要です。");
-        navigate("/login");
-      } else {
-        alert("レンタル中にエラーが発生しました。");
-      }
+    } catch {
+      alert("レンタル中にエラーが発生しました。");
     }
   };
 
+  /** ⭐ UI 렌더링 */
   if (loading) return <div style={{ padding: 16 }}>読み込み中...</div>;
   if (err) return <div style={{ padding: 16, color: "crimson" }}>{err}</div>;
   if (!book) return <div style={{ padding: 16 }}>本が見つかりません。</div>;
@@ -132,7 +117,8 @@ useEffect(() => {
       <section className="product-section">
         <div className="product-container">
           <div className="product-content">
-            {/* 왼쪽: 도서 이미지 */}
+
+            {/* 도서 이미지 */}
             <div className="product-image-container">
               <img
                 src={book.imageUrl || placeholder}
@@ -144,7 +130,7 @@ useEffect(() => {
               />
             </div>
 
-            {/* 오른쪽: 도서 정보 */}
+            {/* 도서 정보 */}
             <div className="product-details">
               <div className="breadcrumb">{book.category ?? "分類なし"}</div>
 
@@ -157,7 +143,7 @@ useEffect(() => {
                 著者: {book.author} | 出版社: {book.publisher}
               </div>
 
-              {/* ✅ 지점 선택 */}
+              {/* 지점 선택 */}
               <div className="branch-select-section">
                 <label className="location-label">支店を選択</label>
                 <select
@@ -184,7 +170,6 @@ useEffect(() => {
                 )}
 
                 <div>
-                  {/* ✅ 대여 버튼 */}
                   <button
                     className="rent-button"
                     disabled={!selectedBranch || !selectedBranch.available}
@@ -193,7 +178,6 @@ useEffect(() => {
                     レンタル
                   </button>
 
-                  {/* ✅ 찜 버튼 */}
                   <button
                     className={`rent-button ${wished ? "wish-active" : ""}`}
                     onClick={handleWishlist}
@@ -203,7 +187,7 @@ useEffect(() => {
                 </div>
               </div>
 
-              {/* ✅ 책 소개 */}
+              {/* 책 소개 */}
               <div className="accordion-container">
                 <div className="accordion-item open">
                   <div className="accordion-header">
@@ -217,7 +201,7 @@ useEffect(() => {
                 </div>
               </div>
 
-              {/* ✅ 평균 평점 */}
+              {/* 평점 */}
               <div className="star-rating">
                 {[...Array(5)].map((_, i) => (
                   <svg
@@ -239,13 +223,14 @@ useEffect(() => {
                 </span>
               </div>
 
-              {/* ✅ 리뷰 섹션 */}
+              {/* 리뷰 섹션 */}
               <ReviewSection
                 bookId={Number(id)}
                 limit={2}
                 onMoreClick={() => navigate(`/review/book/${id}`)}
               />
             </div>
+
           </div>
         </div>
       </section>

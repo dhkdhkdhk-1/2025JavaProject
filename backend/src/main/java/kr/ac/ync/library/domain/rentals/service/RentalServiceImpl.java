@@ -25,7 +25,7 @@ import java.util.List;
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class RentalServiceImpl implements RentalService{
+public class RentalServiceImpl implements RentalService {
 
     private final RentalRepository rentalRepository;
     private final UserRepository userRepository;
@@ -39,30 +39,27 @@ public class RentalServiceImpl implements RentalService{
         BookEntity book = bookRepository.findById(request.getBookId())
                 .orElseThrow(() -> BookNotFoundException.EXCEPTION);
         BranchEntity branch = branchRepository.findById(request.getBranchId())
-                .orElseThrow(() -> new RuntimeException("지점 정보를 찾을 수 없습니다."));
+                .orElseThrow(() -> new RuntimeException("지점 없음"));
 
         RentalEntity rental = RentalMapper.toEntity(user, book, branch);
         rentalRepository.save(rental);
 
-        // 도서 상태 변경
         book.markAsBorrowed();
         bookRepository.save(book);
     }
 
+    // 🔥 관리자 반납 처리
     @Override
-    public void returnBook(RentalReturnRequest request, Long userId) {
-        RentalEntity rental = rentalRepository.findById(request.getRentalId())
+    public void approveReturn(Long rentalId) {
+        RentalEntity rental = rentalRepository.findById(rentalId)
                 .orElseThrow(() -> RentalNotFoundException.EXCEPTION);
 
-        if (!rental.getUser().getId().equals(userId)) {
-            throw new RuntimeException("본인 대여만 반납할 수 있습니다.");
-        }
+        if (rental.isReturned()) return;
 
         rental.setReturned(true);
         rental.setReturnDate(LocalDateTime.now());
-        rental.setStatus("반납완료");
+        rental.setStatus("返却済み");
 
-        // 도서 상태 복구
         BookEntity book = rental.getBook();
         book.markAsReturned();
         bookRepository.save(book);
@@ -71,15 +68,19 @@ public class RentalServiceImpl implements RentalService{
     @Override
     public List<RentalResponse> getList() {
         return rentalRepository.findAll()
-                .stream().map(RentalMapper::toResponse)
-                .toList();
+                .stream().map(RentalMapper::toResponse).toList();
     }
 
     @Override
     public List<RentalResponse> getListByUser(Long userId) {
         return rentalRepository.findByUserId(userId)
-                .stream().map(RentalMapper::toResponse)
-                .toList();
+                .stream().map(RentalMapper::toResponse).toList();
+    }
+
+    @Override
+    public List<RentalResponse> findOverdueRentals() {
+        return rentalRepository.findOverdueRentals()
+                .stream().map(RentalMapper::toResponse).toList();
     }
 
     @Override
@@ -88,13 +89,5 @@ public class RentalServiceImpl implements RentalService{
                 rentalRepository.findById(id)
                         .orElseThrow(() -> RentalNotFoundException.EXCEPTION)
         );
-    }
-
-    @Override
-    public List<RentalResponse> findOverdueRentals(){
-        return rentalRepository.findOverdueRentals()
-                .stream()
-                .map(RentalMapper::toResponse)
-                .toList();
     }
 }

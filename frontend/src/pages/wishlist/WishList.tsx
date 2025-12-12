@@ -9,23 +9,36 @@ const WishList: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState("");
 
-  /** ✅ 自分のウィッシュリストを取得 */
+  /** ✅ ウィッシュリスト取得 */
   useEffect(() => {
     async function fetchWishlist() {
       try {
         setLoading(true);
+
         const data = await getMyWishlist();
-        setWishlist(data);
+        setWishlist(data.content);
+
+        // ⭐⭐ content 배열만 꺼내기 ⭐⭐
+        if (data && Array.isArray(data.content)) {
+          setWishlist(data.content);
+        } else {
+          console.error("❌ wishlist 응답이 Page 형식입니다. content만 사용해야 합니다.", data);
+          setErr("ウィッシュリストの形式が正しくありません。");
+          setWishlist([]);
+        }
+
       } catch (e) {
+        console.error("❌ ウィッシュリスト読み込みエラー:", e);
         setErr("ウィッシュリストを読み込めませんでした。");
       } finally {
         setLoading(false);
       }
     }
+
     fetchWishlist();
   }, []);
 
-  /** ✅ ウィッシュリストから削除 */
+  /** ✅ ウィッシュリスト削除 */
   const handleRemove = async (bookId: number) => {
     if (!window.confirm("この本をウィッシュリストから削除しますか？")) return;
     try {
@@ -36,7 +49,7 @@ const WishList: React.FC = () => {
     }
   };
 
-  /** ✅ 本の詳細ページへ移動 */
+  /** ✅ 本の詳細ページへ */
   const handleBookClick = (bookId: number) => {
     navigate(`/book/${bookId}`);
   };
@@ -62,7 +75,10 @@ const WishList: React.FC = () => {
                 onClick={() => handleBookClick(item.bookId)}
               >
                 <img
-                  src={item.imageUrl || "https://via.placeholder.com/200x280?text=No+Image"}
+                  src={
+                    item.imageUrl ||
+                    "https://via.placeholder.com/200x280?text=No+Image"
+                  }
                   alt={item.bookTitle}
                   className="wishlist-image"
                 />
