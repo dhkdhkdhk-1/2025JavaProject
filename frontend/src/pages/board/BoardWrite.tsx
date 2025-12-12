@@ -1,17 +1,31 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import BoardForm from "./components/BoardForm";
 import { createBoard, BoardRequest } from "../../api/BoardApi";
 
-const BoardWrite: React.FC = () => {
+interface BoardWriteProps {
+  boardType?: "一般" | "告知";
+}
+
+const BoardWrite: React.FC<BoardWriteProps> = ({ boardType = "一般" }) => {
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // ✅ URL의 type값 우선 적용
+  const params = new URLSearchParams(location.search);
+  const typeParam =
+    (params.get("type") as "一般" | "告知") || boardType || "一般";
+
   const [form, setForm] = useState<BoardRequest>({
     title: "",
     content: "",
-    type: "일반",
+    type: typeParam,
   });
 
-  // ✅ 입력값 변경 핸들러
+  useEffect(() => {
+    setForm((prev) => ({ ...prev, type: typeParam }));
+  }, [typeParam]);
+
   const handleChange = (
     e:
       | React.ChangeEvent<
@@ -20,44 +34,32 @@ const BoardWrite: React.FC = () => {
       | { target: { name: string; value: string } }
   ) => {
     const { name, value } = e.target;
-    setForm({ ...form, [name]: value });
+    setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  // ✅ 게시글 등록 처리
   const handleSubmit = async () => {
-    const token = localStorage.getItem("accessToken");
-    if (!token) {
-      alert("로그인이 필요합니다.");
-      navigate("/login");
-      return;
-    }
-
-    // ✅ 제목·내용 공백 확인
     if (!form.title.trim() || !form.content.trim()) {
-      alert("제목과 내용을 모두 입력해주세요.");
+      alert("タイトルと内容を全部書いてください。");
       return;
     }
 
     try {
       await createBoard(form);
-      alert("게시글이 등록되었습니다.");
-      navigate("/board");
-    } catch (err: any) {
-      console.error("게시글 등록 실패:", err);
-
-      // ✅ 백엔드에서 검증 에러 (400 Bad Request) 시
-      if (err.response?.status === 400) {
-        alert(
-          err.response.data?.message || "제목과 내용을 모두 입력해야 합니다."
-        );
-      } else {
-        alert("게시글 등록 중 오류가 발생했습니다.");
-      }
+      alert("投稿が登録されました。");
+      navigate(`/board?type=${typeParam}&refresh=1`);
+    } catch (err) {
+      console.error("投稿登録失敗:", err);
+      alert("投稿を登録している中エラーが発生しました。");
     }
   };
 
   return (
-    <BoardForm form={form} onChange={handleChange} onSubmit={handleSubmit} />
+    <BoardForm
+      form={form}
+      onChange={handleChange}
+      onSubmit={handleSubmit}
+      boardType={typeParam}
+    />
   );
 };
 

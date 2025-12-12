@@ -1,4 +1,4 @@
-name: 🚀 Deploy Backend to EC2 (Clean + Lightweight)
+name: 🚀 Deploy Backend with Docker
 
 on:
   push:
@@ -27,16 +27,25 @@ jobs:
           chmod +x ./gradlew
           ./gradlew clean bootJar -x test --console=plain --no-daemon
 
-      - name: 📦 Upload latest JAR to EC2
-        uses: appleboy/scp-action@v0.1.5
+      - name: 🔐 Login to Docker Hub
+        uses: docker/login-action@v3
         with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ubuntu
-          key: ${{ secrets.EC2_KEY }}
-          source: "backend/build/libs/library-0.0.1-SNAPSHOT.jar"
-          target: "/home/ubuntu/app/2025JavaProject/backend/build/libs/"
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: 🚀 Deploy on EC2 (Clean Old + Restart Container)
+      - name: 🐋 Build & Push Docker image
+        run: |
+          cd backend
+          IMAGE_NAME=${{ secrets.DOCKERHUB_USERNAME }}/library-backend
+
+          # Docker 이미지 빌드 (커밋 SHA + latest 두 개 태그)
+          docker build -t $IMAGE_NAME:${{ github.sha }} -t $IMAGE_NAME:latest .
+
+          # Docker Hub에 푸시
+          docker push $IMAGE_NAME:${{ github.sha }}
+          docker push $IMAGE_NAME:latest
+
+      - name: 🚀 Deploy on EC2 (pull & run)
         uses: appleboy/ssh-action@v1.0.0
         with:
           host: ${{ secrets.EC2_HOST }}
@@ -46,25 +55,25 @@ jobs:
           script: |
             echo "===== 🚀 Deploy Start $(date) ====="
 
-            cd /home/ubuntu/app/2025JavaProject/backend/build/libs
+            IMAGE_NAME=${{ secrets.DOCKERHUB_USERNAME }}/library-backend
 
-            echo "> 🧹 Clean up Docker resources"
+            echo "> 🛑 Stop & remove old container"
             sudo docker stop library-app || true
             sudo docker rm library-app || true
-            # 👇 오래된 이미지, 캐시, dangling layers 전부 삭제
-            sudo docker system prune -af || true
 
-            echo "> 🧹 Clean up old JAR files"
-            # 최신 JAR만 남기고 나머지는 삭제
-            sudo find /home/ubuntu/app/2025JavaProject/backend/build/libs -type f -name "*.jar" ! -name "library-0.0.1-SNAPSHOT.jar" -delete
+            echo "> 🧹 Clean up old images"
+            sudo docker image prune -af || true
 
-            echo "> 🐋 Run latest container"
+            echo "> 📥 Pull latest image"
+            sudo docker pull $IMAGE_NAME:latest
+
+            echo "> 🐋 Run new container"
             sudo docker run -d \
               --name library-app \
               -p 8080:8080 \
-              -v /home/ubuntu/app/2025JavaProject/backend/build/libs:/app \
-              openjdk:17 \
-              java -jar /app/library-0.0.1-SNAPSHOT.jar
+              -e SPRING_PROFILES_ACTIVE=prod \
+              -v /home/ubuntu/app/config:/app/config \
+              $IMAGE_NAME:latest
 
             echo "===== ✅ Deploy Complete $(date) ====="
 
@@ -72,10 +81,10 @@ jobs:
         if: always()
         run: |
           if [ "${{ job.status }}" == "success" ]; then
-            STATUS="✅ Backend 배포 성공!"
+            STATUS="✅ Backend Docker 배포 성공!"
             COLOR=3066993
           else
-            STATUS="❌ Backend 배포 실패!"
+            STATUS="❌ Backend Docker 배포 실패!"
             COLOR=15158332
           fi
           MESSAGE="**${STATUS}** 

@@ -47,11 +47,11 @@ public class AuthController {
         String result = authService.signup(request);
 
         if ("EXISTS".equals(result)) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body("이미 존재하는 이메일입니다.");
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("既に存在しているメールです。");
         }
 
         if ("REJOIN".equals(result)) {
-            return ResponseEntity.ok("재가입 성공: 게시글 복원 여부를 선택해주세요.");
+            return ResponseEntity.ok("再加入成功：投稿の復縁をしますか？");
         }
 
         return ResponseEntity.ok(result);
@@ -60,14 +60,14 @@ public class AuthController {
     @PostMapping("/withdraw")
     public ResponseEntity<String> withdraw(@Valid @RequestBody WithdrawRequest request) {
         authService.withdraw(request);
-        return ResponseEntity.ok("회원탈퇴가 완료되었습니다.");
+        return ResponseEntity.ok("会員脱退が完了されました。");
     }
 
     @PostMapping("/check-email")
     public ResponseEntity<?> checkEmail(@RequestBody Map<String, String> request) {
         String email = request.get("email");
         if (email == null || email.trim().isEmpty()) {
-            return ResponseEntity.badRequest().body(Map.of("message", "이메일이 비어 있습니다."));
+            return ResponseEntity.badRequest().body(Map.of("message", "メールが空いています。"));
         }
 
         var userOpt = userRepository.findByEmail(email);
@@ -76,13 +76,12 @@ public class AuthController {
             UserEntity user = userOpt.get();
             if (user.isDeleted()) {
                 return ResponseEntity.status(HttpStatus.OK)
-                        .body(Map.of("rejoin", true, "message", "탈퇴한 계정입니다. 재가입하시겠습니까?"));
+                        .body(Map.of("rejoin", true, "message", "脱退したアカウントです。もう一度加入しますか？"));
             } else {
                 return ResponseEntity.status(HttpStatus.CONFLICT)
-                        .body(Map.of("rejoin", false, "message", "이미 존재하는 이메일입니다."));
+                        .body(Map.of("rejoin", false, "message", "既に存在しているメールです。"));
             }
         }
-
-        return ResponseEntity.ok(Map.of("rejoin", false, "message", "사용 가능한 이메일입니다."));
+        return ResponseEntity.ok(Map.of("rejoin", false, "message", "使用可能なメールです。"));
     }
 }

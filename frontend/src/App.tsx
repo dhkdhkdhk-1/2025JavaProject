@@ -1,6 +1,5 @@
-// src/App.tsx
 import React, { useEffect } from "react";
-import { setAccessToken } from "./api/AuthApi"; // ✅ 추가
+import { setAccessToken } from "./api/AuthApi";
 import {
   BrowserRouter,
   Routes,
@@ -29,6 +28,8 @@ import CsListPage from "./pages/cspage/mycslist/MyCsListPage";
 import MyCsListDetail from "./pages/cspage/mycslistdetail/MyCsListDetail";
 import WriteCs from "./pages/cspage/writecs/WriteCs";
 import Withdraw from "./pages/withdraw/Withdraw";
+import AccountInfo from "./pages/accountinfo/AccountInfo";
+import FindPassword from "./pages/findpassword/FindPassword";
 
 // ✅ 관리자 페이지
 import Dashboard from "./pages/admin/dashboard/Dashboard";
@@ -37,6 +38,7 @@ import MyPage from "./pages/mypage/MyPage";
 import Catalog from "./pages/admin/catalog/Catalog";
 import Users from "./pages/admin/user/Users";
 import Branches from "./pages/admin/branches/Branches";
+
 // ✅ 게시판 페이지
 import BoardList from "./pages/board/BoardList";
 import BoardRead from "./pages/board/BoardRead";
@@ -45,7 +47,7 @@ import BoardEdit from "./pages/board/BoardEdit";
 import Answer from "./pages/admin/answer/Answer";
 import AnswerWrite from "./pages/admin/answerwrite/AnswerWrite";
 
-/** ✅ 로그인 가드 (일반 사용자용) */
+/** ✅ 로그인 가드 */
 const ProtectedLayout: React.FC = () => {
   const [isChecking, setIsChecking] = React.useState(true);
   const [isAuthenticated, setIsAuthenticated] = React.useState(false);
@@ -58,7 +60,6 @@ const ProtectedLayout: React.FC = () => {
       return;
     }
 
-    // ✅ 토큰이 있으면 실제로 유효한지 서버에서 검증
     import("./api/AuthApi").then(({ getMe }) =>
       getMe()
         .then(() => setIsAuthenticated(true))
@@ -72,7 +73,7 @@ const ProtectedLayout: React.FC = () => {
   return <Layout />;
 };
 
-/** ✅ 관리자 가드 (ADMIN만 접근 허용) */
+/** ✅ 관리자 가드 */
 const AdminLayoutGuard: React.FC = () => {
   const token = localStorage.getItem("accessToken");
   const role = localStorage.getItem("role");
@@ -84,7 +85,6 @@ const AdminLayoutGuard: React.FC = () => {
 
 /** ✅ App */
 const App: React.FC = () => {
-  // ✅ 앱이 실행될 때 항상 토큰을 axios에 세팅 (로그인 유지 보장)
   useEffect(() => {
     const token = localStorage.getItem("accessToken");
     if (token) {
@@ -95,25 +95,29 @@ const App: React.FC = () => {
   return (
     <BrowserRouter>
       <Routes>
-        {/* ✅ 비로그인 접근 가능 */}
+        {/* 비로그인 가능 */}
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
+        <Route path="/findpassword" element={<FindPassword />} />
 
-        {/* ✅ 로그인된 사용자 영역 */}
+        {/* 로그인 필요 */}
         <Route element={<ProtectedLayout />}>
           <Route path="/home" element={<Home />} />
-          <Route path="/booklist" element={<BookList />} />
-          <Route path="/book/:id" element={<BookInfo />} /> {/* 도서 상세 */}
-          {/* ✅ 게시판 영역 */}
+          {/* ✅ 게시판 라우팅 */}
           <Route path="/board" element={<Outlet />}>
-            <Route index element={<BoardList />} /> {/* 목록 */}
-            <Route path=":id" element={<BoardRead />} /> {/* 상세 */}
-            <Route path="write" element={<BoardWrite />} /> {/* 작성 */}
-            <Route path="edit/:id" element={<BoardEdit />} /> {/* 수정 */}
+            <Route index element={<BoardList />} />
+            <Route path=":id" element={<BoardRead />} />
+            <Route path="write" element={<BoardWrite boardType="一般" />} />
+            <Route
+              path="notice/write"
+              element={<BoardWrite boardType="告知" />}
+            />
+            <Route path="edit/:id" element={<BoardEdit />} />
           </Route>
+          {/* ✅ 기타 페이지 */}
           <Route path="/MyPage" element={<MyPage />} />
           <Route path="/withdraw" element={<Withdraw />} />
-          {/* ✅ 도서 목록 및 상세 */}
+          <Route path="/account-info" element={<AccountInfo />} />
           <Route path="/booklist" element={<BookList />} />
           <Route path="/book/:id" element={<BookInfo />} />
           {/* ✅ 리뷰 관련 */}
@@ -135,9 +139,14 @@ const App: React.FC = () => {
           {/* 문의 내역 상세 페이지 */}
           <Route path="/writecs" element={<WriteCs />} />{" "}
           {/* 문의작성 페이지 */}
+          <Route path="/review/book/:id" element={<TotalReview />} />
+          <Route path="/reviewlist" element={<ReviewList />} />
+          <Route path="/review/write/:id" element={<WriteReview />} />
+          <Route path="/rental" element={<RentalList />} />
+          <Route path="/wishlist" element={<WishList />} />
         </Route>
 
-        {/* ✅ 관리자 전용 영역 */}
+        {/* ✅ 관리자 전용 */}
         <Route path="/admin" element={<AdminLayoutGuard />}>
           <Route index element={<Dashboard />} />
           <Route path="books" element={<BookManager />} />
@@ -148,7 +157,7 @@ const App: React.FC = () => {
           <Route path="answerwrite/:id" element={<AnswerWrite />} />
         </Route>
 
-        {/* ✅ 기본 및 잘못된 경로 처리 */}
+        {/* 기본 라우팅 */}
         <Route path="/" element={<Navigate to="/login" replace />} />
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
