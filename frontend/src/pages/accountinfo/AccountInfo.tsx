@@ -29,7 +29,6 @@ const AccountInfo: React.FC = () => {
       try {
         const res = await getMe();
         setUser(res);
-        setNewNickname(res.username);
       } catch (err) {
         console.error("会員情報を読み込めませんでした。", err);
         alert("セッションの有効期限が切れたか、情報を読み込めません。");
@@ -42,7 +41,12 @@ const AccountInfo: React.FC = () => {
   /** ✅ 닉네임 변경 모드 전환 */
   const handleAskEdit = () => {
     const confirmEdit = window.confirm("ニックネームを変更しますか？");
-    setIsEditing(confirmEdit);
+    if (!confirmEdit) return;
+
+    setNewNickname(""); // ✅ 반드시 추가
+    setPassword("");
+    setPasswordCheck("");
+    setIsEditing(true);
   };
 
   /** ✅ 회원정보 수정 요청 */

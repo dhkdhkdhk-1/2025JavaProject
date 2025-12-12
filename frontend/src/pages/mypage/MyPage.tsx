@@ -44,7 +44,6 @@ const MyPage: React.FC = () => {
           <div className="mypage-card">
             <h3>会員情報</h3>
             <p>アカウント情報の確認・変更ができます。</p>
-            <button className="mypage-btn">編集する</button>
             <button
               className="mypage-btn"
               onClick={() => navigate("/account-info")}
