@@ -56,7 +56,7 @@ public class QWishlistEntity extends EntityPathBase<WishlistEntity> {
         super(type, metadata, inits);
         this.book = inits.isInitialized("book") ? new kr.ac.ync.library.domain.books.entity.QBookEntity(forProperty("book")) : null;
         this.id = inits.isInitialized("id") ? new QWishlistId(forProperty("id")) : null;
-        this.user = inits.isInitialized("user") ? new kr.ac.ync.library.domain.users.entity.QUserEntity(forProperty("user")) : null;
+        this.user = inits.isInitialized("user") ? new kr.ac.ync.library.domain.users.entity.QUserEntity(forProperty("user"), inits.get("user")) : null;
     }
 
 }

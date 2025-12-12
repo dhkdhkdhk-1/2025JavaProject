@@ -9,11 +9,11 @@ const Users: React.FC = () => {
   const [showModal, setShowModal] = useState(false);
   const [search, setSearch] = useState("");
 
-  // ✅ 페이징 상태
+  // ✅ ページング状態
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
 
-  // ✅ 유저 목록 불러오기
+  // ✅ ユーザー一覧の取得
   const fetchUsers = async (pageNum = 0) => {
     try {
       const res = await getUsers(pageNum, 10);
@@ -21,7 +21,7 @@ const Users: React.FC = () => {
       setTotalPages(res.totalPages || 1);
       setPage(pageNum);
     } catch (err) {
-      console.error("❌ 유저 목록 조회 실패:", err);
+      console.error("❌ ユーザー一覧の取得に失敗しました:", err);
     }
   };
 
@@ -29,20 +29,20 @@ const Users: React.FC = () => {
     fetchUsers();
   }, []);
 
-  // ✅ 수정 버튼
+  // ✅ 編集ボタン
   const handleEdit = (user: User) => {
     setSelectedUser(user);
     setShowModal(true);
   };
 
-  // ✅ 삭제 버튼
+  // ✅ 削除ボタン
   const handleDelete = async (id: number) => {
-    if (!window.confirm("정말 삭제하시겠습니까?")) return;
+    if (!window.confirm("本当に削除しますか？")) return;
     await deleteUser(id);
     fetchUsers(page);
   };
 
-  // ✅ 페이지 이동
+  // ✅ ページ移動
   const handlePrev = () => {
     if (page > 0) fetchUsers(page - 1);
   };
@@ -51,7 +51,7 @@ const Users: React.FC = () => {
     if (page < totalPages - 1) fetchUsers(page + 1);
   };
 
-  // ✅ 검색 필터 적용 (프론트 단)
+  // ✅ 検索フィルター（フロント側）
   const filteredUsers = users.filter(
     (u) =>
       u.username.toLowerCase().includes(search.toLowerCase()) ||
@@ -61,34 +61,34 @@ const Users: React.FC = () => {
 
   return (
     <div className="users-container">
-      {/* 상단 제목 + 검색 + 버튼 */}
+      {/* 上部タイトル + 検索 + ボタン */}
       <div className="users-header">
-        <h2>회원 관리</h2>
+        <h2>会員管理</h2>
         <div className="users-actions">
           <button
             className="add-btn"
-            onClick={() => alert("직접 추가 기능 구현 필요!")}
+            onClick={() => alert("手動追加機能は後で実装予定です！")}
           >
-            + Add User
+            + ユーザー追加
           </button>
           <input
             type="text"
-            placeholder="Search by ID / Name / Email"
+            placeholder="ID / 名前 / メールで検索"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
       </div>
 
-      {/* 유저 목록 테이블 */}
+      {/* ユーザー一覧テーブル */}
       <table className="users-table">
         <thead>
           <tr>
             <th>ID</th>
-            <th>이름</th>
-            <th>이메일</th>
-            <th>권한</th>
-            <th>관리</th>
+            <th>名前</th>
+            <th>メール</th>
+            <th>権限</th>
+            <th>管理</th>
           </tr>
         </thead>
         <tbody>
@@ -103,14 +103,14 @@ const Users: React.FC = () => {
                   <button
                     className="icon-btn edit"
                     onClick={() => handleEdit(u)}
-                    title="수정"
+                    title="編集"
                   >
                     ✏️
                   </button>
                   <button
                     className="icon-btn delete"
                     onClick={() => handleDelete(u.id)}
-                    title="삭제"
+                    title="削除"
                   >
                     🗑️
                   </button>
@@ -119,26 +119,26 @@ const Users: React.FC = () => {
             ))
           ) : (
             <tr>
-              <td colSpan={5}>데이터가 없습니다.</td>
+              <td colSpan={5}>データがありません。</td>
             </tr>
           )}
         </tbody>
       </table>
 
-      {/* 페이지네이션 */}
+      {/* ページネーション */}
       <div className="pagination">
         <button onClick={handlePrev} disabled={page === 0}>
-          ◀ 이전
+          ◀ 前へ
         </button>
         <span>
           {page + 1} / {totalPages}
         </span>
         <button onClick={handleNext} disabled={page >= totalPages - 1}>
-          다음 ▶
+          次へ ▶
         </button>
       </div>
 
-      {/* 수정 모달 */}
+      {/* 編集モーダル */}
       {showModal && selectedUser && (
         <UserEditModal
           user={selectedUser}

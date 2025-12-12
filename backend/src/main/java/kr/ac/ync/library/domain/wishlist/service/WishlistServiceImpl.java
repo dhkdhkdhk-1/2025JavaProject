@@ -11,6 +11,8 @@ import kr.ac.ync.library.domain.wishlist.entity.WishlistId;
 import kr.ac.ync.library.domain.wishlist.mapper.WishlistMapper;
 import kr.ac.ync.library.domain.wishlist.repository.WishlistRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,6 +35,7 @@ public class WishlistServiceImpl implements WishlistService {
 
         UserEntity user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
+
         BookEntity book = bookRepository.findById(bookId)
                 .orElseThrow(() -> BookNotFoundException.EXCEPTION);
 
@@ -50,6 +53,7 @@ public class WishlistServiceImpl implements WishlistService {
         wishlistRepository.deleteByUser_IdAndBook_Id(userId, bookId);
     }
 
+    /** ✅ 기존에는 List.of() 로 잘못 반환 → 수정됨 */
     @Override
     @Transactional(readOnly = true)
     public List<WishlistResponse> getMyWishlist(Long userId) {
@@ -57,6 +61,14 @@ public class WishlistServiceImpl implements WishlistService {
                 .stream()
                 .map(WishlistMapper::toResponse)
                 .toList();
+    }
+
+    /** ✅ 페이징 버전 추가 */
+    @Override
+    @Transactional(readOnly = true)
+    public Page<WishlistResponse> getMyWishlist(Long userId, Pageable pageable) {
+        return wishlistRepository.findByUser_Id(userId, pageable)
+                .map(WishlistMapper::toResponse);
     }
 
     @Override

@@ -37,7 +37,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
                         // ✅ 로그인, 회원가입, 토큰 관련은 허용
-                        .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers( "/auth", "/auth/**").permitAll()
 
                         // ✅ 조회수 증가 API만 비회원 접근 허용
                         .requestMatchers(HttpMethod.POST, "/board/*/view").permitAll()
@@ -49,12 +49,18 @@ public class SecurityConfig {
                         // ✅ 나머지 게시판 API는 로그인 필요
                         .requestMatchers("/board/**").authenticated()
                         // ✅ 리뷰, 책, 지점
-                        .requestMatchers("/review/book/**").permitAll()
-                        .requestMatchers("/review/list").permitAll()
-                        .requestMatchers("/review/**").permitAll()
+                        .requestMatchers("/reviews/user/**").authenticated()
+                        .requestMatchers("/reviews/book/**").permitAll()
+                        .requestMatchers("/reviews/list").permitAll()
+                        .requestMatchers("/reviews/{id}").permitAll()   // 단일 조회
+                        .requestMatchers("/reviews/*").permitAll()      // 가장 마지막
                         .requestMatchers("/book/**").permitAll()
                         .requestMatchers("/branch/**").permitAll()
-
+                        // ✅ cs 관련 코드
+                        .requestMatchers("/cs/admin/**").hasAnyRole("ADMIN", "MANAGER")
+                        .requestMatchers("/cs/**").authenticated()
+                        // 위시리스트
+                        .requestMatchers("/wishlist/**").authenticated()
                         // ✅ 나머지는 로그인 필요
                         .anyRequest().authenticated()
                 )

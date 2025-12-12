@@ -27,7 +27,7 @@ const ReviewSection: React.FC<ReviewProps> = ({ bookId, limit, onMoreClick }) =>
         setReviews(data);
       } catch (err) {
         console.error(err);
-        setError("리뷰를 불러오지 못했습니다.");
+        setError("レビューを読み込めませんでした。");
       } finally {
         setLoading(false);
       }
@@ -36,10 +36,10 @@ const ReviewSection: React.FC<ReviewProps> = ({ bookId, limit, onMoreClick }) =>
     fetchReviews();
   }, [bookId]);
 
-  if (loading) return <div style={{ padding: 16 }}>리뷰 불러오는 중...</div>;
+  if (loading) return <div style={{ padding: 16 }}>レビューを読み込み中...</div>;
   if (error) return <div style={{ padding: 16, color: "crimson" }}>{error}</div>;
   if (reviews.length === 0)
-    return <div style={{ padding: 16 }}>등록된 리뷰가 없습니다.</div>;
+    return <div style={{ padding: 16 }}>登録されたレビューはありません。</div>;
 
   const displayedReviews = limit ? reviews.slice(0, limit) : reviews;
 
@@ -47,7 +47,7 @@ const ReviewSection: React.FC<ReviewProps> = ({ bookId, limit, onMoreClick }) =>
     <section className="reviews-section">
       <div className="reviews-container">
         <div className="section-header">
-          <h2 className="section-title">리뷰</h2>
+          <h2 className="section-title">レビュー</h2>
         </div>
 
         <div className="reviews-grid">
@@ -92,9 +92,9 @@ const ReviewSection: React.FC<ReviewProps> = ({ bookId, limit, onMoreClick }) =>
         </div>
 
         {/* ✅ 리뷰 더보기 (전체 리뷰 페이지로 이동) */}
-        {onMoreClick && reviews.length > (limit ?? reviews.length) && (
+        {onMoreClick && (
           <div className="view-more-reviews" onClick={onMoreClick}>
-            리뷰 더보기
+            レビューをもっと見る
           </div>
         )}
       </div>

@@ -26,7 +26,6 @@ public class BranchEntity {
     @Column(nullable = false)
     private String location;
 
-    /** ✅ Branch ↔ BookBranch (1:N 관계) */
     @OneToMany(mappedBy = "branch", cascade = CascadeType.ALL, orphanRemoval = true)
     @ToString.Exclude
     @Builder.Default

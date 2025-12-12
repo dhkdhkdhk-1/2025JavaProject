@@ -39,7 +39,7 @@ const RentalList: React.FC = () => {
         );
         setRentals(res.data);
       } catch (err) {
-        setErrorMsg("대여목록을 불러오지 못했습니다.");
+        setErrorMsg("レンタルリストを取得できませんでした。");
       } finally {
         setLoading(false);
       }
@@ -49,7 +49,7 @@ const RentalList: React.FC = () => {
 
   // ✅ 반납 처리
   const handleReturn = async (rentalId: number) => {
-    if (!window.confirm("이 책을 반납하시겠습니까?")) return;
+    if (!window.confirm("この本を返却しますか？")) return;
     try {
       await axios.put(
         "http://localhost:8080/rental/return",
@@ -60,14 +60,14 @@ const RentalList: React.FC = () => {
           },
         }
       );
-      alert("반납이 완료되었습니다.");
+      alert("返却が完了しました。");
       // 반납 상태 갱신
       setRentals((prev) =>
         prev.map((r) =>
           r.id === rentalId
             ? {
                 ...r,
-                status: "반납완료",
+                status: "返却済み",
                 returned: true,
                 returnDate: new Date().toISOString(),
               }
@@ -75,7 +75,7 @@ const RentalList: React.FC = () => {
         )
       );
     } catch (e) {
-      alert("반납 중 오류가 발생했습니다.");
+      alert("返却中にエラーが発生しました。");
     }
   };
 
@@ -86,9 +86,9 @@ const RentalList: React.FC = () => {
 
   return (
     <div className="rental-list-page">
-      <h2 className="page-title">📚 내 대여 목록</h2>
+      <h2 className="page-title">📚 マイレンタルリスト</h2>
 
-      {loading && <div style={{ padding: 16 }}>불러오는 중...</div>}
+      {loading && <div style={{ padding: 16 }}>読み込み中...</div>}
       {errorMsg && (
         <div style={{ padding: 16, color: "crimson" }}>{errorMsg}</div>
       )}
@@ -96,20 +96,20 @@ const RentalList: React.FC = () => {
       <table className="rental-table">
         <thead>
           <tr>
-            <th>번호</th>
-            <th>도서명</th>
-            <th>지점</th>
-            <th>대여일</th>
-            <th>반납기한</th>
-            <th>반납일</th>
-            <th>상태</th>
-            <th>관리</th>
+            <th>番号</th>
+            <th>書籍名</th>
+            <th>支店</th>
+            <th>レンタル日</th>
+            <th>返却期限</th>
+            <th>返却日</th>
+            <th>状態</th>
+            <th>管理</th>
           </tr>
         </thead>
         <tbody>
           {rentals.length === 0 && !loading ? (
             <tr>
-              <td colSpan={8}>대여 내역이 없습니다.</td>
+              <td colSpan={8}>レンタル履歴はありません。</td>
             </tr>
           ) : (
             rentals.map((r, idx) => (
@@ -126,7 +126,7 @@ const RentalList: React.FC = () => {
                 </td>
                 <td
                   style={{
-                    color: r.status === "반납완료" ? "green" : "orange",
+                    color: r.status === "返却済み" ? "green" : "orange",
                     fontWeight: 600,
                   }}
                 >
@@ -138,18 +138,18 @@ const RentalList: React.FC = () => {
                       className="return-btn"
                       onClick={() => handleReturn(r.id)}
                     >
-                      반납하기
+                      返却する
                     </button>
                   ) : (
                     <div className="rental-btn-group">
                       <button className="return-btn done" disabled>
-                        반납완료
+                        返却済み
                       </button>
                       <button
                         className="review-btn"
                         onClick={() => handleWriteReview(r.bookId)}
                       >
-                        ✏ 리뷰작성
+                        ✏ レビュー作成
                       </button>
                     </div>
                   )}

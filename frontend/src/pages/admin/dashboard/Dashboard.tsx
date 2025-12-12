@@ -2,9 +2,10 @@ import React, { useEffect, useState } from "react";
 import PieChartBox from "../../../components/chart/PieChartBox";
 import { getBooks, Book } from "../../../api/BookApi";
 import { getBranches, BranchResponse } from "../../../api/BranchApi";
-import { getAdmins, User, getUsers } from "../../../api/UserApi";
-import { getAllRentals } from "../../../api/RentalApi";
+// import { getAdmins, User, getUsers } from "../../../api/UserApi";
+// import { getAllRentals } from "../../../api/RentalApi";
 import "./Dashboard.css";
+import { Borrower } from "@/types/Dashboard";
 
 interface DashboardData {
   totalUsers: number;
@@ -15,73 +16,77 @@ interface DashboardData {
   admins: { name: string; id: string; status: string }[];
   books: Book[];
   branches: BranchResponse[];
+  borrowers: Borrower[];
 }
 
 const Dashboard: React.FC = () => {
   const [data, setData] = useState<DashboardData | null>(null);
+
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // ✅ 모든 데이터 병렬 요청
-        const [bookPage, adminPage, branchPage, rentals, userPage] =
-          await Promise.all([
-            getBooks(0, 5),
-            getAdmins(0, 5),
-            getBranches(0, 5),
-            getAllRentals(),
-            getUsers(0, 5),
-          ]);
-        console.log("📦 User data:", userPage.content);
+        // ✅ 본/지점 메타 동시 조회 (총개수만 필요)
+        const [bookPage, branchPage] = await Promise.all([
+          getBooks(0, 1),
+          getBranches(0, 4),
+        ]);
 
-        // ✅ 관리자 / 매니저 필터링
-        const admins = adminPage.content.map((a: User) => ({
-          name: a.username,
-          id: `${a.role}: ${a.id}`,
-          status: "Active",
-        }));
+        // ✅ DashboardData 스키마에 맞춘 목데이터
+        const mock: DashboardData = {
+          totalUsers: 150,
+          totalBooks: bookPage.totalElements ?? 0,
+          totalBranches: branchPage.totalElements ?? 0,
+          borrowedCount: 75,
+          returnedCount: 25,
+          borrowers: [
+            { name: "キム・チョルス", book: "Borrowed ID-10", id: "123" },
+            { name: "イ・ヨンヒ", book: "Borrowed ID-03", id: "123" },
+            { name: "パク・ジミン", book: "Borrowed ID-07", id: "123" },
+          ],
+          admins: [
+            {
+              name: "チェ・ヨンヒョン",
+              id: "Admin ID: 1",
+              status: "アクティブ",
+            },
+            {
+              name: "キム・ジェファン",
+              id: "Admin ID: 2",
+              status: "アクティブ",
+            },
+            { name: "イ・ジファン", id: "Admin ID: 3", status: "アクティブ" },
+            { name: "ハン・ジミン", id: "Admin ID: 4", status: "アクティブ" },
+          ],
+          books: [], // 지금은 필요 없으니 빈배열로 채움
+          branches: branchPage.content, // BranchResponse[]
+        };
 
-        // ✅ 대여 / 반납 갯수 계산
-        const borrowedCount = rentals.filter((r) => !r.returned).length;
-        const returnedCount = rentals.filter((r) => r.returned).length;
-
-        // ✅ 통합 데이터 구성
-        setData({
-          totalUsers: userPage.totalElements,
-          totalBooks: bookPage.totalElements,
-          totalBranches: branchPage.totalElements,
-          borrowedCount,
-          returnedCount,
-          admins,
-          books: bookPage.content,
-          branches: branchPage.content,
-        });
+        setData(mock); // ✅ 꼭 호출
       } catch (err) {
-        console.error("📊 대시보드 데이터 로딩 실패:", err);
+        console.error("📊 ダッシュボードデータの読み込みに失敗しました:", err);
       }
     };
 
     fetchData();
   }, []);
 
-  if (!data) return <p>로딩중...</p>;
+  if (!data) return <p>読み込み中...</p>;
 
   return (
     <div className="dashboard">
-      {/* ===== 왼쪽: 대여 / 반납 ===== */}
+      {/* 左側のチャート */}
       <div className="chart-section dashboard-card">
-        <h3>📊 대여 / 반납 현황</h3>
+        <h3>貸出 / 返却 比率</h3>
         <PieChartBox
           borrowed={data.borrowedCount}
           returned={data.returnedCount}
         />
         <div className="chart-legend">
           <div className="legend-item">
-            <span className="legend-dot blue"></span> 대여 중:{" "}
-            {data.borrowedCount}권
+            <span className="legend-dot blue"></span> 貸出中の本の総数
           </div>
           <div className="legend-item">
-            <span className="legend-dot gray"></span> 반납 완료:{" "}
-            {data.returnedCount}권
+            <span className="legend-dot gray"></span> 返却済みの本の総数
           </div>
         </div>
       </div>
@@ -95,7 +100,7 @@ const Dashboard: React.FC = () => {
               <div className="stat-icon">👤</div>
               <div className="stat-info">
                 <span className="stat-value">{data.totalUsers}</span>
-                <span className="stat-label">총 유저 수</span>
+                <span className="stat-label">総ユーザー数</span>
               </div>
             </div>
 
@@ -103,7 +108,7 @@ const Dashboard: React.FC = () => {
               <div className="stat-icon">📚</div>
               <div className="stat-info">
                 <span className="stat-value">{data.totalBooks}</span>
-                <span className="stat-label">총 책 수</span>
+                <span className="stat-label">総書籍数</span>
               </div>
             </div>
 
@@ -111,45 +116,48 @@ const Dashboard: React.FC = () => {
               <div className="stat-icon">🏢</div>
               <div className="stat-info">
                 <span className="stat-value">{data.totalBranches}</span>
-                <span className="stat-label">지점 개수</span>
+                <span className="stat-label">支店数</span>
               </div>
             </div>
           </div>
 
           <div className="admin-card dashboard-card">
-            <h4>Admins</h4>
+            <h4>管理者一覧</h4>
             {data.admins.length > 0 ? (
               data.admins.map((a, idx) => (
-                <div className="list-item" key={idx}>
+                <div className="list-item" key={a.id ?? idx}>
                   <div className="list-item-name">
                     <span>👨‍💻 {a.name}</span>
                     <small>{a.id}</small>
                   </div>
-                  <div className="list-item-status">{a.status}</div>
                 </div>
               ))
             ) : (
-              <p>등록된 관리자가 없습니다.</p>
+              <p>登録された管理者がありません。</p>
             )}
           </div>
         </div>
 
         {/* 하단 목록 */}
         <div className="bottom-section">
-          {/* 책 목록 */}
+          {/* 연체자 목록 */}
           <div className="list-card">
-            <h4>책 목록</h4>
-            {data.books.map((b, idx) => (
-              <div className="list-item" key={idx}>
-                <span>📖 {b.title}</span>
-                <div className="list-item-status">ID: {b.id}</div>
-              </div>
-            ))}
+            <h4>延滞者リスト</h4>
+            {data.borrowers.length > 0 ? (
+              data.borrowers.map((b, idx) => (
+                <div className="list-item" key={idx}>
+                  <span>📖 {b.book}</span>
+                  <div className="list-item-status">{b.name}</div>
+                </div>
+              ))
+            ) : (
+              <p>延滞者はいません。</p>
+            )}
           </div>
 
           {/* 지점 목록 */}
           <div className="list-card">
-            <h4>지점 목록</h4>
+            <h4>支店リスト</h4>
             {data.branches.map((b, idx) => (
               <div className="list-item" key={idx}>
                 <span>🏫 {b.name}</span>

@@ -42,7 +42,12 @@ const Login: React.FC = () => {
     if (e) e.preventDefault();
 
     const tokens = await login({ email, password });
-    if (!tokens) return;
+    if (!tokens) {
+      alert(
+        "ログインに失敗しました：メールアドレスとパスワードを確認してください。"
+      );
+      return;
+    }
 
     localStorage.setItem("accessToken", tokens.accessToken);
     localStorage.setItem("refreshToken", tokens.refreshToken);
@@ -93,7 +98,7 @@ const Login: React.FC = () => {
           <InputField
             className="login-input"
             inputClassName="login-input-field"
-            label="Password"
+            label="パスワード"
             value={password}
             valueType="value"
             onChange={(e) => setPassword(e.target.value)}
@@ -120,7 +125,7 @@ const Login: React.FC = () => {
             checked={remember}
             onChange={(e) => setRemember(e.target.checked)}
           />
-          <span>アカウント情報保存</span>
+          <span>ログイン情報を保存</span>
         </label>
 
         {/* 링크 */}
@@ -131,6 +136,7 @@ const Login: React.FC = () => {
           >
             会員登録
           </div>
+
           <div
             className="login-forgot clickable"
             onClick={() => navigate("/findpassword")}

@@ -23,7 +23,7 @@ const Branches: React.FC = () => {
   const [totalPages, setTotalPages] = useState(0);
   const [search, setSearch] = useState("");
 
-  /** ✅ 목록 조회 */
+  /** ✅ 一覧の取得 */
   const fetchBranches = async (pageNum = 0) => {
     try {
       const res: PageResponse<BranchResponse> = await getBranches(pageNum, 10);
@@ -31,7 +31,7 @@ const Branches: React.FC = () => {
       setTotalPages(res.totalPages || 1);
       setPage(pageNum);
     } catch (err) {
-      console.error("❌ 지점 목록 조회 실패:", err);
+      console.error("❌ 支店一覧の取得に失敗しました:", err);
     }
   };
 
@@ -39,74 +39,75 @@ const Branches: React.FC = () => {
     fetchBranches();
   }, []);
 
-  /** ✅ 추가 */
+  /** ✅ 追加 */
   const handleAdd = async (form: BranchRequest) => {
     try {
       await addBranch(form);
       fetchBranches(page);
       setShowModal(null);
     } catch (err) {
-      console.error("❌ 지점 등록 실패:", err);
+      console.error("❌ 支店登録に失敗しました:", err);
     }
   };
 
-  /** ✅ 수정 */
+  /** ✅ 修正 */
   const handleUpdate = async (form: BranchRequest) => {
     try {
       await updateBranch(form);
       fetchBranches(page);
       setShowModal(null);
     } catch (err) {
-      console.error("❌ 지점 수정 실패:", err);
+      console.error("❌ 支店情報の修正に失敗しました:", err);
     }
   };
 
-  /** ✅ 삭제 */
+  /** ✅ 削除 */
   const handleDelete = async (id: number) => {
-    if (!window.confirm("정말 삭제하시겠습니까?")) return;
+    if (!window.confirm("本当に削除しますか？")) return;
     try {
       await deleteBranch(id);
       fetchBranches(page);
     } catch (err) {
-      console.error("❌ 지점 삭제 실패:", err);
+      console.error("❌ 支店削除に失敗しました:", err);
     }
   };
 
-  /** ✅ 페이지 이동 */
+  /** ✅ ページ移動 */
   const handlePrev = () => page > 0 && fetchBranches(page - 1);
   const handleNext = () => page < totalPages - 1 && fetchBranches(page + 1);
 
-  /** ✅ 검색 필터 */
+  /** ✅ 検索フィルター */
   const filteredBranches = branches.filter((b) =>
     b.name.toLowerCase().includes(search.toLowerCase())
   );
 
   return (
     <div className="branch-container">
-      {/* 헤더 */}
+      {/* ヘッダー */}
       <div className="branch-header">
-        <h2>지점 관리</h2>
+        <h2>支店管理</h2>
         <div className="branch-actions">
           <button className="add-btn" onClick={() => setShowModal("add")}>
-            + Add Branch
+            + 支店を追加
           </button>
           <input
             type="text"
-            placeholder="Search by name"
+            placeholder="名前で検索"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
       </div>
 
-      {/* 테이블 */}
+      {/* テーブル */}
       <table className="branch-table">
         <thead>
           <tr>
             <th>ID</th>
-            <th>지점명</th>
-            <th>주소</th>
-            <th>Action</th>
+            <th>支店名</th>
+            <th>住所</th>
+            <th>管理者</th>
+            <th>操作</th>
           </tr>
         </thead>
         <tbody>
@@ -123,7 +124,7 @@ const Branches: React.FC = () => {
                       setSelectedBranch(b);
                       setShowModal("view");
                     }}
-                    title="View"
+                    title="表示"
                   >
                     👁️
                   </button>
@@ -133,14 +134,14 @@ const Branches: React.FC = () => {
                       setSelectedBranch(b);
                       setShowModal("edit");
                     }}
-                    title="Edit"
+                    title="編集"
                   >
                     ✏️
                   </button>
                   <button
                     className="icon-btn delete"
                     onClick={() => handleDelete(b.id)}
-                    title="Delete"
+                    title="削除"
                   >
                     🗑️
                   </button>
@@ -149,26 +150,26 @@ const Branches: React.FC = () => {
             ))
           ) : (
             <tr>
-              <td colSpan={5}>데이터가 없습니다.</td>
+              <td colSpan={5}>データがありません。</td>
             </tr>
           )}
         </tbody>
       </table>
 
-      {/* 페이지네이션 */}
+      {/* ページネーション */}
       <div className="pagination">
         <button onClick={handlePrev} disabled={page === 0}>
-          ◀ 이전
+          ◀ 前へ
         </button>
         <span>
           {page + 1} / {totalPages}
         </span>
         <button onClick={handleNext} disabled={page >= totalPages - 1}>
-          다음 ▶
+          次へ ▶
         </button>
       </div>
 
-      {/* 모달 */}
+      {/* モーダル */}
       {showModal && (
         <BranchModal
           mode={showModal}
