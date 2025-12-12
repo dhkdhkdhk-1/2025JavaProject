@@ -38,7 +38,7 @@ public class WishlistController {
     @GetMapping("/me")
     public ResponseEntity<Page<WishlistResponse>> getMyWishlist(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "12") int size   // 프론트 갤러리용 12개 추천
+            @RequestParam(defaultValue = "5") int size   // 프론트 갤러리용 12개 추천
     ) {
         User user = userSecurity.getUser();
         Pageable pageable = PageRequest.of(page, size);

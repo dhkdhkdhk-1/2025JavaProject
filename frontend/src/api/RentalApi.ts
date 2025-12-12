@@ -1,63 +1,61 @@
-import { api } from "./AuthApi"; // ✅ axios 제거
+import { api } from "./AuthApi";
 
-// 대여 등록 요청 DTO
+/* ======================
+   타입
+====================== */
 export interface RentalRegisterRequest {
   bookId: number;
   branchId: number;
 }
 
-// 반납 요청 DTO
-export interface RentalReturnRequest {
-  rentalId: number;
-}
-
-// 대여 내역 조회 DTO
 export interface RentalResponse {
   id: number;
+  bookId: number;
   bookTitle: string;
   branchName: string;
   rentalDate: string;
   dueDate: string;
   returnDate?: string;
-  status: string;
+  status: string;   // 대여중 / 반납완료
   returned: boolean;
+  userName?: string;
+  userEmail?: string;
 }
 
-// ✅ 도서 대여 등록
-export const registerRental = async (
-  data: RentalRegisterRequest
-): Promise<void> => {
-  const res = await api.post(`/rental/register`, data);
+/* ======================
+   유저 API
+====================== */
+
+// 대여 등록
+export const registerRental = async (data: RentalRegisterRequest) => {
+  const res = await api.post(`/rentals`, data);
   return res.data;
 };
 
-// ✅ 반납 요청
-export const returnRental = async (
-  data: RentalReturnRequest
-): Promise<void> => {
-  const res = await api.post(`/rental/return`, data);
-  return res.data;
-};
-
-// ✅ 전체 대여 내역 조회 (관리자용)
-export const getAllRentals = async (): Promise<RentalResponse[]> => {
-  const res = await api.get(`/rental/list`);
-  return res.data;
-};
-
-// ✅ 로그인한 유저의 대여 내역 조회 (마이페이지용)
+// 내 대여 목록
 export const getMyRentals = async (): Promise<RentalResponse[]> => {
-  const res = await api.get(`/rental/my`);
+  const res = await api.get(`/rentals/me`);
   return res.data;
 };
 
-export const sendReturnMail = async (rentalId: number): Promise<void> => {
-  try {
-    const res = await api.post(`/rental/notify/${rentalId}`);
-    alert("📩 반납 안내 메일이 성공적으로 발송되었습니다!");
-    return res.data;
-  } catch (err: any) {
-    console.error("❌ 메일 발송 실패:", err);
-    alert("메일 발송 중 오류가 발생했습니다. 콘솔을 확인해주세요.");
-  }
+/* ======================
+   관리자 API
+====================== */
+
+// 전체 대여 목록
+export const getAllRentals = async (): Promise<RentalResponse[]> => {
+  const res = await api.get(`/rentals/admin/list`);
+  return res.data;
+};
+
+// 🔥 관리자 반납 처리
+export const returnRental = async (rentalId: number) => {
+  const res = await api.put(`/rentals/admin/return/${rentalId}`);
+  return res.data;
+};
+
+// 연체 메일
+export const sendReturnMail = async (rentalId: number) => {
+  const res = await api.post(`/rentals/admin/notify/${rentalId}`);
+  return res.data;
 };
