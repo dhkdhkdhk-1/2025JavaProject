@@ -120,3 +120,12 @@ textarea {
   background-color: black;
   color: white;
 }
+
+.verify-margin {
+  margin-bottom: 16px; /* 기존 inline 스타일 그대로 */
+}
+.signup-timer-text {
+  color: red; /* 기존 유지 */
+  font-weight: bold; /* 기존 유지 */
+  margin-top: 4px; /* 기존 UI와 가장 자연스럽게 보이는 값 */
+}

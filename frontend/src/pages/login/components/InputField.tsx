@@ -13,6 +13,10 @@ interface InputFieldProps {
   name?: string;
   inputId?: string;
   onFocus?: () => void;
+
+  /** ⭐ 추가 */
+  readOnly?: boolean;
+  disabled?: boolean;
 }
 
 export const InputField: React.FC<InputFieldProps> = ({
@@ -28,6 +32,10 @@ export const InputField: React.FC<InputFieldProps> = ({
   name,
   inputId,
   onFocus,
+
+  /** ⭐ 추가된 props */
+  readOnly,
+  disabled,
 }) => {
   return (
     <div className={className || "signup-input"}>
@@ -46,6 +54,9 @@ export const InputField: React.FC<InputFieldProps> = ({
         placeholder={placeholder}
         autoComplete={autoComplete}
         onFocus={onFocus}
+        /** ⭐ input 태그에 반영 */
+        readOnly={readOnly}
+        disabled={disabled}
       />
     </div>
   );

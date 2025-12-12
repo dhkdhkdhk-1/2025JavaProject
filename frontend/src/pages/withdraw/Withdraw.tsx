@@ -1,22 +1,37 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { InputField } from "../login/components/InputField";
 import { VariantPrimaryWrapper } from "../login/components/VariantPrimaryWrapper";
 import { TextContentTitle } from "../login/components/TextContentTitle";
-import { api } from "../../api/AuthApi";
+import { api, getMe } from "../../api/AuthApi";
 import "./Withdraw.css";
 
 const Withdraw: React.FC = () => {
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState(""); // 자동 입력될 이메일
   const [password, setPassword] = useState("");
   const [passwordCheck, setPasswordCheck] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showPasswordCheck, setShowPasswordCheck] = useState(false);
   const navigate = useNavigate();
 
+  /** ✅ 로그인 사용자 이메일 자동 입력 */
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const user = await getMe();
+        setEmail(user.email); // 이메일 자동 설정
+      } catch (error) {
+        alert("ログイン情報を取得できません。再度ログインしてください。");
+        navigate("/login");
+      }
+    };
+
+    fetchUser();
+  }, [navigate]);
+
   /** ✅ 회원 탈퇴 처리 */
   const handleWithdraw = async () => {
-    if (!email || !password || !passwordCheck) {
+    if (!password || !passwordCheck) {
       alert("すべての情報を入力してください。");
       return;
     }
@@ -52,17 +67,19 @@ const Withdraw: React.FC = () => {
       />
 
       <div className="withdraw-box">
+        {/* 🔒 이메일 자동 입력 + 수정 불가(readOnly) */}
         <InputField
           label="メール"
           value={email}
           valueType="value"
-          onChange={(e) => setEmail(e.target.value)}
+          readOnly
+          disabled
+          onChange={() => {}}
         />
 
-        {/* ✅ 비밀번호 입력칸 */}
+        {/* 비밀번호 입력칸 */}
         <div className="password-container">
           <InputField
-            className="withdraw-input"
             inputClassName="withdraw-input-field"
             label="パスワード"
             value={password}
@@ -80,10 +97,9 @@ const Withdraw: React.FC = () => {
           </button>
         </div>
 
-        {/* ✅ 비밀번호 확인 입력칸 (동일 구조로 수정됨) */}
+        {/* 비밀번호 확인 */}
         <div className="password-container">
           <InputField
-            className="withdraw-input"
             inputClassName="withdraw-input-field"
             label="パスワード確認"
             value={passwordCheck}
@@ -111,7 +127,7 @@ const Withdraw: React.FC = () => {
 
         <button
           className="withdraw-button cancel"
-          onClick={() => navigate("/mypage")}
+          onClick={() => navigate("/account-info")} // ← 변경!
         >
           キャンセル
         </button>

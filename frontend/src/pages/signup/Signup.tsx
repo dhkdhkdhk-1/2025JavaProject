@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { hasPost } from "../../api/AuthApi";
 
 import { InputField } from "../login/components/InputField";
 import { VariantPrimaryWrapper } from "../login/components/VariantPrimaryWrapper";
@@ -22,17 +23,14 @@ const Signup: React.FC = () => {
   const [passwordCheck, setPasswordCheck] = useState("");
   const [username, setUsername] = useState("");
 
-  // 이메일 관련 상태
   const [isEmailChecked, setIsEmailChecked] = useState(false);
   const [verifyStep, setVerifyStep] = useState(false);
   const [verifyCode, setVerifyCode] = useState("");
   const [isVerified, setIsVerified] = useState(false);
   const [isRejoin, setIsRejoin] = useState(false);
 
-  // 닉네임 중복 확인 상태
   const [isUsernameChecked, setIsUsernameChecked] = useState(false);
 
-  // 타이머
   const [timer, setTimer] = useState(0);
   const [timerActive, setTimerActive] = useState(false);
 
@@ -43,7 +41,7 @@ const Signup: React.FC = () => {
   const emailRegex = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
 
   /** --------------------------------------------------
-   *  이메일 중복 확인 + (신규 계정) 인증번호 발송
+   * 이메일 중복 확인
    * -------------------------------------------------- */
   const handleEmailCheck = async () => {
     if (!email.trim()) {
@@ -68,7 +66,7 @@ const Signup: React.FC = () => {
       setIsEmailChecked(true);
       setIsRejoin(true);
 
-      // 재가입은 인증번호 필요 없음
+      // 재가입은 인증번호 불필요
       setVerifyStep(false);
       setIsVerified(false);
       setTimerActive(false);
@@ -90,9 +88,7 @@ const Signup: React.FC = () => {
     }
   };
 
-  /** ---------------------
-   * 인증번호 검증
-   * --------------------- */
+  /** 인증번호 검증 */
   const handleVerifyCode = async () => {
     if (!verifyCode.trim()) {
       alert("認証番号を入力してください。");
@@ -117,9 +113,7 @@ const Signup: React.FC = () => {
     setTimerActive(false);
   };
 
-  /** ---------------------
-   * 인증번호 재전송
-   * --------------------- */
+  /** 인증번호 재전송 */
   const handleResend = async () => {
     const sent = await sendSignupVerifyCode(email);
     if (sent) {
@@ -130,9 +124,7 @@ const Signup: React.FC = () => {
     }
   };
 
-  /** ---------------------
-   * 닉네임 중복 확인
-   * --------------------- */
+  /** 닉네임 중복 확인 */
   const handleUsernameCheck = async () => {
     if (!username.trim()) {
       alert("ニックネームを入力してください。");
@@ -150,9 +142,7 @@ const Signup: React.FC = () => {
     }
   };
 
-  /** ---------------------
-   * 3분 타이머 기능
-   * --------------------- */
+  /** 3분 타이머 */
   useEffect(() => {
     if (timerActive && timer > 0) {
       const countdown = setInterval(() => {
@@ -167,9 +157,9 @@ const Signup: React.FC = () => {
     }
   }, [timerActive, timer]);
 
-  /** ---------------------
-   * 회원가입 요청
-   * --------------------- */
+  /** --------------------------------------------------
+   * 회원가입
+   * -------------------------------------------------- */
   const handleSignup = async () => {
     if (!email || !password || !passwordCheck || !username) {
       alert("すべての情報を入力してください。");
@@ -224,15 +214,31 @@ const Signup: React.FC = () => {
       return;
     }
 
-    // 재가입 2단계
+    /** -------------------------
+     *   🔥 재가입 2단계 로직
+     * ------------------------- */
     if (result === "REJOIN") {
       const confirmRejoin = window.confirm(
         "以前に脱退したアカウントです。再加入しますか？"
       );
       if (!confirmRejoin) return;
 
-      const restore = window.confirm("以前の投稿を復元しますか？");
+      // ⭐ 게시글 존재 여부 확인 API 호출
+      let existsPost = false;
+      let restore = false;
 
+      try {
+        existsPost = await hasPost(email);
+      } catch (err) {
+        console.error("게시글 확인 실패:", err);
+      }
+
+      // 게시글이 있을 때만 복구 여부 질문
+      if (existsPost) {
+        restore = window.confirm("以前の投稿を復元しますか？");
+      }
+
+      // 실제 재가입 요청
       const second = await signup({
         email,
         username,
@@ -243,17 +249,22 @@ const Signup: React.FC = () => {
       });
 
       if (second === "OK") {
-        alert(
-          restore
-            ? "アカウントと投稿が復元されました。"
-            : "アカウントが復元されました。（投稿は非公開のままです）"
-        );
+        if (!existsPost) {
+          alert("アカウントが復元されました。");
+        } else {
+          alert(
+            restore
+              ? "アカウントと投稿が復元されました。"
+              : "アカウントが復元されました。（投稿は非公開のままです）"
+          );
+        }
         navigate("/login");
       }
 
       return;
     }
 
+    /** 신규 가입 성공 */
     if (result === "OK") {
       alert("会員登録が完了されました。");
       navigate("/login");
@@ -294,9 +305,9 @@ const Signup: React.FC = () => {
           </button>
         </div>
 
-        {/* 인증번호 UI (신규 계정만) */}
+        {/* 인증번호 UI */}
         {verifyStep && (
-          <div className="verify-box" style={{ marginBottom: "16px" }}>
+          <div className="verify-box verify-margin">
             <div className="input-with-button">
               <InputField
                 label="認証番号"
@@ -314,7 +325,7 @@ const Signup: React.FC = () => {
             </div>
 
             {timerActive && (
-              <div style={{ color: "red", fontWeight: "bold" }}>
+              <div className="signup-timer-text">
                 残り時間: {formatTime(timer)}
               </div>
             )}

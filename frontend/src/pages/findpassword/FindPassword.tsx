@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "../login/Login-Variables.css";
 import "../login/Login-Style.css";
+import "./FindPassword.css";
 import { TextContentTitle } from "../login/components/TextContentTitle";
 
 import {
@@ -24,9 +25,6 @@ const FindPassword: React.FC = () => {
   const isValidEmail = (value: string) =>
     /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 
-  /** ---------------------------------------------------
-   * 📌 인증번호 보내기
-   * --------------------------------------------------- */
   const handleSendCode = async () => {
     if (!email.trim()) {
       alert("メールアドレスを入力してください。");
@@ -47,7 +45,7 @@ const FindPassword: React.FC = () => {
       setCode("");
       setIsVerified(false);
 
-      setTimer(180); // 3분
+      setTimer(180);
       setTimerActive(true);
     } else if (result === "NOT_FOUND") {
       alert("登録されていないメールです。");
@@ -56,9 +54,6 @@ const FindPassword: React.FC = () => {
     }
   };
 
-  /** ---------------------------------------------------
-   * 📌 인증번호 확인 (페이지 이동 X)
-   * --------------------------------------------------- */
   const handleVerify = async () => {
     if (!code.trim()) {
       alert("認証番号を入力してください。");
@@ -77,14 +72,10 @@ const FindPassword: React.FC = () => {
       return;
     }
 
-    // 🔥 인증 성공
     setIsVerified(true);
     alert("認証が完了しました。次へ進むボタンを押してください。");
   };
 
-  /** ---------------------------------------------------
-   * 📌 다음 페이지로 이동
-   * --------------------------------------------------- */
   const handleGoNext = () => {
     if (!isVerified) {
       alert("認証が完了していません。");
@@ -94,9 +85,6 @@ const FindPassword: React.FC = () => {
     navigate("/reset-password", { state: { email } });
   };
 
-  /** ---------------------------------------------------
-   * 📌 재전송
-   * --------------------------------------------------- */
   const handleResend = async () => {
     const result = await sendPasswordResetCode(email);
 
@@ -111,9 +99,6 @@ const FindPassword: React.FC = () => {
     }
   };
 
-  /** ---------------------------------------------------
-   * 📌 3분 타이머
-   * --------------------------------------------------- */
   useEffect(() => {
     if (timerActive && timer > 0) {
       const id = setInterval(() => {
@@ -129,91 +114,62 @@ const FindPassword: React.FC = () => {
     }
   }, [timerActive, timer]);
 
-  /** 타이머 표시 */
   const formatTime = (sec: number) =>
     `${Math.floor(sec / 60)}:${String(sec % 60).padStart(2, "0")}`;
 
   return (
-    <div className="login-page">
+    <div className="fp-page">
       <TextContentTitle
         title="パスワード再設定"
         align="center"
-        className="login-title"
+        className="fp-title"
       />
 
-      <div className="login-box">
-        {/* STEP 1: 이메일 입력 */}
+      <div className="fp-box">
+        {/* STEP 1 */}
         {step === "email" && (
           <>
             <label>Email</label>
             <input
-              className="login-input-field"
+              className="fp-input"
               type="email"
               placeholder="メールアドレスを入力してください。"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
 
-            <button
-              className="login-button"
-              style={{ marginTop: "20px" }}
-              onClick={handleSendCode}
-            >
+            <button className="fp-button mt-20" onClick={handleSendCode}>
               認証番号送信
             </button>
           </>
         )}
 
-        {/* STEP 2: 인증번호 입력 */}
+        {/* STEP 2 */}
         {step === "verify" && (
           <>
             <label>認証番号</label>
             <input
-              className="login-input-field"
+              className="fp-input"
               type="text"
               placeholder="メールに届いた認証番号を入力してください"
               value={code}
               onChange={(e) => setCode(e.target.value)}
             />
 
-            {/* 타이머 */}
             {timerActive && (
-              <div
-                style={{
-                  color: "red",
-                  fontWeight: "bold",
-                  marginTop: "8px",
-                }}
-              >
-                残り時間: {formatTime(timer)}
-              </div>
+              <div className="fp-timer">残り時間: {formatTime(timer)}</div>
             )}
 
-            {/* 재송신 */}
-            <button
-              className="login-button"
-              style={{ marginTop: "10px" }}
-              onClick={handleResend}
-            >
+            <button className="fp-button mt-10" onClick={handleResend}>
               再送信
             </button>
 
-            {/* 인증 버튼 */}
-            <button
-              className="login-button"
-              style={{ marginTop: "20px" }}
-              onClick={handleVerify}
-            >
+            <button className="fp-button mt-20" onClick={handleVerify}>
               認証する
             </button>
 
-            {/* 다음 버튼 */}
             <button
-              className="login-button"
-              style={{
-                marginTop: "15px",
-                backgroundColor: isVerified ? "#4CAF50" : "gray",
-              }}
+              className={`fp-button mt-15 ${isVerified ? "fp-success" : ""}`}
               onClick={handleGoNext}
               disabled={!isVerified}
             >
@@ -222,11 +178,7 @@ const FindPassword: React.FC = () => {
           </>
         )}
 
-        <div
-          className="clickable"
-          style={{ marginTop: "10px", textAlign: "center" }}
-          onClick={() => navigate("/login")}
-        >
+        <div className="fp-link" onClick={() => navigate("/login")}>
           ← ログインページに戻る
         </div>
       </div>

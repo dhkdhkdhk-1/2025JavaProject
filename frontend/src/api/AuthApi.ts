@@ -298,5 +298,17 @@ export const checkUsername = async (
   }
 };
 
+/** 재가입 시 게시글 존재 여부 확인 */
+export const hasPost = async (email: string): Promise<boolean> => {
+  try {
+    const res = await api.get(`/board/has-post/${email}`, {
+      headers: { skipAuthInterceptor: "true" },
+    });
+    return res.data === true;
+  } catch {
+    return false;
+  }
+};
+
 /** 앱 시작 시 토큰 설정 */
 setAccessToken(localStorage.getItem("accessToken"));

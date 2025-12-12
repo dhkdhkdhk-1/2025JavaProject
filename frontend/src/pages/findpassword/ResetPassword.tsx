@@ -2,13 +2,14 @@ import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import "../login/Login-Variables.css";
 import "../login/Login-Style.css";
+import "./ResetPassword.css"; // ⬅️ 추가
 import { TextContentTitle } from "../login/components/TextContentTitle";
 import { resetPassword } from "../../api/AuthApi";
 
 const ResetPassword: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const email = location.state?.email; // 인증 단계에서 전달받음
+  const email = location.state?.email;
 
   const [password, setPassword] = useState("");
   const [passwordCheck, setPasswordCheck] = useState("");
@@ -65,18 +66,18 @@ const ResetPassword: React.FC = () => {
           onChange={(e) => setPasswordCheck(e.target.value)}
         />
 
+        {/* 🔥 inline style 제거 */}
         <button
           type="button"
-          className="login-button"
-          style={{ marginTop: "20px" }}
+          className="login-button mt-20"
           onClick={handleReset}
         >
           パスワード変更
         </button>
 
+        {/* 🔥 inline style 제거 */}
         <div
-          className="clickable"
-          style={{ marginTop: "10px", textAlign: "center" }}
+          className="clickable mt-10 center-text"
           onClick={() => navigate("/login")}
         >
           ← ログインページへ戻る

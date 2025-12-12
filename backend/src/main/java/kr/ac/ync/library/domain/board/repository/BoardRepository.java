@@ -53,4 +53,8 @@ public interface BoardRepository extends JpaRepository<BoardEntity, Long> {
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("UPDATE BoardEntity b SET b.user.username = :newName WHERE b.user.id = :userId")
     void updateUsernameByUserId(@Param("userId") Long userId, @Param("newName") String newName);
+
+    //게시글 작성 여부
+    boolean existsByUser_Id(Long userId);
+
 }

@@ -2,8 +2,10 @@ package kr.ac.ync.library.domain.board.controller;
 
 import kr.ac.ync.library.domain.board.dto.BoardRequest;
 import kr.ac.ync.library.domain.board.dto.BoardResponse;
+import kr.ac.ync.library.domain.board.repository.BoardRepository;
 import kr.ac.ync.library.domain.board.service.BoardService;
 import kr.ac.ync.library.domain.users.mapper.UserMapper;
+import kr.ac.ync.library.domain.users.repository.UserRepository;
 import kr.ac.ync.library.global.common.security.auth.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
@@ -19,6 +21,8 @@ import java.util.*;
 public class BoardController {
 
     private final BoardService boardService;
+    private final UserRepository userRepository;
+    private final BoardRepository boardRepository;
 
     /** ✅ 검색 + 분류 + 페이징 + maxId + 게시판 타입(일반/공지) 구분 */
     @GetMapping
@@ -105,4 +109,19 @@ public class BoardController {
     public List<BoardResponse> getLatestNotice() {
         return boardService.getLatestNotices();
     }
+
+    @GetMapping("/has-post/{email}")
+    public ResponseEntity<Boolean> hasPost(@PathVariable String email) {
+        var user = userRepository.findByEmail(email)
+                .orElse(null);
+
+        if (user == null) {
+            return ResponseEntity.ok(false);
+        }
+
+        boolean exists = boardRepository.existsByUser_Id(user.getId());
+
+        return ResponseEntity.ok(exists);
+    }
+
 }
