@@ -49,7 +49,7 @@ public class SecurityConfig {
                         // ✅ 나머지 게시판 API는 로그인 필요
                         .requestMatchers("/board/**").authenticated()
                         // ✅ 리뷰, 책, 지점
-                        .requestMatchers("/reviews/user/**").authenticated()
+                        .requestMatchers("/reviews/user/**").permitAll()
                         .requestMatchers("/reviews/book/**").permitAll()
                         .requestMatchers("/reviews/list").permitAll()
                         .requestMatchers("/reviews/{id}").permitAll()   // 단일 조회
