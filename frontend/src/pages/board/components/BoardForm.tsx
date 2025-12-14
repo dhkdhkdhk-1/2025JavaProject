@@ -50,7 +50,7 @@ const BoardForm: React.FC<Props> = ({
       />
 
       <label>分類</label>
-      <div style={{ margin: "10px 0" }}>
+      <div>
         {(isNoticeBoard
           ? ["告知", "入荷", "行事"]
           : ["一般", "質問", "リクエスト"]

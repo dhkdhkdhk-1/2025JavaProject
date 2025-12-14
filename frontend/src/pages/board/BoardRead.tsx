@@ -77,33 +77,34 @@ const BoardRead: React.FC = () => {
         </div>
       </div>
 
-      <div className="board-content">{board.content}</div>
+      <div className="board-read-card">
+        <div className="board-content">{board.content}</div>
 
-      <div style={{ textAlign: "right", marginTop: "20px" }}>
-        {/* 리스트로 돌아가기 */}
-        <button
-          className="board-button"
-          onClick={() => navigate(`/board?type=${typeParam}`)}
-        >
-          リスト
-        </button>
+        <div className="board-read-actions">
+          <button
+            className="board-button"
+            onClick={() => navigate(`/board?type=${typeParam}`)}
+          >
+            リスト
+          </button>
 
-        {canEditOrDelete && (
-          <>
-            <button
-              className="board-button"
-              onClick={() =>
-                navigate(`/board/edit/${board.id}?type=${typeParam}`)
-              }
-            >
-              修正
-            </button>
+          {canEditOrDelete && (
+            <>
+              <button
+                className="board-button"
+                onClick={() =>
+                  navigate(`/board/edit/${board.id}?type=${typeParam}`)
+                }
+              >
+                修正
+              </button>
 
-            <button className="board-button delete" onClick={handleDelete}>
-              削除
-            </button>
-          </>
-        )}
+              <button className="board-button delete" onClick={handleDelete}>
+                削除
+              </button>
+            </>
+          )}
+        </div>
       </div>
     </div>
   );
