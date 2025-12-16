@@ -1,5 +1,6 @@
 package kr.ac.ync.library.domain.users.service;
 
+import kr.ac.ync.library.domain.board.repository.BoardRepository;
 import kr.ac.ync.library.domain.users.dto.*;
 import kr.ac.ync.library.domain.users.entity.UserEntity;
 import kr.ac.ync.library.domain.users.exception.InvalidPasswordException;
@@ -11,6 +12,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -19,6 +21,7 @@ import java.util.List;
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final BoardRepository boardRepository;
 
     @Override
     public Page<UserResponse> getList(Pageable pageable) {
@@ -31,14 +34,31 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public UserResponse updateMyInfo(String email, UserUpdateRequest request) {
         UserEntity user = userRepository.findByEmail(email)
-                .orElseThrow(() -> UserNotFoundException.EXCEPTION);
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
 
-        user.changeUsername(request.getUsername());
-        userRepository.save(user);
+        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+            throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
+        }
 
-        return UserMapper.toResponse(user);
+        if (!request.getPassword().equals(request.getPasswordCheck())) {
+            throw new IllegalArgumentException("비밀번호 확인이 일치하지 않습니다.");
+        }
+
+        if (!user.getUsername().equals(request.getUsername())
+                && userRepository.existsByUsername(request.getUsername())) {
+            throw new IllegalArgumentException("이미 존재하는 닉네임입니다.");
+        }
+
+        user.setUsername(request.getUsername());
+        userRepository.saveAndFlush(user);
+
+        // 게시판 작성자명도 변경
+        boardRepository.updateUsernameByUserId(user.getId(), request.getUsername());
+
+        return new UserResponse(user);
     }
 
     @Override

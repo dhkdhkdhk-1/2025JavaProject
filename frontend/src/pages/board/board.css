@@ -248,7 +248,7 @@
 
 /* 본문 카드 (진짜 카드) */
 .board-read .board-read-card {
-  max-width: 860px;
+  width: var(--board-content-width);
   margin: 0 auto;
 }
 
@@ -256,7 +256,7 @@
   background-color: #f7f7f7;
 
   /* ✅ 가로 크기 고정 (글자 수 무관) */
-  width: 720px; /* ← 완전 고정 */
+  width: var(--board-content-width);
   max-width: 100%; /* 모바일 대비 */
   margin: 0 auto; /* 중앙 정렬 */
 
