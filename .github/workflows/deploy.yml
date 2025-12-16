@@ -72,6 +72,7 @@ jobs:
               --name library-app \
               -p 8080:8080 \
               -e SPRING_PROFILES_ACTIVE=prod \
+              -e SPRING_CONFIG_ADDITIONAL_LOCATION=file:/app/config/ \
               -v /home/ubuntu/app/config:/app/config \
               $IMAGE_NAME:latest
 

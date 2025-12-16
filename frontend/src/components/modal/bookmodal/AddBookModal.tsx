@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Modal from "../Modal";
-import { getBranches } from "../../../api/BranchApi";
-import "./BookModal.css";
+import type { BookForm } from "../../../api/BookApi"; // 경로 맞춰
 
 interface Branch {
   id: number;
@@ -10,40 +9,43 @@ interface Branch {
 
 interface Props {
   isOpen: boolean;
-  onAdd: (book: any) => void;
+  onAdd: (form: BookForm, file?: File | null) => void; // ✅ 여기 변경
   onClose: () => void;
 }
 
-const AddBookModal: React.FC<Props> = ({ isOpen, onAdd, onClose }) => {
-  const [branches, setBranches] = useState<Branch[]>([]);
-  const [selected, setSelected] = useState<Branch[]>([]);
-  const [form, setForm] = useState({
+const AddBookModal: React.FC<AddBookModalProps> = ({
+  isOpen,
+  onAdd,
+  onClose,
+}) => {
+  const [form, setForm] = useState<BookForm>({
     title: "",
     author: "",
     publisher: "",
     category: "",
+    available: true,
+    branchId: null,
+    imageUrl: null,
+    description: "",
   });
 
-  useEffect(() => {
-    if (!isOpen) return;
-    getBranches(0, 200).then((res) => setBranches(res.content));
-    setSelected([]);
-  }, [isOpen]);
+  const [imageFile, setImageFile] = useState<File | null>(null);
 
-  const addBranch = (b: Branch) => {
-    if (selected.find((s) => s.id === b.id)) return;
-    setSelected([...selected, b]);
-  };
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
+    const { name, value } = e.target;
 
-  const removeBranch = (id: number) => {
-    setSelected(selected.filter((b) => b.id !== id));
+    setForm((prev) => ({
+      ...prev,
+      [name]:
+        name === "branchId" ? (value === "" ? null : Number(value)) : value,
+    }));
   };
 
   const handleSubmit = () => {
-    onAdd({
-      ...form,
-      branchIds: selected.map((b) => b.id),
-    });
+    console.log("ADD payload:", form); // ✅ 확인용
+    onAdd(form, imageFile);
     onClose();
   };
 
@@ -51,56 +53,48 @@ const AddBookModal: React.FC<Props> = ({ isOpen, onAdd, onClose }) => {
 
   return (
     <Modal isOpen={isOpen} title="Add Book" onClose={onClose}>
-      <div className="modal-body">
-        <input
-          placeholder="제목"
-          value={form.title}
-          onChange={(e) => setForm({ ...form, title: e.target.value })}
-        />
-        <input
-          placeholder="저자"
-          value={form.author}
-          onChange={(e) => setForm({ ...form, author: e.target.value })}
-        />
-        <input
-          placeholder="출판사"
-          value={form.publisher}
-          onChange={(e) => setForm({ ...form, publisher: e.target.value })}
-        />
+      <input
+        name="title"
+        placeholder="제목"
+        value={form.title}
+        onChange={handleChange}
+      />
+      <input
+        name="author"
+        placeholder="저자"
+        value={form.author}
+        onChange={handleChange}
+      />
+      <input
+        name="publisher"
+        placeholder="출판사"
+        value={form.publisher}
+        onChange={handleChange}
+      />
 
-        <select
-          value={form.category}
-          onChange={(e) => setForm({ ...form, category: e.target.value })}
-        >
-          <option value="">카테고리 선택</option>
-          <option value="NOVEL">소설</option>
-          <option value="ESSAY">에세이</option>
-          <option value="IT">IT</option>
-          <option value="HISTORY">역사</option>
-          <option value="SCIENCE">과학</option>
-          <option value="OTHER">기타</option>
-        </select>
+      <input
+        type="file"
+        accept="image/*"
+        onChange={(e) => setImageFile(e.target.files?.[0] ?? null)}
+      />
 
-        {/* 지점 선택 */}
-        <select onChange={(e) => {
-          const b = branches.find(x => x.id === Number(e.target.value));
-          if (b) addBranch(b);
-        }}>
-          <option value="">지점 추가</option>
-          {branches.map((b) => (
-            <option key={b.id} value={b.id}>{b.name}</option>
-          ))}
-        </select>
+      <input
+        name="branchId"
+        type="number"
+        placeholder="지점 ID (예: 1)"
+        value={form.branchId ?? ""}
+        onChange={handleChange}
+      />
 
-        {/* 선택된 지점 태그 */}
-        <div className="branch-tag-container">
-          {selected.map((b) => (
-            <div key={b.id} className="branch-tag">
-              {b.name}
-              <button onClick={() => removeBranch(b.id)}>×</button>
-            </div>
-          ))}
-        </div>
+      <select name="category" value={form.category} onChange={handleChange}>
+        <option value="">카테고리 선택</option>
+        <option value="NOVEL">소설</option>
+        <option value="ESSAY">에세이</option>
+        <option value="IT">IT / 프로그래밍</option>
+        <option value="HISTORY">역사</option>
+        <option value="SCIENCE">과학</option>
+        <option value="OTHER">기타</option>
+      </select>
 
         <div className="modal-actions">
           <button className="modal-btn cancel" onClick={onClose}>

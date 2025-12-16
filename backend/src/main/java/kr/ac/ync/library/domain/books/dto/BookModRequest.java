@@ -12,9 +12,6 @@ import java.util.List;
 @Setter
 public class BookModRequest {
 
-    @NotNull(message = "책 ID를 입력해주세요.")
-    private Long id;
-
     @NotBlank(message = "책 제목을 입력해주세요.")
     private String title;
 

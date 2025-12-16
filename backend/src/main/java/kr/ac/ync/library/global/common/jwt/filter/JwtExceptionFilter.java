@@ -27,11 +27,11 @@ public class JwtExceptionFilter extends OncePerRequestFilter
             filterChain.doFilter(request, response);
         } catch (JwtException e)
         {
-            wirteError(response, e.getMessage());
+            writeError(response, e.getMessage());
         }
     }
 
-    private void wirteError(HttpServletResponse response, String message) throws IOException
+    private void writeError(HttpServletResponse response, String message) throws IOException
     {
         if(response.isCommitted()) return;
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);

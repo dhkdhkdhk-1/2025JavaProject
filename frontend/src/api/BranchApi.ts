@@ -1,4 +1,4 @@
-import axios from "axios";
+import { api } from "./AuthApi";
 
 /* =========================
    Types
@@ -44,7 +44,7 @@ export const getBranches = async (
   page = 0,
   size = 10
 ): Promise<PageResponse<BranchResponse>> => {
-  const res = await axios.get<PageResponse<BranchResponse>>(
+  const res = await api.get<PageResponse<BranchResponse>>(
     `${BASE_URL}/branch/list`,
     { params: { page, size } }
   );
@@ -55,10 +55,7 @@ export const getBranches = async (
 export const addBranch = async (
   data: BranchRequest
 ): Promise<BranchResponse> => {
-  const res = await axios.post<BranchResponse>(
-    `${BASE_URL}/branch`,
-    data
-  );
+  const res = await api.post<BranchResponse>(`${BASE_URL}/branch`, data);
   return res.data;
 };
 
@@ -66,24 +63,17 @@ export const addBranch = async (
 export const updateBranch = async (
   data: BranchRequest
 ): Promise<BranchResponse> => {
-  const res = await axios.put<BranchResponse>(
-    `${BASE_URL}/branch`,
-    data
-  );
+  const res = await api.put<BranchResponse>(`${BASE_URL}/branch`, data);
   return res.data;
 };
 
 /** ✅ 지점 삭제 */
 export const deleteBranch = async (id: number): Promise<void> => {
-  await axios.delete(`${BASE_URL}/branch/${id}`);
+  await api.delete(`${BASE_URL}/branch/${id}`);
 };
 
-/** ✅ 지점 단건 조회 */
-export const getBranchById = async (
-  id: number
-): Promise<BranchResponse> => {
-  const res = await axios.get<BranchResponse>(
-    `${BASE_URL}/branch/${id}`
-  );
+/** ✅ 단일 조회 */
+export const getBranchById = async (id: number): Promise<BranchResponse> => {
+  const res = await api.get<BranchResponse>(`${BASE_URL}/branch/${id}`);
   return res.data;
 };

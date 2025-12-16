@@ -39,24 +39,45 @@ export interface BookForm {
   author: string;
   publisher: string;
   category: string;
-
-  /** ✅ 여러 지점 ID */
-  branchIds: number[];
+  available: boolean;
+  branchId?: number | null;
+  imageUrl?: string | null; // (선택) 기존 URL 유지용
+  description?: string | null;
 }
 
-/* =========================
-   API Functions
-========================= */
+const buildBookFormData = (form: BookForm, file?: File | null) => {
+  const fd = new FormData();
 
-/** ✅ 도서 등록 */
-export const addBook = async (form: BookForm) => {
-  const res = await api.post(`/book`, form);
+  // 🔥 핵심: book은 반드시 JSON Blob
+  fd.append(
+    "book",
+    new Blob([JSON.stringify(form)], { type: "application/json" })
+  );
+
+  if (file instanceof File) {
+    fd.append("image", file);
+  }
+
+  return fd;
+};
+
+// 등록
+export const addBook = async (form: BookForm, file?: File | null) => {
+  const fd = buildBookFormData(form, file);
+  const res = await api.post("/book", fd);
+  console.log("form", form);
+  console.log("json", JSON.stringify(form));
   return res.data;
 };
 
-/** ✅ 도서 수정 */
-export const updateBook = async (form: any) => {
-  const res = await api.put(`/book`, form);
+// 수정
+export const updateBook = async (
+  id: number,
+  form: BookForm,
+  file?: File | null
+) => {
+  const fd = buildBookFormData(form, file);
+  const res = await api.put(`/book/${id}`, fd);
   return res.data;
 };
 

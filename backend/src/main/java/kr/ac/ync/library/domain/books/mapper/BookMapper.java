@@ -17,9 +17,7 @@ public class BookMapper {
                 .category(request.getCategory())
                 .available(request.isAvailable())
                 .publisher(request.getPublisher())
-                .description(request.getDescription())
-                .imageUrl(request.getImageUrl())
-                // ✅ 지점(BookBranch) 연결은 Service 계층에서 처리
+                // ✅ 지점 연결은 서비스에서 처리
                 .build();
     }
 

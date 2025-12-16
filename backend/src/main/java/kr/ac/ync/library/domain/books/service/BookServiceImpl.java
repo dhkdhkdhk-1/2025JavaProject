@@ -11,10 +11,13 @@ import kr.ac.ync.library.domain.books.mapper.BookMapper;
 import kr.ac.ync.library.domain.books.repository.BookRepository;
 import kr.ac.ync.library.domain.branch.entity.BranchEntity;
 import kr.ac.ync.library.domain.branch.repository.BranchRepository;
+import kr.ac.ync.library.global.common.s3.S3Uploader;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -25,45 +28,46 @@ public class BookServiceImpl implements BookService {
 
     private final BookRepository bookRepository;
     private final BranchRepository branchRepository;
+    private final S3Uploader s3Uploader;
 
     /** ✅ 도서 등록 (여러 지점) */
     @Override
-    public BookResponse register(BookRegisterRequest request) {
+    public BookResponse register(BookRegisterRequest request, MultipartFile image) throws IOException {
+        BookEntity bookEntity = BookMapper.toEntity(request);
 
-        if (request.getBranchIds() == null || request.getBranchIds().isEmpty()) {
-            throw new IllegalArgumentException("최소 1개 이상의 지점을 선택해야 합니다.");
+        if (image != null && !image.isEmpty()) {
+            String imageUrl = s3Uploader.uploadBookImage(image);
+            bookEntity.uptImageUrl(imageUrl);
         }
-
-        BookEntity book = BookMapper.toEntity(request);
-
-        for (Long branchId : request.getBranchIds()) {
-            BranchEntity branch = branchRepository.findById(branchId)
-                    .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 지점입니다."));
-
-            BookBranchEntity.link(book, branch, true);
-        }
-
-        return BookMapper.toResponse(bookRepository.save(book));
-    }
-
-    // ===== 이하 기존 코드 유지 =====
-
-    @Override
-    public BookResponse modify(BookModRequest request) {
-        BookEntity bookEntity = bookRepository.findById(request.getId())
-                .orElseThrow(() -> BookNotFoundException.EXCEPTION);
-
-        bookEntity.uptTitle(request.getTitle());
-        bookEntity.uptCategory(request.getCategory());
-        bookEntity.uptAuthor(request.getAuthor());
-        bookEntity.uptPublisher(request.getPublisher());
-        bookEntity.uptDescription(request.getDescription());
-        bookEntity.uptImageUrl(request.getImageUrl());
-
-        if (request.isAvailable()) bookEntity.markAsReturned();
-        else bookEntity.markAsBorrowed();
 
         return BookMapper.toResponse(bookRepository.save(bookEntity));
+    }
+
+    @Override
+    public BookResponse modify(Long id, BookModRequest request, MultipartFile image) throws IOException {
+        BookEntity bookEntity = bookRepository.findById(id)
+                .orElseThrow(() -> BookNotFoundException.EXCEPTION);
+
+        String oldImageUrl = bookEntity.getImageUrl();
+
+        BookMapper.updateEntity(request, bookEntity);
+
+        if (image != null && !image.isEmpty()) {
+            String newImageUrl = s3Uploader.uploadBookImage(image);
+            bookEntity.uptImageUrl(newImageUrl);
+
+            BookEntity saved = bookRepository.save(bookEntity);
+
+            if (oldImageUrl != null && !oldImageUrl.isBlank() && !oldImageUrl.equals(newImageUrl)) {
+                try {
+                    s3Uploader.deleteByUrl(oldImageUrl);
+                } catch (Exception e) {
+                    // 삭제 실패해도 수정 자체는 성공해야 하니까 로그만 남기고 넘어감
+                    // log.warn("S3 old image delete failed: {}", oldImageUrl, e);
+                }
+            }
+        }
+            return BookMapper.toResponse(bookRepository.save(bookEntity));
     }
 
     @Override

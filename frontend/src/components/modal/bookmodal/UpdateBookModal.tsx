@@ -1,17 +1,11 @@
 import React, { useEffect, useState } from "react";
 import Modal from "../Modal";
-import { getBranches } from "../../../api/BranchApi";
-import "./UpdateBookModal.css";
-
-interface Branch {
-  id: number;
-  name: string;
-}
+import type { BookForm, Book } from "../../../api/BookApi";
 
 interface Props {
   isOpen: boolean;
-  book: any;
-  onUpdate: (updatedBook: any) => void;
+  book: Book | null;
+  onUpdate: (id: number, form: BookForm, file?: File | null) => void;
   onClose: () => void;
 }
 
@@ -21,144 +15,111 @@ const UpdateBookModal: React.FC<Props> = ({
   onUpdate,
   onClose,
 }) => {
-  const [branches, setBranches] = useState<Branch[]>([]);
-  const [search, setSearch] = useState("");
-  const [selected, setSelected] = useState<Branch[]>([]);
-
-  const [form, setForm] = useState<any>({
-    id: null,
+  const [form, setForm] = useState<BookForm>({
     title: "",
     author: "",
     publisher: "",
     category: "",
+    available: true,
+    branchId: null,
+    imageUrl: null,
+    description: "",
   });
+
+  const [imageFile, setImageFile] = useState<File | null>(null);
 
   /** 초기 데이터 */
   useEffect(() => {
-    if (!book) return;
-
-    setForm({
-      id: book.id,
-      title: book.title,
-      author: book.author,
-      publisher: book.publisher,
-      category: book.category,
-    });
-
-    if (book.branches) {
-      setSelected(book.branches);
+    if (book) {
+      setForm({
+        title: book.title,
+        author: book.author,
+        publisher: book.publisher,
+        category: book.category,
+        available: book.available,
+        branchId: book.branchId ?? null,
+        imageUrl: book.imageUrl ?? null,
+        description: book.description ?? "",
+      });
     }
-  }, [book]);
+    setImageFile(null);
+  }, [book, isOpen]);
 
-  /** 지점 로딩 */
-  useEffect(() => {
-    if (!isOpen) return;
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
+    const { name, value } = e.target;
 
-    getBranches(0, 500).then((res) => {
-      setBranches(res.content);
-    });
-  }, [isOpen]);
-
-  const filtered = branches.filter(
-    (b) =>
-      b.name.toLowerCase().includes(search.toLowerCase()) ||
-      String(b.id).includes(search)
-  );
-
-  const addBranch = (branch: Branch) => {
-    if (selected.find((b) => b.id === branch.id)) return;
-    setSelected([...selected, branch]);
-    setSearch("");
-  };
-
-  const removeBranch = (id: number) => {
-    setSelected(selected.filter((b) => b.id !== id));
+    setForm((prev) => ({
+      ...prev,
+      [name]:
+        name === "branchId" ? (value === "" ? null : Number(value)) : value,
+    }));
   };
 
   const handleSubmit = () => {
-    onUpdate({
-      ...form,
-      branchIds: selected.map((b) => b.id),
-    });
+    if (!book) return;
+    onUpdate(book.id, form, imageFile);
     onClose();
   };
 
-  if (!isOpen) return null;
+  if (!isOpen || !book) return null;
 
   return (
     <Modal isOpen={isOpen} title="Update Book" onClose={onClose}>
-      {/* 📌 기본 정보 */}
-      <div className="form-section">
-        <input
-          placeholder="제목"
-          value={form.title}
-          onChange={(e) => setForm({ ...form, title: e.target.value })}
+      <input
+        name="title"
+        placeholder="제목"
+        value={form.title}
+        onChange={handleChange}
+      />
+      <input
+        name="author"
+        placeholder="저자"
+        value={form.author}
+        onChange={handleChange}
+      />
+      <input
+        name="publisher"
+        placeholder="출판사"
+        value={form.publisher}
+        onChange={handleChange}
+      />
+
+      {/* 기존 이미지 미리보기 */}
+      {form.imageUrl && (
+        <img
+          src={form.imageUrl}
+          alt="current"
+          style={{ width: 120, borderRadius: 6, margin: "8px 0" }}
         />
-        <input
-          placeholder="저자"
-          value={form.author}
-          onChange={(e) => setForm({ ...form, author: e.target.value })}
-        />
-        <input
-          placeholder="출판사"
-          value={form.publisher}
-          onChange={(e) => setForm({ ...form, publisher: e.target.value })}
-        />
+      )}
 
-        <select
-          value={form.category}
-          onChange={(e) => setForm({ ...form, category: e.target.value })}
-        >
-          <option value="">카테고리 선택</option>
-          <option value="NOVEL">소설</option>
-          <option value="ESSAY">에세이</option>
-          <option value="IT">IT</option>
-          <option value="HISTORY">역사</option>
-          <option value="SCIENCE">과학</option>
-          <option value="OTHER">기타</option>
-        </select>
-      </div>
+      {/* 새 이미지 선택 */}
+      <input
+        type="file"
+        accept="image/*"
+        onChange={(e) => setImageFile(e.target.files?.[0] ?? null)}
+      />
 
-      {/* 📌 지점 선택 */}
-      <div className="branch-section">
-        <label className="section-label">등록 지점</label>
+      <input
+        name="branchId"
+        type="number"
+        placeholder="지점 ID (예: 1)"
+        value={form.branchId ?? ""}
+        onChange={handleChange}
+      />
 
-        <div className="branch-search">
-          <input
-            placeholder="지점명 또는 ID 검색"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
+      <select name="category" value={form.category} onChange={handleChange}>
+        <option value="">카테고리 선택</option>
+        <option value="NOVEL">소설</option>
+        <option value="ESSAY">에세이</option>
+        <option value="IT">IT / プログラミング</option>
+        <option value="HISTORY">歴史</option>
+        <option value="SCIENCE">科学</option>
+        <option value="OTHER">その他</option>
+      </select>
 
-          {search && (
-            <div className="branch-dropdown">
-              {filtered.slice(0, 8).map((b) => (
-                <div
-                  key={b.id}
-                  className="branch-item"
-                  onClick={() => addBranch(b)}
-                >
-                  {b.name} (ID: {b.id})
-                </div>
-              ))}
-              {filtered.length === 0 && (
-                <div className="branch-empty">검색 결과 없음</div>
-              )}
-            </div>
-          )}
-        </div>
-
-        <div className="selected-branches">
-          {selected.map((b) => (
-            <span key={b.id} className="branch-chip">
-              {b.name}
-              <button onClick={() => removeBranch(b.id)}>✕</button>
-            </span>
-          ))}
-        </div>
-      </div>
-
-      {/* 📌 버튼 */}
       <div className="modal-actions">
         <button className="modal-btn cancel" onClick={onClose}>
           CANCEL

@@ -5,6 +5,7 @@ import {
   updateBook,
   deleteBook,
   Book,
+  BookForm,
 } from "../../../api/BookApi";
 import AddBookModal from "../../../components/modal/bookmodal/AddBookModal";
 import UpdateBookModal from "../../../components/modal/bookmodal/UpdateBookModal";
@@ -50,30 +51,27 @@ const BookManager: React.FC = () => {
     }
   };
 
-  /** ✅ 책 등록 (branchIds DTO 정확히 맞춤) */
-const handleAddBook = async (form: any) => {
-  try {
-    await addBook({
-      title: form.title,
-      author: form.author,
-      publisher: form.publisher,
-      category: form.category,
-      branchIds: form.branchIds, // ✅ 그대로 전달
-    });
-
-    alert("📚 本が正常に登録されました！");
-    setIsAddOpen(false);
-    refreshBooks();
-  } catch (err) {
-    console.error(err);
-    alert("登録中にエラーが発生しました ❌");
-  }
-};
-
-  /** ✅ 책 수정 */
-  const handleUpdateBook = async (form: any) => {
+  // ✅ 등록: (form, file)로 받기
+  const handleAddBook = async (form: BookForm, file?: File | null) => {
     try {
-      await updateBook(form);
+      await addBook(form, file ?? null);
+      alert("📚 本が正常に登録されました！");
+      setIsAddOpen(false);
+      refreshBooks();
+    } catch (err) {
+      console.error(err);
+      alert("登録中にエラーが発生しました ❌");
+    }
+  };
+
+  // ✅ 수정: (form, file)로 받기
+  const handleUpdateBook = async (
+    id: number,
+    form: BookForm,
+    file?: File | null
+  ) => {
+    try {
+      await updateBook(id, form, file ?? null);
       alert("✏️ 本の情報が修正されました！");
       setIsUpdateOpen(false);
       refreshBooks();
@@ -83,7 +81,6 @@ const handleAddBook = async (form: any) => {
     }
   };
 
-  /** ✅ 책 삭제 */
   const handleDeleteBook = async () => {
     if (!selectedBook) return;
     try {
@@ -184,14 +181,14 @@ const handleAddBook = async (form: any) => {
 
       <AddBookModal
         isOpen={isAddOpen}
-        onAdd={handleAddBook}
+        onAdd={handleAddBook} // ✅ (form, file) 받는 형태
         onClose={() => setIsAddOpen(false)}
       />
 
       <UpdateBookModal
         isOpen={isUpdateOpen}
         book={selectedBook}
-        onUpdate={handleUpdateBook}
+        onUpdate={handleUpdateBook} // ✅ (form, file)
         onClose={() => setIsUpdateOpen(false)}
       />
 
