@@ -3,13 +3,13 @@ package kr.ac.ync.library.domain.books.mapper;
 import kr.ac.ync.library.domain.books.dto.BookModRequest;
 import kr.ac.ync.library.domain.books.dto.BookRegisterRequest;
 import kr.ac.ync.library.domain.books.dto.BookResponse;
-import kr.ac.ync.library.domain.books.entity.BookBranchEntity;
 import kr.ac.ync.library.domain.books.entity.BookEntity;
-
-import java.util.stream.Collectors;
 
 public class BookMapper {
 
+    /** =========================
+     *  도서 등록 → Entity 변환
+     *  ========================= */
     public static BookEntity toEntity(BookRegisterRequest request) {
         return BookEntity.builder()
                 .title(request.getTitle())
@@ -19,40 +19,42 @@ public class BookMapper {
                 .publisher(request.getPublisher())
                 .description(request.getDescription())
                 .imageUrl(request.getImageUrl())
-                // ✅ 지점 연결은 서비스에서 처리
+                // ✅ 지점(BookBranch) 연결은 Service 계층에서 처리
                 .build();
     }
 
+    /** =========================
+     *  도서 수정 → Entity 반영
+     *  ========================= */
     public static void updateEntity(BookModRequest dto, BookEntity entity) {
         entity.uptTitle(dto.getTitle());
         entity.uptAuthor(dto.getAuthor());
         entity.uptPublisher(dto.getPublisher());
         entity.uptCategory(dto.getCategory());
-        if (dto.isAvailable()) entity.markAsReturned();
-        else entity.markAsBorrowed();
+
+        if (dto.isAvailable()) {
+            entity.markAsReturned();
+        } else {
+            entity.markAsBorrowed();
+        }
+
+        entity.uptDescription(dto.getDescription());
+        entity.uptImageUrl(dto.getImageUrl());
     }
 
+    /** =========================
+     *  Entity → Response DTO
+     *  ========================= */
     public static BookResponse toResponse(BookEntity entity) {
+
         double avgRating = 0.0;
         if (entity.getReviews() != null && !entity.getReviews().isEmpty()) {
             avgRating = entity.getReviews()
                     .stream()
-                    .mapToDouble(r -> r.getRating() == null ? 0 : r.getRating())
+                    .mapToDouble(r -> r.getRating() == null ? 0.0 : r.getRating())
                     .average()
                     .orElse(0.0);
         }
-
-        // ✅ 여러 지점 이름을 쉼표로 병합 (BookBranchEntity 통해 접근)
-        String branchesSummary = entity.getBookBranches() != null && !entity.getBookBranches().isEmpty()
-                ? entity.getBookBranches().stream()
-                .map(rel -> rel.getBranch().getName())
-                .collect(Collectors.joining(", "))
-                : "지점 없음";
-
-        // ✅ 대표 branchId (첫 번째 지점 기준)
-        Long firstBranchId = entity.getBookBranches() != null && !entity.getBookBranches().isEmpty()
-                ? entity.getBookBranches().get(0).getBranch().getId()
-                : null;
 
         return BookResponse.builder()
                 .id(entity.getId())
@@ -65,8 +67,6 @@ public class BookMapper {
                 .imageUrl(entity.getImageUrl())
                 .createdDateTime(entity.getCreatedDateTime())
                 .modifiedDateTime(entity.getModifiedDateTime())
-                .branchId(firstBranchId)
-                .branchName(branchesSummary) // ✅ 여러 지점 정보 추가
                 .rating(avgRating)
                 .build();
     }

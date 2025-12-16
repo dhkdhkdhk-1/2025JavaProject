@@ -6,6 +6,8 @@ import kr.ac.ync.library.domain.books.entity.enums.BookCategory;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
+
 @Getter
 @Setter
 public class BookRegisterRequest {
@@ -28,5 +30,5 @@ public class BookRegisterRequest {
     private String imageUrl;    // 이미지 URL
 
     @NotNull(message = "지점ID(branchId)는 필수입니다.")
-    private Long branchId;      // ★ 반드시 필요
+    private List<Long> branchIds;
 }

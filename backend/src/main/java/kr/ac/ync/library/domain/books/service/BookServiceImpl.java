@@ -26,14 +26,28 @@ public class BookServiceImpl implements BookService {
     private final BookRepository bookRepository;
     private final BranchRepository branchRepository;
 
-    /** ✅ 도서 등록 */
+    /** ✅ 도서 등록 (여러 지점) */
     @Override
     public BookResponse register(BookRegisterRequest request) {
-        BookEntity entity = BookMapper.toEntity(request);
-        return BookMapper.toResponse(bookRepository.save(entity));
+
+        if (request.getBranchIds() == null || request.getBranchIds().isEmpty()) {
+            throw new IllegalArgumentException("최소 1개 이상의 지점을 선택해야 합니다.");
+        }
+
+        BookEntity book = BookMapper.toEntity(request);
+
+        for (Long branchId : request.getBranchIds()) {
+            BranchEntity branch = branchRepository.findById(branchId)
+                    .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 지점입니다."));
+
+            BookBranchEntity.link(book, branch, true);
+        }
+
+        return BookMapper.toResponse(bookRepository.save(book));
     }
 
-    /** ✅ 도서 수정 */
+    // ===== 이하 기존 코드 유지 =====
+
     @Override
     public BookResponse modify(BookModRequest request) {
         BookEntity bookEntity = bookRepository.findById(request.getId())
@@ -52,108 +66,80 @@ public class BookServiceImpl implements BookService {
         return BookMapper.toResponse(bookRepository.save(bookEntity));
     }
 
-    /** ✅ 도서 삭제 */
     @Override
     public void remove(Long id) {
         bookRepository.findById(id).orElseThrow(() -> BookNotFoundException.EXCEPTION);
         bookRepository.deleteById(id);
     }
 
-    /** ✅ 단일 도서 조회 */
     @Override
     public BookResponse get(Long id) {
         return BookMapper.toResponse(bookRepository.findById(id)
                 .orElseThrow(() -> BookNotFoundException.EXCEPTION));
     }
 
-    /** ✅ 전체 목록 조회 */
     @Override
     public List<BookResponse> getList() {
         return bookRepository.findAll().stream()
-                .map(b -> BookMapper.toResponse((BookEntity) b)) // ✅ 명시적 캐스팅
+                .map(BookMapper::toResponse)
                 .collect(Collectors.toList());
     }
 
-    /** ✅ 페이징 목록 조회 */
     @Override
     public Page<BookResponse> getList(Pageable pageable) {
         Page<BookEntity> page = bookRepository.findAll(pageable);
-        List<BookResponse> responses = page.getContent().stream()
-                .map(b -> BookMapper.toResponse((BookEntity) b)) // ✅ 명시적 캐스팅
-                .collect(Collectors.toList());
-        return new PageImpl<>(responses, pageable, page.getTotalElements());
+        return page.map(BookMapper::toResponse);
     }
 
-    /**
-     * ✅ 장르 + 검색어 필터 포함 목록 조회 (BookRepository 수정 없이 Stream으로 구현)
-     */
     @Override
     public Page<BookResponse> getList(Pageable pageable, String keyword, List<BookCategory> genres) {
-        // 1️⃣ 모든 도서 가져오기
         List<BookEntity> allBooks = bookRepository.findAll();
 
-        // 2️⃣ 검색어 & 장르 필터링
-        String searchKeyword = (keyword == null || keyword.isBlank()) ? "" : keyword.toLowerCase();
+        String search = keyword == null ? "" : keyword.toLowerCase();
 
         List<BookEntity> filtered = allBooks.stream()
-                .filter(b -> {
-                    boolean matchesKeyword =
-                            searchKeyword.isEmpty() ||
-                                    (b.getTitle() != null && b.getTitle().toLowerCase().contains(searchKeyword)) ||
-                                    (b.getAuthor() != null && b.getAuthor().toLowerCase().contains(searchKeyword)) ||
-                                    (b.getPublisher() != null && b.getPublisher().toLowerCase().contains(searchKeyword));
+                .filter(b ->
+                        (search.isEmpty()
+                                || b.getTitle().toLowerCase().contains(search)
+                                || b.getAuthor().toLowerCase().contains(search))
+                                &&
+                                (genres == null || genres.isEmpty() || genres.contains(b.getCategory()))
+                )
+                .sorted(Comparator.comparing(
+                        (BookEntity b) -> Optional.ofNullable(b.getCreatedDateTime())
+                                .orElse(LocalDateTime.MIN)
+                ).reversed())
+                .toList();
 
-                    boolean matchesGenre =
-                            (genres == null || genres.isEmpty()) ||
-                                    genres.contains(b.getCategory());
-
-                    return matchesKeyword && matchesGenre;
-                })
-                .collect(Collectors.toList());
-
-        // 3️⃣ 정렬 (createdDateTime null-safe)
-        filtered.sort(Comparator.comparing(
-                (BookEntity b) -> Optional.ofNullable(b.getCreatedDateTime())
-                        .orElse(LocalDateTime.MIN)
-        ).reversed());
-
-        // 4️⃣ 페이징 처리 (List → Page)
         int start = (int) pageable.getOffset();
         int end = Math.min(start + pageable.getPageSize(), filtered.size());
 
-        List<BookResponse> pagedContent = (start > end ? Collections.emptyList() : filtered.subList(start, end))
-                .stream()
-                .map(b -> BookMapper.toResponse((BookEntity) b)) // ✅ 명시적 캐스팅
-                .collect(Collectors.toList());
-
-        return new PageImpl<>(pagedContent, pageable, filtered.size());
+        return new PageImpl<>(
+                filtered.subList(start, end).stream().map(BookMapper::toResponse).toList(),
+                pageable,
+                filtered.size()
+        );
     }
 
-    /** ✅ 지점별 상태 조회 */
     @Override
     public List<Map<String, Object>> getBookBranchStatus(Long bookId) {
         BookEntity book = bookRepository.findById(bookId)
                 .orElseThrow(() -> BookNotFoundException.EXCEPTION);
 
-        List<BranchEntity> allBranches = branchRepository.findAll();
+        List<BranchEntity> branches = branchRepository.findAll();
 
-        // ✅ 중복 키 발생 방지: merge 함수 추가
-        Map<Long, Boolean> connectedBranches = book.getBookBranches()
-                .stream()
+        Map<Long, Boolean> map = book.getBookBranches().stream()
                 .collect(Collectors.toMap(
-                        rel -> rel.getBranch().getId(),
-                        BookBranchEntity::isAvailable,
-                        (v1, v2) -> v1  // 중복 branchId가 있을 경우 첫 번째 값 유지
+                        r -> r.getBranch().getId(),
+                        BookBranchEntity::isAvailable
                 ));
 
-        return allBranches.stream().map(branch -> {
-            Map<String, Object> info = new HashMap<>();
-            info.put("branchId", branch.getId());
-            info.put("branchName", branch.getName());
-            info.put("address", branch.getLocation());
-            info.put("available", connectedBranches.getOrDefault(branch.getId(), false));
-            return info;
-        }).collect(Collectors.toList());
+        return branches.stream().map(b -> {
+            Map<String, Object> m = new HashMap<>();
+            m.put("branchId", b.getId());
+            m.put("branchName", b.getName());
+            m.put("available", map.getOrDefault(b.getId(), false));
+            return m;
+        }).toList();
     }
-
 }

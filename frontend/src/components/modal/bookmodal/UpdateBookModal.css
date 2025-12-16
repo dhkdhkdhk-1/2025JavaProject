@@ -1,0 +1,102 @@
+/* =========================
+   섹션 분리
+========================= */
+.form-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.branch-section {
+  margin-bottom: 28px;
+}
+
+/* 섹션 타이틀 */
+.section-label {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  display: block;
+}
+
+/* =========================
+   지점 검색
+========================= */
+.branch-search {
+  position: relative;
+  margin-bottom: 12px;
+}
+
+.branch-search input {
+  width: 100%;
+  padding: 10px;
+  font-size: 14px;
+}
+
+/* 드롭다운 */
+.branch-dropdown {
+  position: absolute;
+  top: 42px;
+  width: 100%;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 10;
+}
+
+.branch-item {
+  padding: 8px 10px;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.branch-item:hover {
+  background-color: #f5f5f5;
+}
+
+.branch-empty {
+  padding: 10px;
+  font-size: 13px;
+  color: #888;
+}
+
+/* =========================
+   선택된 지점 태그
+========================= */
+.selected-branches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.branch-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 10px;
+  background: #f1f3f5;
+  border-radius: 16px;
+  font-size: 13px;
+}
+
+.branch-chip button {
+  margin-left: 6px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+/* =========================
+   버튼 영역
+========================= */
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding-top: 14px;
+  border-top: 1px solid #eee;
+}

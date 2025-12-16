@@ -17,13 +17,11 @@ const BookManager: React.FC = () => {
   const [totalPages, setTotalPages] = useState(0);
   const [keyword, setKeyword] = useState("");
 
-  // モーダル状態管理
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [isUpdateOpen, setIsUpdateOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [selectedBook, setSelectedBook] = useState<Book | null>(null);
 
-  // ✅ リストを更新する関数
   const refreshBooks = useCallback(() => {
     getBooks(page, 10, keyword).then((data) => {
       setBooks(data.content);
@@ -42,7 +40,7 @@ const BookManager: React.FC = () => {
       case "ESSAY":
         return "エッセイ";
       case "IT":
-        return "IT / プログラミング";
+        return "IT";
       case "HISTORY":
         return "歴史";
       case "SCIENCE":
@@ -52,20 +50,27 @@ const BookManager: React.FC = () => {
     }
   };
 
-  // ✅ 新しい本を登録
-  const handleAddBook = async (form: any) => {
-    try {
-      await addBook(form);
-      alert("📚 本が正常に登録されました！");
-      setIsAddOpen(false);
-      refreshBooks();
-    } catch (err) {
-      console.error(err);
-      alert("登録中にエラーが発生しました ❌");
-    }
-  };
+  /** ✅ 책 등록 (branchIds DTO 정확히 맞춤) */
+const handleAddBook = async (form: any) => {
+  try {
+    await addBook({
+      title: form.title,
+      author: form.author,
+      publisher: form.publisher,
+      category: form.category,
+      branchIds: form.branchIds, // ✅ 그대로 전달
+    });
 
-  // ✅ 本を修正
+    alert("📚 本が正常に登録されました！");
+    setIsAddOpen(false);
+    refreshBooks();
+  } catch (err) {
+    console.error(err);
+    alert("登録中にエラーが発生しました ❌");
+  }
+};
+
+  /** ✅ 책 수정 */
   const handleUpdateBook = async (form: any) => {
     try {
       await updateBook(form);
@@ -78,7 +83,7 @@ const BookManager: React.FC = () => {
     }
   };
 
-  // ✅ 本を削除
+  /** ✅ 책 삭제 */
   const handleDeleteBook = async () => {
     if (!selectedBook) return;
     try {
@@ -177,7 +182,6 @@ const BookManager: React.FC = () => {
         </main>
       </div>
 
-      {/* ✅ モーダルたち */}
       <AddBookModal
         isOpen={isAddOpen}
         onAdd={handleAddBook}
