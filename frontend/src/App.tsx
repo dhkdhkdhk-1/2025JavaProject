@@ -104,6 +104,7 @@ const App: React.FC = () => {
         {/* 로그인 필요 */}
         <Route element={<ProtectedLayout />}>
           <Route path="/home" element={<Home />} />
+
           {/* ✅ 게시판 라우팅 */}
           <Route path="/board" element={<Outlet />}>
             <Route index element={<BoardList />} />
@@ -115,35 +116,29 @@ const App: React.FC = () => {
             />
             <Route path="edit/:id" element={<BoardEdit />} />
           </Route>
+
           {/* ✅ 기타 페이지 */}
           <Route path="/MyPage" element={<MyPage />} />
           <Route path="/withdraw" element={<Withdraw />} />
           <Route path="/account-info" element={<AccountInfo />} />
           <Route path="/booklist" element={<BookList />} />
           <Route path="/book/:id" element={<BookInfo />} />
-          {/* ✅ 리뷰 관련 */}
-          <Route path="/review/book/:id" element={<TotalReview />} />{" "}
-          {/* 내가 쓴 전체 리뷰들 보기 */}
-          <Route path="/review/list" element={<ReviewList />} />{" "}
-          {/* 그 책에 대한 전체리뷰) */}
-          <Route path="/review/write/:id" element={<WriteReview />} />
-          <Route path="/review/detail/:id" element={<ReviewDetail />} />
+
           {/* ✅ 대여 및 찜 목록 */}
           <Route path="/rental" element={<RentalList />} />
           <Route path="/wishlist" element={<WishList />} />
-          <Route path="/booklist" element={<BookList />} />
-          <Route path="/book/:id" element={<BookInfo />} />{" "}
+
           {/* 문의내역 보는 곳 */}
           <Route path="/cs" element={<CsListPage />} />
           <Route path="/mycslistpage" element={<CsListPage />} />
           <Route path="/cs/detail/:id" element={<MyCsListDetail />} />
           <Route path="/writecs" element={<WriteCs />} />
-          {/* 리뷰 보는 곳 */}
+
+          {/* ✅ 리뷰 관련 */}
           <Route path="/review/book/:id" element={<TotalReview />} />
-          <Route path="/reviewlist" element={<ReviewList />} />
+          <Route path="/review/list" element={<ReviewList />} />
           <Route path="/review/write/:id" element={<WriteReview />} />
-          <Route path="/rental" element={<RentalList />} />
-          <Route path="/wishlist" element={<WishList />} />
+          <Route path="/review/detail/:id" element={<ReviewDetail />} />
         </Route>
 
         {/* ✅ 관리자 전용 */}

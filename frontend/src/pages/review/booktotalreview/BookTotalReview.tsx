@@ -1,17 +1,12 @@
+// src/pages/review/BookTotalReview.tsx
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
+import { getMe } from "../../../api/AuthApi"; // ✅ 로그인 가드
 import "./BookTotalReview.css";
 
-/* =========================
-   ✅ 서버 전용 BASE_URL
-   (localhost fallback 제거)
-========================= */
 const BASE_URL = process.env.REACT_APP_API_BASE_URL!;
 
-/* =========================
-   타입
-========================= */
 interface Review {
   id: number;
   bookId: number;
@@ -40,18 +35,27 @@ const BookTotalReview: React.FC = () => {
   const [totalPages, setTotalPages] = useState(0);
   const [loading, setLoading] = useState(false);
 
+  /* =========================
+     ✅ 로그인 가드 + 리뷰 조회
+  ========================= */
   useEffect(() => {
-    if (!id) return;
+    const loadData = async () => {
+      if (!id) return;
 
-    const fetchReviews = async () => {
       try {
         setLoading(true);
 
+        /** 🔐 1. 로그인 여부 확인
+         *  - 실패 시 AuthApi 인터셉터가 /login 이동
+         */
+        await getMe();
+
+        /** 📖 2. 리뷰 목록 조회 (PUBLIC API) */
         const res = await axios.get<PageResponse<Review>>(
           `${BASE_URL}/reviews/book/${id}`,
           {
             params: { page },
-            withCredentials: false, // Workers + CloudFront 안정
+            withCredentials: false, // JWT 헤더 방식이라 false가 안정적
           }
         );
 
@@ -60,13 +64,14 @@ const BookTotalReview: React.FC = () => {
       } catch (error) {
         console.error("리뷰 불러오기 실패:", error);
         alert("리뷰를 불러오는 중 오류가 발생했습니다.");
+        navigate(-1);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchReviews();
-  }, [id, page]);
+    loadData();
+  }, [id, page, navigate]);
 
   return (
     <div className="review-board-container">
@@ -96,7 +101,7 @@ const BookTotalReview: React.FC = () => {
                 <div
                   key={r.id}
                   className="table-row"
-                  onClick={() => navigate(`${BASE_URL}/reviews/${r.id}`)}
+                  onClick={() => navigate(`/review/detail/${r.id}`)}
                   style={{ cursor: "pointer" }}
                 >
                   <div className="table-cell col-number">
@@ -116,6 +121,7 @@ const BookTotalReview: React.FC = () => {
           </div>
         )}
 
+        {/* 페이지네이션 */}
         {totalPages > 1 && (
           <div className="pagination-container">
             <button
