@@ -1,5 +1,9 @@
 import { api } from "./AuthApi";
 
+/* =========================
+   Types
+========================= */
+
 export interface BranchResponse {
   id: number;
   name: string;
@@ -12,6 +16,7 @@ export interface BranchRequest {
   location: string;
 }
 
+/** ✅ 공통 페이지 응답 */
 export interface PageResponse<T> {
   content: T[];
   totalPages: number;
@@ -19,7 +24,20 @@ export interface PageResponse<T> {
   number: number;
 }
 
-const BASE_URL = process.env.REACT_APP_API_BASE_URL;
+/* =========================
+   ✅ 서버 전용 BASE_URL
+========================= */
+const BASE_URL = (() => {
+  const url = process.env.REACT_APP_API_BASE_URL;
+  if (!url) {
+    throw new Error("REACT_APP_API_BASE_URL is not defined");
+  }
+  return url;
+})();
+
+/* =========================
+   API Functions
+========================= */
 
 /** ✅ 지점 목록 조회 */
 export const getBranches = async (

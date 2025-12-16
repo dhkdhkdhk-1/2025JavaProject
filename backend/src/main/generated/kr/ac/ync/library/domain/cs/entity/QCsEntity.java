@@ -67,7 +67,7 @@ public class QCsEntity extends EntityPathBase<CsEntity> {
     public QCsEntity(Class<? extends CsEntity> type, PathMetadata metadata, PathInits inits) {
         super(type, metadata, inits);
         this.branch = inits.isInitialized("branch") ? new kr.ac.ync.library.domain.branch.entity.QBranchEntity(forProperty("branch")) : null;
-        this.user = inits.isInitialized("user") ? new kr.ac.ync.library.domain.users.entity.QUserEntity(forProperty("user"), inits.get("user")) : null;
+        this.user = inits.isInitialized("user") ? new kr.ac.ync.library.domain.users.entity.QUserEntity(forProperty("user")) : null;
     }
 
 }

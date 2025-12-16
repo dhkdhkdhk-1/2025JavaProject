@@ -134,12 +134,11 @@ const App: React.FC = () => {
           <Route path="/booklist" element={<BookList />} />
           <Route path="/book/:id" element={<BookInfo />} />{" "}
           {/* 문의내역 보는 곳 */}
-          <Route path="/mycslistpage" element={<CsListPage />} />{" "}
-          {/* 내 전체 문의 내역 */}
-          <Route path="/cs/detail/:id" element={<MyCsListDetail />} />{" "}
-          {/* 문의 내역 상세 페이지 */}
-          <Route path="/writecs" element={<WriteCs />} />{" "}
-          {/* 문의작성 페이지 */}
+          <Route path="/cs" element={<CsListPage />} />
+          <Route path="/mycslistpage" element={<CsListPage />} />
+          <Route path="/cs/detail/:id" element={<MyCsListDetail />} />
+          <Route path="/writecs" element={<WriteCs />} />
+          {/* 리뷰 보는 곳 */}
           <Route path="/review/book/:id" element={<TotalReview />} />
           <Route path="/reviewlist" element={<ReviewList />} />
           <Route path="/review/write/:id" element={<WriteReview />} />

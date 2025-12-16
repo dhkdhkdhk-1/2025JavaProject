@@ -41,7 +41,7 @@ const BookManager: React.FC = () => {
       case "ESSAY":
         return "エッセイ";
       case "IT":
-        return "IT / プログラミング";
+        return "IT";
       case "HISTORY":
         return "歴史";
       case "SCIENCE":

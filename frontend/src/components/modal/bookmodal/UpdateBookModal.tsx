@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Modal from "../Modal";
 import type { BookForm, Book } from "../../../api/BookApi";
 
@@ -28,6 +28,7 @@ const UpdateBookModal: React.FC<Props> = ({
 
   const [imageFile, setImageFile] = useState<File | null>(null);
 
+  /** 초기 데이터 */
   useEffect(() => {
     if (book) {
       setForm({

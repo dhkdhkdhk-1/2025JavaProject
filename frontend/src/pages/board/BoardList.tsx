@@ -273,11 +273,19 @@ const BoardList: React.FC = () => {
         </button>
       </div>
 
+      {loading ? (
+        <p style={{ textAlign: "center" }}>読み込み中...</p>
+      ) : errorMsg ? (
+        <p style={{ textAlign: "center" }}>{errorMsg}</p>
+      ) : (
+        <BoardTable
+          boards={boards}
+          onSelect={(id) => navigate(`/board/${id}?type=${apiBoardType}`)}
+        />
+      )}
+
       {/* ------------ 글쓰기 버튼: 권한에 따라 노출 -------------- */}
-      <div
-        className="board-write-area"
-        style={{ textAlign: "right", margin: "10px 0" }}
-      >
+      <div className="board-write-area">
         {/* 일반 게시판 → 로그인 유저 모두 가능 */}
         {apiBoardType === "general" && currentUser && (
           <button
@@ -301,27 +309,50 @@ const BoardList: React.FC = () => {
           )}
       </div>
 
-      {loading ? (
-        <p style={{ textAlign: "center" }}>読み込み中...</p>
-      ) : errorMsg ? (
-        <p style={{ textAlign: "center" }}>{errorMsg}</p>
-      ) : (
-        <BoardTable
-          boards={boards}
-          onSelect={(id) => navigate(`/board/${id}?type=${apiBoardType}`)}
-        />
-      )}
-
+      {/* 페이지네이션 */}
       <div className="pagination">
-        {[...Array(Math.max(totalPages, 1))].map((_, num) => (
-          <button
-            key={num}
-            className={`page-number ${num === page ? "active" : ""}`}
-            onClick={() => navigate(`/board?type=${apiBoardType}&page=${num}`)}
-          >
-            {num + 1}
-          </button>
-        ))}
+        <button
+          className="board-button"
+          disabled={page === 0}
+          onClick={() =>
+            navigate(`/board?type=${apiBoardType}&page=${page - 1}`)
+          }
+        >
+          ⇠前へ
+        </button>
+
+        {Array.from(
+          {
+            length: Math.min(5, totalPages),
+          },
+          (_, i) => {
+            const start = Math.max(0, page - 2);
+            const pageNum = start + i;
+            if (pageNum >= totalPages) return null;
+
+            return (
+              <button
+                key={pageNum}
+                className={`page-number ${pageNum === page ? "active" : ""}`}
+                onClick={() =>
+                  navigate(`/board?type=${apiBoardType}&page=${pageNum}`)
+                }
+              >
+                {pageNum + 1}
+              </button>
+            );
+          }
+        )}
+
+        <button
+          className="board-button"
+          disabled={page === totalPages - 1}
+          onClick={() =>
+            navigate(`/board?type=${apiBoardType}&page=${page + 1}`)
+          }
+        >
+          次へ⇢
+        </button>
       </div>
     </div>
   );

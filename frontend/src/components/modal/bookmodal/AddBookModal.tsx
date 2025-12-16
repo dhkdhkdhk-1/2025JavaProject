@@ -1,8 +1,13 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Modal from "../Modal";
 import type { BookForm } from "../../../api/BookApi"; // 경로 맞춰
 
-export interface AddBookModalProps {
+interface Branch {
+  id: number;
+  name: string;
+}
+
+interface Props {
   isOpen: boolean;
   onAdd: (form: BookForm, file?: File | null) => void; // ✅ 여기 변경
   onClose: () => void;
@@ -91,13 +96,18 @@ const AddBookModal: React.FC<AddBookModalProps> = ({
         <option value="OTHER">기타</option>
       </select>
 
-      <div className="modal-actions">
-        <button className="modal-btn cancel" onClick={onClose}>
-          CANCEL
-        </button>
-        <button className="modal-btn confirm" onClick={handleSubmit}>
-          ADD
-        </button>
+        <div className="modal-actions">
+          <button className="modal-btn cancel" onClick={onClose}>
+            CANCEL
+          </button>
+          <button
+            className="modal-btn confirm"
+            onClick={handleSubmit}
+            disabled={selected.length === 0}
+          >
+            ADD
+          </button>
+        </div>
       </div>
     </Modal>
   );
