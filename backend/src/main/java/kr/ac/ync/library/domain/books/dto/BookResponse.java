@@ -6,20 +6,22 @@ import lombok.Getter;
 
 import java.time.LocalDateTime;
 
-@Builder
 @Getter
+@Builder
 public class BookResponse {
-    private Long id; // 도서 ID
-    private String title; // 제목
-    private String author; // 저자
-    private BookCategory category; // 카테고리 (Enum)
-    private String publisher; // 출판사
-    private boolean available; // 대여 가능 여부
-    private String description; // description 줄거리
-    private String imageUrl;    // imageUrl 사진 저장
-    private String branchName; // 지점 이름
-    private LocalDateTime createdDateTime; // 등록일
+
+    private Long id;
+    private String title;
+    private String author;
+    private BookCategory category;
+    private String publisher;
+    private boolean available;
+
+    private String description;
+    private String imageUrl;
+
+    private Double rating;
+
+    private LocalDateTime createdDateTime;
     private LocalDateTime modifiedDateTime;
-    private Long branchId;
-    private Double rating; // 평점 추가
 }
