@@ -29,7 +29,7 @@ const BoardForm: React.FC<Props> = ({
   };
 
   return (
-    <div className="board-container">
+    <div className="board-container board-write">
       <h1 className="board-title">
         {isEdit
           ? boardType === "告知"
@@ -40,17 +40,17 @@ const BoardForm: React.FC<Props> = ({
           : "投稿する"}
       </h1>
 
-      <label>タイトル</label>
+      <label className="field-label">タイトル</label>
       <input
-        className="board-input"
+        className="board-input board-title-input"
         name="title"
         value={form.title}
         onChange={onChange}
         placeholder="タイトルを書いてください。"
       />
 
-      <label>分類</label>
-      <div>
+      <label className="field-label">分類</label>
+      <div className="category-area">
         {(isNoticeBoard
           ? ["告知", "入荷", "行事"]
           : ["一般", "質問", "リクエスト"]
@@ -67,7 +67,7 @@ const BoardForm: React.FC<Props> = ({
         ))}
       </div>
 
-      <label>内容</label>
+      <label className="field-label">内容</label>
       <textarea
         className="board-textarea"
         rows={10}
@@ -77,7 +77,7 @@ const BoardForm: React.FC<Props> = ({
         placeholder="内容を書いてください。"
       />
 
-      <div style={{ textAlign: "right", marginTop: "20px" }}>
+      <div className="submit-area">
         <button className="board-button" onClick={onSubmit} type="button">
           {isEdit ? "修正" : "作成"}
         </button>
