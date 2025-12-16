@@ -1,35 +1,32 @@
 import React, { useEffect, useState } from "react";
 import "./ReviewSection.css";
-import { getPagedReviewsByBookId, Review } from "../../../api/ReviewApi";
+import {
+  getTopReviewsByBookId,
+  Review,
+} from "../../../api/ReviewApi";
 
 interface ReviewProps {
   bookId: number;
-  limit?: number; // 몇 개만 보여줄지
+  limit?: number; // 몇 개만 보여줄지 (선택)
   onMoreClick?: () => void;
 }
 
-const ReviewSection: React.FC<ReviewProps> = ({ bookId, limit, onMoreClick }) => {
+const ReviewSection: React.FC<ReviewProps> = ({
+  bookId,
+  limit,
+  onMoreClick,
+}) => {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string>("");
+  const [error, setError] = useState("");
 
   useEffect(() => {
     async function fetchReviews() {
       try {
         setLoading(true);
 
-        // ⭐ 페이징 API 호출
-        const pageData = await getPagedReviewsByBookId(bookId, 0);
-
-        // pageData.content 가 리뷰 배열
-        const data: Review[] = pageData.content;
-
-        // 최신순 정렬
-        data.sort(
-          (a, b) =>
-            new Date(b.createdDateTime).getTime() -
-            new Date(a.createdDateTime).getTime()
-        );
+        // ✅ 책 상세용: 최신 6개 전용 API
+        const data = await getTopReviewsByBookId(bookId);
 
         setReviews(data);
       } catch (err) {
@@ -48,8 +45,10 @@ const ReviewSection: React.FC<ReviewProps> = ({ bookId, limit, onMoreClick }) =>
   if (reviews.length === 0)
     return <div style={{ padding: 16 }}>登録されたレビューはありません。</div>;
 
-  // ⭐ limit가 있다면 일부만 표시
-  const displayedReviews = limit ? reviews.slice(0, limit) : reviews;
+  // ✅ limit 있으면 자르기 (기본은 6개 그대로)
+  const displayedReviews = limit
+    ? reviews.slice(0, limit)
+    : reviews;
 
   return (
     <section className="reviews-section">
@@ -68,14 +67,11 @@ const ReviewSection: React.FC<ReviewProps> = ({ bookId, limit, onMoreClick }) =>
                     className="star-icon"
                     viewBox="0 0 20 20"
                     fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
                   >
                     <path
                       d="M10 1.66667L12.5743 6.88334L18.3327 7.72501L14.166 11.7833L15.1493 17.5167L10 14.8083L4.84999 17.5167L5.83333 11.7833L1.66666 7.72501L7.42499 6.88334L10 1.66667Z"
                       stroke="#2C2C2C"
                       strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
                       fill={i < review.rating ? "#FFD700" : "none"}
                     />
                   </svg>
@@ -87,19 +83,17 @@ const ReviewSection: React.FC<ReviewProps> = ({ bookId, limit, onMoreClick }) =>
                 <p className="review-body">{review.comment}</p>
               </div>
 
-              <div className="avatar-block">
-                <div className="reviewer-details">
-                  <div className="reviewer-name">{review.username}</div>
-                  <div className="review-date">
-                    {new Date(review.createdDateTime).toLocaleDateString()}
-                  </div>
+              <div className="reviewer-details">
+                <div className="reviewer-name">{review.username}</div>
+                <div className="review-date">
+                  {new Date(review.createdDateTime).toLocaleDateString()}
                 </div>
               </div>
             </div>
           ))}
         </div>
 
-        {/* 리뷰 더보기 */}
+        {/* ✅ 리뷰 전체 페이지로 이동 */}
         {onMoreClick && (
           <div className="view-more-reviews" onClick={onMoreClick}>
             レビューをもっと見る
