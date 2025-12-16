@@ -61,7 +61,7 @@ const BoardRead: React.FC = () => {
   };
 
   return (
-    <div className="board-container">
+    <div className="board-container board-read">
       <h1 className="board-title">{board.title}</h1>
 
       <div className="board-meta">

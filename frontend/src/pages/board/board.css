@@ -12,34 +12,40 @@
 .board-container * {
   box-sizing: border-box;
 }
+/* =========================================
+   게시글 상세 기준 폭 (중요)
+   ========================================= */
+:root {
+  --board-content-width: 720px;
+}
 
-/* =========================
-   게시판 전체 컨테이너
-   ========================= */
+/* =================================================
+   게시판 전체 컨테이너 (공통 / 리스트 기준)
+   ================================================= */
 .board-container {
   max-width: 1000px;
-  margin: 0 auto; /* 🔥 위로 당김 */
+  margin: 0 auto;
   background: #fff;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  padding: 32px 40px; /* 🔥 상단 padding 감소 */
+  padding: 32px 40px;
   min-height: 750px;
 }
 
-/* =========================
-   게시판 제목
-   ========================= */
+/* =================================================
+   게시판 제목 (공통)
+   ================================================= */
 .board-title {
   text-align: center;
   font-size: 2rem;
   font-weight: bold;
-  margin-top: 0; /* 🔥 위 여백 제거 */
+  margin-top: 0;
   margin-bottom: 28px;
 }
 
-/* =========================
-   검색 영역
-   ========================= */
+/* =================================================
+   검색 영역 (리스트 전용)
+   ================================================= */
 .board-search-bar {
   display: flex;
   align-items: center;
@@ -73,9 +79,9 @@
   cursor: pointer;
 }
 
-/* =========================
-   게시판 타입 토글
-   ========================= */
+/* =================================================
+   게시판 타입 토글 (리스트 전용)
+   ================================================= */
 .board-category-toggle {
   display: flex;
   justify-content: center;
@@ -98,26 +104,20 @@
   font-weight: bold;
 }
 
-/* =========================
-   🔥 글작성 버튼 영역 (핵심)
-   ========================= */
-/* 🔥 글작성 버튼 영역 – 정답 */
+/* =================================================
+   글쓰기 버튼 영역 (리스트 전용)
+   ================================================= */
 .board-write-area {
   width: 100%;
   display: flex;
-  justify-content: flex-end; /* 컨테이너 기준 오른쪽 */
+  justify-content: flex-end;
   margin-top: 8px;
   margin-bottom: 16px;
 }
 
-/* 버튼 자체 여백 리셋 */
-.board-write-area .board-button {
-  margin-right: 0;
-}
-
-/* =========================
+/* =================================================
    버튼 공통
-   ========================= */
+   ================================================= */
 .board-button {
   background-color: #222;
   color: #fff;
@@ -135,9 +135,9 @@
   background-color: #d9534f;
 }
 
-/* =========================
-   테이블
-   ========================= */
+/* =================================================
+   테이블 (리스트 전용)
+   ================================================= */
 .board-table {
   width: 100%;
   border-collapse: collapse;
@@ -156,7 +156,6 @@
   background-color: #f4f4f4;
 }
 
-/* 컬럼 고정 */
 .col-no {
   width: 70px;
 }
@@ -181,12 +180,12 @@
   width: 90px;
 }
 
-/* =========================
-   페이지네이션
-   ========================= */
+/* =================================================
+   페이지네이션 (리스트 전용)
+   ================================================= */
 .pagination {
   display: flex;
-  justify-content: center; /* ✅ 항상 중앙 */
+  justify-content: center;
   align-items: center;
   gap: 8px;
   margin-top: 20px;
@@ -206,9 +205,9 @@
   font-weight: bold;
 }
 
-/* =========================
-   기타
-   ========================= */
+/* =================================================
+   로딩 효과 (공통)
+   ================================================= */
 .fade-in {
   opacity: 1;
   transition: opacity 0.25s ease-in;
@@ -218,44 +217,82 @@
   opacity: 0.6;
   transition: opacity 0.25s ease-out;
 }
-/* 🔥 게시글 상세보기 버튼 영역 (원래 UI 복원 핵심) */
-.board-read-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
-  margin-top: 20px;
 
-  /* ✅ 본문 카드 기준으로 정렬 */
-  max-width: 860px;
-  margin-left: auto;
-  margin-right: auto;
+/* #################################################
+   🔥 게시글 상세보기 전용 스타일 (핵심)
+   ################################################# */
+
+/* 🔥 상세보기에서는 바깥 컨테이너를 카드로 쓰지 않음 */
+
+/* 제목 */
+.board-read .board-title {
+  font-size: 2.2rem;
+  margin-bottom: 16px;
 }
-.board-content {
-  background-color: #f9f9f9;
 
-  /* ✅ 세로는 그대로, 가로만 넓게 */
-  padding-top: 20px;
-  padding-bottom: 20px;
-  padding-left: 60px; /* 🔥 가로 여백 */
-  padding-right: 60px; /* 🔥 가로 여백 */
+/* 메타 정보 */
+.board-read .board-meta {
+  width: var(--board-content-width);
+  max-width: 100%;
+  margin: 0 auto 24px;
 
-  border-radius: 8px;
-  line-height: 1.6;
+  font-size: 0.9rem;
+  color: #666;
+}
 
+.board-read .board-meta-row {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 4px;
+}
+
+/* 본문 카드 (진짜 카드) */
+.board-read .board-read-card {
   max-width: 860px;
   margin: 0 auto;
 }
 
-/* 카드 래퍼 */
-.board-read-card {
-  max-width: 860px;
-  margin: 0 auto;
+.board-read .board-content {
+  background-color: #f7f7f7;
+
+  /* ✅ 가로 크기 고정 (글자 수 무관) */
+  width: 720px; /* ← 완전 고정 */
+  max-width: 100%; /* 모바일 대비 */
+  margin: 0 auto; /* 중앙 정렬 */
+
+  padding: 32px 40px; /* 내부 여백 */
+  font-size: 1.05rem;
+  line-height: 1.7;
+  border-radius: 12px;
+
+  white-space: pre-wrap; /* 줄바꿈 유지 */
+  word-break: break-word;
 }
 
-/* 버튼은 카드 기준 오른쪽 */
-.board-read-actions {
+/* 버튼 영역 */
+.board-read .board-read-actions {
+  width: var(--board-content-width);
+  max-width: 100%;
+  margin: 24px auto 0;
+
   display: flex;
   justify-content: flex-end;
-  gap: 8px;
-  margin-top: 20px;
+  gap: 10px;
+}
+
+.board-read .board-meta-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* 왼쪽: 작성자 / 태그 / 열람수 */
+.board-read .board-meta-row span:first-child {
+  text-align: left;
+}
+
+/* 오른쪽: 작성일 / 최종수정일 */
+.board-read .board-meta-row span:last-child {
+  text-align: right;
+  white-space: nowrap;
 }
