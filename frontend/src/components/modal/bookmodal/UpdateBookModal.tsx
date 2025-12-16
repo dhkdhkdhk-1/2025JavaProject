@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Modal from "../Modal";
 import type { BookForm, Book } from "../../../api/BookApi";
+import BranchSelectModal from "./BranchSelectModal";
 
 interface Props {
   isOpen: boolean;
@@ -21,14 +22,14 @@ const UpdateBookModal: React.FC<Props> = ({
     publisher: "",
     category: "",
     available: true,
-    branchId: null,
+    branchIds: [],
     imageUrl: null,
     description: "",
   });
 
   const [imageFile, setImageFile] = useState<File | null>(null);
+  const [branchModalOpen, setBranchModalOpen] = useState(false);
 
-  /** 초기 데이터 */
   useEffect(() => {
     if (book) {
       setForm({
@@ -37,7 +38,7 @@ const UpdateBookModal: React.FC<Props> = ({
         publisher: book.publisher,
         category: book.category,
         available: book.available,
-        branchId: book.branchId ?? null,
+        branchIds: book.branchIds ?? [],
         imageUrl: book.imageUrl ?? null,
         description: book.description ?? "",
       });
@@ -45,21 +46,20 @@ const UpdateBookModal: React.FC<Props> = ({
     setImageFile(null);
   }, [book, isOpen]);
 
-  const handleChange = (
+  const handleTextChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
-
-    setForm((prev) => ({
-      ...prev,
-      [name]:
-        name === "branchId" ? (value === "" ? null : Number(value)) : value,
-    }));
+    setForm((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = () => {
     if (!book) return;
-    onUpdate(book.id, form, imageFile);
+    const payload: BookForm = {
+      ...form,
+      category: form.category || "OTHER",
+    };
+    onUpdate(book.id, payload, imageFile);
     onClose();
   };
 
@@ -71,22 +71,21 @@ const UpdateBookModal: React.FC<Props> = ({
         name="title"
         placeholder="제목"
         value={form.title}
-        onChange={handleChange}
+        onChange={handleTextChange}
       />
       <input
         name="author"
         placeholder="저자"
         value={form.author}
-        onChange={handleChange}
+        onChange={handleTextChange}
       />
       <input
         name="publisher"
         placeholder="출판사"
         value={form.publisher}
-        onChange={handleChange}
+        onChange={handleTextChange}
       />
 
-      {/* 기존 이미지 미리보기 */}
       {form.imageUrl && (
         <img
           src={form.imageUrl}
@@ -95,36 +94,44 @@ const UpdateBookModal: React.FC<Props> = ({
         />
       )}
 
-      {/* 새 이미지 선택 */}
       <input
         type="file"
         accept="image/*"
         onChange={(e) => setImageFile(e.target.files?.[0] ?? null)}
       />
 
-      <input
-        name="branchId"
-        type="number"
-        placeholder="지점 ID (예: 1)"
-        value={form.branchId ?? ""}
-        onChange={handleChange}
-      />
-
-      <select name="category" value={form.category} onChange={handleChange}>
+      <select name="category" value={form.category} onChange={handleTextChange}>
         <option value="">카테고리 선택</option>
         <option value="NOVEL">소설</option>
         <option value="ESSAY">에세이</option>
-        <option value="IT">IT / プログラミング</option>
-        <option value="HISTORY">歴史</option>
-        <option value="SCIENCE">科学</option>
-        <option value="OTHER">その他</option>
+        <option value="IT">IT</option>
+        <option value="HISTORY">역사</option>
+        <option value="SCIENCE">과학</option>
+        <option value="OTHER">기타</option>
       </select>
+      <hr></hr>
+      <div>
+        <button type="button" onClick={() => setBranchModalOpen(true)}>
+          지점 선택 ({form.branchIds.length}개)
+        </button>
+
+        <BranchSelectModal
+          isOpen={branchModalOpen}
+          selectedIds={form.branchIds}
+          onConfirm={(ids) => setForm((prev) => ({ ...prev, branchIds: ids }))}
+          onClose={() => setBranchModalOpen(false)}
+        />
+      </div>
 
       <div className="modal-actions">
         <button className="modal-btn cancel" onClick={onClose}>
           CANCEL
         </button>
-        <button className="modal-btn confirm" onClick={handleSubmit}>
+        <button
+          className="modal-btn confirm"
+          onClick={handleSubmit}
+          disabled={form.branchIds.length === 0}
+        >
           UPDATE
         </button>
       </div>

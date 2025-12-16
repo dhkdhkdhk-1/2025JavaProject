@@ -13,6 +13,7 @@ export interface Book {
   available: boolean;
   imageUrl?: string | null;
   description?: string | null;
+  branchIds?: number[];
   rating?: number;
 }
 
@@ -40,7 +41,7 @@ export interface BookForm {
   publisher: string;
   category: string;
   available: boolean;
-  branchId?: number | null;
+  branchIds: number[];
   imageUrl?: string | null; // (선택) 기존 URL 유지용
   description?: string | null;
 }
@@ -99,9 +100,7 @@ export const getBooks = async (
   keyword = "",
   genres: string[] = []
 ) => {
-  const genreParam = genres.length
-    ? `&genres=${genres.join(",")}`
-    : "";
+  const genreParam = genres.length ? `&genres=${genres.join(",")}` : "";
 
   const res = await api.get<PageResponse<Book>>(
     `/book/list?page=${page}&size=${size}&keyword=${encodeURIComponent(
@@ -114,9 +113,7 @@ export const getBooks = async (
 
 /** ✅ 도서 단건 조회 */
 export const getBook = async (id: number) => {
-  const res = await api.get<BookDetail>(
-    `/book/${id}?_=${Date.now()}`
-  );
+  const res = await api.get<BookDetail>(`/book/${id}?_=${Date.now()}`);
   return res.data;
 };
 
@@ -144,8 +141,6 @@ export const removeFavorite = async (bookId: number): Promise<void> => {
 
 /** 찜 여부 확인 */
 export const checkFavorite = async (bookId: number): Promise<boolean> => {
-  const res = await api.get<boolean>(
-    `/book/favorite/${bookId}/check`
-  );
+  const res = await api.get<boolean>(`/book/favorite/${bookId}/check`);
   return res.data;
 };

@@ -40,6 +40,7 @@ public class BookController {
             @RequestPart("book") @Valid BookModRequest request,
             @RequestPart(value = "image", required = false) MultipartFile image
     ) throws IOException {
+        System.out.println("request.branchIds = " + request.getBranchIds());
         return ResponseEntity.ok(bookService.modify(id,request, image));
     }
 

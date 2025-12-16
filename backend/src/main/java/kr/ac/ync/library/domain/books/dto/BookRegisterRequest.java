@@ -25,6 +25,8 @@ public class BookRegisterRequest {
 
     private boolean available = true;
 
+    private String imageUrl;
+
     @NotNull(message = "지점ID(branchId)는 필수입니다.")
     private List<Long> branchIds;
 }

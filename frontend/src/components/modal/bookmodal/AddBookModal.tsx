@@ -1,15 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import Modal from "../Modal";
-import type { BookForm } from "../../../api/BookApi"; // 경로 맞춰
+import type { BookForm } from "../../../api/BookApi";
+import BranchSelectModal from "./BranchSelectModal";
 
-interface Branch {
-  id: number;
-  name: string;
-}
-
-interface Props {
+interface AddBookModalProps {
   isOpen: boolean;
-  onAdd: (form: BookForm, file?: File | null) => void; // ✅ 여기 변경
+  onAdd: (form: BookForm, file?: File | null) => void;
   onClose: () => void;
 }
 
@@ -24,28 +20,27 @@ const AddBookModal: React.FC<AddBookModalProps> = ({
     publisher: "",
     category: "",
     available: true,
-    branchId: null,
+    branchIds: [],
     imageUrl: null,
     description: "",
   });
 
   const [imageFile, setImageFile] = useState<File | null>(null);
+  const [branchModalOpen, setBranchModalOpen] = useState(false);
 
-  const handleChange = (
+  const handleTextChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
-
-    setForm((prev) => ({
-      ...prev,
-      [name]:
-        name === "branchId" ? (value === "" ? null : Number(value)) : value,
-    }));
+    setForm((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = () => {
-    console.log("ADD payload:", form); // ✅ 확인용
-    onAdd(form, imageFile);
+    const payload: BookForm = {
+      ...form,
+      category: form.category || "OTHER",
+    };
+    onAdd(payload, imageFile);
     onClose();
   };
 
@@ -57,19 +52,19 @@ const AddBookModal: React.FC<AddBookModalProps> = ({
         name="title"
         placeholder="제목"
         value={form.title}
-        onChange={handleChange}
+        onChange={handleTextChange}
       />
       <input
         name="author"
         placeholder="저자"
         value={form.author}
-        onChange={handleChange}
+        onChange={handleTextChange}
       />
       <input
         name="publisher"
         placeholder="출판사"
         value={form.publisher}
-        onChange={handleChange}
+        onChange={handleTextChange}
       />
 
       <input
@@ -78,36 +73,38 @@ const AddBookModal: React.FC<AddBookModalProps> = ({
         onChange={(e) => setImageFile(e.target.files?.[0] ?? null)}
       />
 
-      <input
-        name="branchId"
-        type="number"
-        placeholder="지점 ID (예: 1)"
-        value={form.branchId ?? ""}
-        onChange={handleChange}
-      />
-
-      <select name="category" value={form.category} onChange={handleChange}>
+      <select name="category" value={form.category} onChange={handleTextChange}>
         <option value="">카테고리 선택</option>
         <option value="NOVEL">소설</option>
         <option value="ESSAY">에세이</option>
-        <option value="IT">IT / 프로그래밍</option>
+        <option value="IT">IT</option>
         <option value="HISTORY">역사</option>
         <option value="SCIENCE">과학</option>
         <option value="OTHER">기타</option>
       </select>
 
-        <div className="modal-actions">
-          <button className="modal-btn cancel" onClick={onClose}>
-            CANCEL
-          </button>
-          <button
-            className="modal-btn confirm"
-            onClick={handleSubmit}
-            disabled={selected.length === 0}
-          >
-            ADD
-          </button>
-        </div>
+      <button type="button" onClick={() => setBranchModalOpen(true)}>
+        지점 선택 ({form.branchIds.length}개)
+      </button>
+
+      <BranchSelectModal
+        isOpen={branchModalOpen}
+        selectedIds={form.branchIds}
+        onConfirm={(ids) => setForm((prev) => ({ ...prev, branchIds: ids }))}
+        onClose={() => setBranchModalOpen(false)}
+      />
+
+      <div className="modal-actions">
+        <button className="modal-btn cancel" onClick={onClose}>
+          CANCEL
+        </button>
+        <button
+          className="modal-btn confirm"
+          onClick={handleSubmit}
+          disabled={form.branchIds.length === 0}
+        >
+          ADD
+        </button>
       </div>
     </Modal>
   );

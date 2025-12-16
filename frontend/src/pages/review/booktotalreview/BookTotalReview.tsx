@@ -71,9 +71,7 @@ const BookTotalReview: React.FC = () => {
   return (
     <div className="review-board-container">
       <div className="review-board-card">
-        <h1 className="board-title">
-          📖 {reviews[0]?.bookTitle} レビュー
-        </h1>
+        <h1 className="board-title">📖 {reviews[0]?.bookTitle} レビュー</h1>
 
         {loading ? (
           <p style={{ textAlign: "center", color: "#777" }}>読み込み中...</p>
@@ -98,7 +96,7 @@ const BookTotalReview: React.FC = () => {
                 <div
                   key={r.id}
                   className="table-row"
-                  onClick={() => navigate(`/reviews/${r.id}`)}
+                  onClick={() => navigate(`${BASE_URL}/reviews/${r.id}`)}
                   style={{ cursor: "pointer" }}
                 >
                   <div className="table-cell col-number">
@@ -134,9 +132,7 @@ const BookTotalReview: React.FC = () => {
 
             <button
               className="pagination-btn"
-              onClick={() =>
-                setPage((p) => Math.min(p + 1, totalPages - 1))
-              }
+              onClick={() => setPage((p) => Math.min(p + 1, totalPages - 1))}
               disabled={page + 1 >= totalPages}
             >
               →
