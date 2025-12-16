@@ -160,34 +160,6 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     @Transactional
-    public UserResponse updateMyInfo(String email, UserUpdateRequest request) {
-        UserEntity user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
-
-        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
-        }
-
-        if (!request.getPassword().equals(request.getPasswordCheck())) {
-            throw new IllegalArgumentException("비밀번호 확인이 일치하지 않습니다.");
-        }
-
-        if (!user.getUsername().equals(request.getUsername())
-                && userRepository.existsByUsername(request.getUsername())) {
-            throw new IllegalArgumentException("이미 존재하는 닉네임입니다.");
-        }
-
-        user.setUsername(request.getUsername());
-        userRepository.saveAndFlush(user);
-
-        // 게시판 작성자명도 변경
-        boardRepository.updateUsernameByUserId(user.getId(), request.getUsername());
-
-        return new UserResponse(user);
-    }
-
-    @Override
-    @Transactional
     public void updatePasswordByEmail(String email, String newPassword) {
         UserEntity user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
