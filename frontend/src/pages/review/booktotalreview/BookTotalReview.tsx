@@ -4,10 +4,10 @@ import axios from "axios";
 import "./BookTotalReview.css";
 
 /* =========================
-   ✅ 이 페이지 전용 BASE_URL
+   ✅ 서버 전용 BASE_URL
+   (localhost fallback 제거)
 ========================= */
-const BASE_URL =
-  process.env.REACT_APP_API_BASE_URL || "http://localhost:8080";
+const BASE_URL = process.env.REACT_APP_API_BASE_URL!;
 
 /* =========================
    타입
@@ -40,9 +40,6 @@ const BookTotalReview: React.FC = () => {
   const [totalPages, setTotalPages] = useState(0);
   const [loading, setLoading] = useState(false);
 
-  /* =========================
-     리뷰 조회
-  ========================= */
   useEffect(() => {
     if (!id) return;
 
@@ -54,7 +51,7 @@ const BookTotalReview: React.FC = () => {
           `${BASE_URL}/reviews/book/${id}`,
           {
             params: { page },
-            withCredentials: true,
+            withCredentials: false, // Workers + CloudFront 안정
           }
         );
 
@@ -101,7 +98,7 @@ const BookTotalReview: React.FC = () => {
                 <div
                   key={r.id}
                   className="table-row"
-                  onClick={() => navigate(`/reviews/${r.id}`)} // ✅ 경로만 수정
+                  onClick={() => navigate(`/reviews/${r.id}`)}
                   style={{ cursor: "pointer" }}
                 >
                   <div className="table-cell col-number">
@@ -121,7 +118,6 @@ const BookTotalReview: React.FC = () => {
           </div>
         )}
 
-        {/* 페이지네이션 */}
         {totalPages > 1 && (
           <div className="pagination-container">
             <button

@@ -24,7 +24,16 @@ export interface PageResponse<T> {
   number: number;
 }
 
-const BASE_URL = process.env.REACT_APP_API_BASE_URL;
+/* =========================
+   ✅ 서버 전용 BASE_URL
+========================= */
+const BASE_URL = (() => {
+  const url = process.env.REACT_APP_API_BASE_URL;
+  if (!url) {
+    throw new Error("REACT_APP_API_BASE_URL is not defined");
+  }
+  return url;
+})();
 
 /* =========================
    API Functions
@@ -37,9 +46,7 @@ export const getBranches = async (
 ): Promise<PageResponse<BranchResponse>> => {
   const res = await axios.get<PageResponse<BranchResponse>>(
     `${BASE_URL}/branch/list`,
-    {
-      params: { page, size },
-    }
+    { params: { page, size } }
   );
   return res.data;
 };
