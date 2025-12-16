@@ -33,33 +33,39 @@ export interface BookForm {
   description?: string | null;
 }
 
-// 등록
-export const addBook = async (form: BookForm, file?: File | null) => {
+const buildBookFormData = (form: BookForm, file?: File | null) => {
   const fd = new FormData();
 
+  // 🔥 핵심: book은 반드시 JSON Blob
   fd.append(
     "book",
     new Blob([JSON.stringify(form)], { type: "application/json" })
   );
 
-  if (file) fd.append("image", file);
+  if (file instanceof File) {
+    fd.append("image", file);
+  }
 
-  const res = await api.post("/book", fd); // 헤더 건들지 마라
+  return fd;
+};
+
+// 등록
+export const addBook = async (form: BookForm, file?: File | null) => {
+  const fd = buildBookFormData(form, file);
+  const res = await api.post("/book", fd);
+  console.log("form", form);
+  console.log("json", JSON.stringify(form));
   return res.data;
 };
 
 // 수정
-export const updateBook = async (form: BookForm, file?: File | null) => {
-  const fd = new FormData();
-
-  fd.append(
-    "book",
-    new Blob([JSON.stringify(form)], { type: "application/json" })
-  );
-
-  if (file) fd.append("image", file);
-
-  const res = await api.put("/book", fd);
+export const updateBook = async (
+  id: number,
+  form: BookForm,
+  file?: File | null
+) => {
+  const fd = buildBookFormData(form, file);
+  const res = await api.put(`/book/${id}`, fd);
   return res.data;
 };
 

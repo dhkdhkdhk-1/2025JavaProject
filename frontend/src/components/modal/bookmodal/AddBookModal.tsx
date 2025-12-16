@@ -1,9 +1,10 @@
 import React, { useState } from "react";
 import Modal from "../Modal";
+import type { BookForm } from "../../../api/BookApi"; // 경로 맞춰
 
 export interface AddBookModalProps {
   isOpen: boolean;
-  onAdd: (formData: FormData) => void;
+  onAdd: (form: BookForm, file?: File | null) => void; // ✅ 여기 변경
   onClose: () => void;
 }
 
@@ -12,42 +13,34 @@ const AddBookModal: React.FC<AddBookModalProps> = ({
   onAdd,
   onClose,
 }) => {
-  const [form, setForm] = useState({
+  const [form, setForm] = useState<BookForm>({
     title: "",
     author: "",
     publisher: "",
     category: "",
-    branchId: "",
-    imageUrl: "",
+    available: true,
+    branchId: null,
+    imageUrl: null,
+    description: "",
   });
+
   const [imageFile, setImageFile] = useState<File | null>(null);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
-    setForm({
-      ...form,
-      [name]: name === "branchId" ? (value === "" ? "" : Number(value)) : value,
-    });
+
+    setForm((prev) => ({
+      ...prev,
+      [name]:
+        name === "branchId" ? (value === "" ? null : Number(value)) : value,
+    }));
   };
 
   const handleSubmit = () => {
-    const fd = new FormData();
-
-    // 서버가 @RequestPart("book") String 을 기대하니까 JSON 문자열로 넣기
-    fd.append(
-      "book",
-      JSON.stringify({
-        title: form.title,
-        author: form.author,
-        publisher: form.publisher,
-        category: form.category,
-        branchId: form.branchId === "" ? null : Number(form.branchId),
-      })
-    );
-
-    if (imageFile) fd.append("image", imageFile);
-
-    onAdd(fd);
+    console.log("ADD payload:", form); // ✅ 확인용
+    onAdd(form, imageFile);
     onClose();
   };
 
@@ -73,23 +66,22 @@ const AddBookModal: React.FC<AddBookModalProps> = ({
         value={form.publisher}
         onChange={handleChange}
       />
+
       <input
         type="file"
         accept="image/*"
         onChange={(e) => setImageFile(e.target.files?.[0] ?? null)}
       />
+
       <input
         name="branchId"
         type="number"
         placeholder="지점 ID (예: 1)"
-        value={form.branchId}
+        value={form.branchId ?? ""}
         onChange={handleChange}
       />
-      <select
-        name="category"
-        value={form.category}
-        onChange={(e) => setForm({ ...form, category: e.target.value })}
-      >
+
+      <select name="category" value={form.category} onChange={handleChange}>
         <option value="">카테고리 선택</option>
         <option value="NOVEL">소설</option>
         <option value="ESSAY">에세이</option>

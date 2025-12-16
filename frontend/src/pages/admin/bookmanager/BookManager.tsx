@@ -5,6 +5,7 @@ import {
   updateBook,
   deleteBook,
   Book,
+  BookForm,
 } from "../../../api/BookApi";
 import AddBookModal from "../../../components/modal/bookmodal/AddBookModal";
 import UpdateBookModal from "../../../components/modal/bookmodal/UpdateBookModal";
@@ -17,13 +18,11 @@ const BookManager: React.FC = () => {
   const [totalPages, setTotalPages] = useState(0);
   const [keyword, setKeyword] = useState("");
 
-  // モーダル状態管理
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [isUpdateOpen, setIsUpdateOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [selectedBook, setSelectedBook] = useState<Book | null>(null);
 
-  // ✅ リストを更新する関数
   const refreshBooks = useCallback(() => {
     getBooks(page, 10, keyword).then((data) => {
       setBooks(data.content);
@@ -52,10 +51,10 @@ const BookManager: React.FC = () => {
     }
   };
 
-  // ✅ 新しい本を登録
-  const handleAddBook = async (form: any) => {
+  // ✅ 등록: (form, file)로 받기
+  const handleAddBook = async (form: BookForm, file?: File | null) => {
     try {
-      await addBook(form);
+      await addBook(form, file ?? null);
       alert("📚 本が正常に登録されました！");
       setIsAddOpen(false);
       refreshBooks();
@@ -65,10 +64,14 @@ const BookManager: React.FC = () => {
     }
   };
 
-  // ✅ 本を修正
-  const handleUpdateBook = async (form: any) => {
+  // ✅ 수정: (form, file)로 받기
+  const handleUpdateBook = async (
+    id: number,
+    form: BookForm,
+    file?: File | null
+  ) => {
     try {
-      await updateBook(form);
+      await updateBook(id, form, file ?? null);
       alert("✏️ 本の情報が修正されました！");
       setIsUpdateOpen(false);
       refreshBooks();
@@ -78,7 +81,6 @@ const BookManager: React.FC = () => {
     }
   };
 
-  // ✅ 本を削除
   const handleDeleteBook = async () => {
     if (!selectedBook) return;
     try {
@@ -177,17 +179,16 @@ const BookManager: React.FC = () => {
         </main>
       </div>
 
-      {/* ✅ モーダルたち */}
       <AddBookModal
         isOpen={isAddOpen}
-        onAdd={handleAddBook}
+        onAdd={handleAddBook} // ✅ (form, file) 받는 형태
         onClose={() => setIsAddOpen(false)}
       />
 
       <UpdateBookModal
         isOpen={isUpdateOpen}
         book={selectedBook}
-        onUpdate={handleUpdateBook}
+        onUpdate={handleUpdateBook} // ✅ (form, file)
         onClose={() => setIsUpdateOpen(false)}
       />
 

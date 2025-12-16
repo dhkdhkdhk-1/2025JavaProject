@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -33,12 +34,13 @@ public class BookController {
         return ResponseEntity.ok(bookService.register(request, image));
     }
 
-    @PutMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PutMapping(value = "/{id}",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<BookResponse> modify(
+            @PathVariable Long id,
             @RequestPart("book") @Valid BookModRequest request,
             @RequestPart(value = "image", required = false) MultipartFile image
     ) throws IOException {
-        return ResponseEntity.ok(bookService.modify(request, image));
+        return ResponseEntity.ok(bookService.modify(id,request, image));
     }
 
     @DeleteMapping("/{id}")
@@ -80,5 +82,10 @@ public class BookController {
         int safe = Math.max(1, Math.min(size, 12));
         Pageable pageable = PageRequest.of(0, safe, Sort.by(Sort.Direction.DESC, "createdDateTime"));
         return ResponseEntity.ok(bookService.getList(pageable).getContent());
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<?> handleJson(HttpMessageNotReadableException e) {
+        return ResponseEntity.badRequest().body(Map.of("message", "JSON parse error"));
     }
 }

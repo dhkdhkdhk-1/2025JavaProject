@@ -44,8 +44,8 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public BookResponse modify(BookModRequest request, MultipartFile image) throws IOException {
-        BookEntity bookEntity = bookRepository.findById(request.getId())
+    public BookResponse modify(Long id, BookModRequest request, MultipartFile image) throws IOException {
+        BookEntity bookEntity = bookRepository.findById(id)
                 .orElseThrow(() -> BookNotFoundException.EXCEPTION);
 
         String oldImageUrl = bookEntity.getImageUrl();

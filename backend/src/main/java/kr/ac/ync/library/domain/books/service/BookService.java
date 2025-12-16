@@ -16,7 +16,7 @@ public interface BookService {
 
     BookResponse register(BookRegisterRequest request, MultipartFile image) throws IOException;
 
-    BookResponse modify(BookModRequest request, MultipartFile image) throws IOException;
+    BookResponse modify(Long id, BookModRequest request, MultipartFile image) throws IOException;
 
     void remove(Long id);
 
