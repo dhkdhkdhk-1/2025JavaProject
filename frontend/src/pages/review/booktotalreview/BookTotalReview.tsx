@@ -72,7 +72,7 @@ const BookTotalReview: React.FC = () => {
     <div className="review-board-container">
       <div className="review-board-card">
         <h1 className="board-title">
-          📖 {reviews[0]?.bookTitle ?? "レビュー"} レビュー
+          📖 {reviews[0]?.bookTitle} レビュー
         </h1>
 
         {loading ? (
