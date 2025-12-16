@@ -7,7 +7,6 @@ import com.querydsl.core.types.dsl.*;
 import com.querydsl.core.types.PathMetadata;
 import javax.annotation.processing.Generated;
 import com.querydsl.core.types.Path;
-import com.querydsl.core.types.dsl.PathInits;
 
 
 /**
@@ -18,13 +17,9 @@ public class QUserEntity extends EntityPathBase<UserEntity> {
 
     private static final long serialVersionUID = 790703009L;
 
-    private static final PathInits INITS = PathInits.DIRECT2;
-
     public static final QUserEntity userEntity = new QUserEntity("userEntity");
 
     public final kr.ac.ync.library.global.common.entity.QBaseTimeEntity _super = new kr.ac.ync.library.global.common.entity.QBaseTimeEntity(this);
-
-    public final kr.ac.ync.library.domain.branch.entity.QBranchEntity branch;
 
     //inherited
     public final DateTimePath<java.time.LocalDateTime> createdDateTime = _super.createdDateTime;
@@ -45,24 +40,15 @@ public class QUserEntity extends EntityPathBase<UserEntity> {
     public final StringPath username = createString("username");
 
     public QUserEntity(String variable) {
-        this(UserEntity.class, forVariable(variable), INITS);
+        super(UserEntity.class, forVariable(variable));
     }
 
     public QUserEntity(Path<? extends UserEntity> path) {
-        this(path.getType(), path.getMetadata(), PathInits.getFor(path.getMetadata(), INITS));
+        super(path.getType(), path.getMetadata());
     }
 
     public QUserEntity(PathMetadata metadata) {
-        this(metadata, PathInits.getFor(metadata, INITS));
-    }
-
-    public QUserEntity(PathMetadata metadata, PathInits inits) {
-        this(UserEntity.class, metadata, inits);
-    }
-
-    public QUserEntity(Class<? extends UserEntity> type, PathMetadata metadata, PathInits inits) {
-        super(type, metadata, inits);
-        this.branch = inits.isInitialized("branch") ? new kr.ac.ync.library.domain.branch.entity.QBranchEntity(forProperty("branch")) : null;
+        super(UserEntity.class, metadata);
     }
 
 }
