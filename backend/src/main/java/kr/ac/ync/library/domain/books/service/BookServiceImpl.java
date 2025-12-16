@@ -11,10 +11,13 @@ import kr.ac.ync.library.domain.books.mapper.BookMapper;
 import kr.ac.ync.library.domain.books.repository.BookRepository;
 import kr.ac.ync.library.domain.branch.entity.BranchEntity;
 import kr.ac.ync.library.domain.branch.repository.BranchRepository;
+import kr.ac.ync.library.global.common.s3.S3Uploader;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -25,31 +28,46 @@ public class BookServiceImpl implements BookService {
 
     private final BookRepository bookRepository;
     private final BranchRepository branchRepository;
+    private final S3Uploader s3Uploader;
 
     /** ✅ 도서 등록 */
     @Override
-    public BookResponse register(BookRegisterRequest request) {
-        BookEntity entity = BookMapper.toEntity(request);
-        return BookMapper.toResponse(bookRepository.save(entity));
+    public BookResponse register(BookRegisterRequest request, MultipartFile image) throws IOException {
+        BookEntity bookEntity = BookMapper.toEntity(request);
+
+        if (image != null && !image.isEmpty()) {
+            String imageUrl = s3Uploader.uploadBookImage(image);
+            bookEntity.uptImageUrl(imageUrl);
+        }
+
+        return BookMapper.toResponse(bookRepository.save(bookEntity));
     }
 
-    /** ✅ 도서 수정 */
     @Override
-    public BookResponse modify(BookModRequest request) {
+    public BookResponse modify(BookModRequest request, MultipartFile image) throws IOException {
         BookEntity bookEntity = bookRepository.findById(request.getId())
                 .orElseThrow(() -> BookNotFoundException.EXCEPTION);
 
-        bookEntity.uptTitle(request.getTitle());
-        bookEntity.uptCategory(request.getCategory());
-        bookEntity.uptAuthor(request.getAuthor());
-        bookEntity.uptPublisher(request.getPublisher());
-        bookEntity.uptDescription(request.getDescription());
-        bookEntity.uptImageUrl(request.getImageUrl());
+        String oldImageUrl = bookEntity.getImageUrl();
 
-        if (request.isAvailable()) bookEntity.markAsReturned();
-        else bookEntity.markAsBorrowed();
+        BookMapper.updateEntity(request, bookEntity);
 
-        return BookMapper.toResponse(bookRepository.save(bookEntity));
+        if (image != null && !image.isEmpty()) {
+            String newImageUrl = s3Uploader.uploadBookImage(image);
+            bookEntity.uptImageUrl(newImageUrl);
+
+            BookEntity saved = bookRepository.save(bookEntity);
+
+            if (oldImageUrl != null && !oldImageUrl.isBlank() && !oldImageUrl.equals(newImageUrl)) {
+                try {
+                    s3Uploader.deleteByUrl(oldImageUrl);
+                } catch (Exception e) {
+                    // 삭제 실패해도 수정 자체는 성공해야 하니까 로그만 남기고 넘어감
+                    // log.warn("S3 old image delete failed: {}", oldImageUrl, e);
+                }
+            }
+        }
+            return BookMapper.toResponse(bookRepository.save(bookEntity));
     }
 
     /** ✅ 도서 삭제 */

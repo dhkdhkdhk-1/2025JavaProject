@@ -28,17 +28,38 @@ export interface BookForm {
   publisher: string;
   category: string;
   available: boolean;
+  branchId?: number | null;
+  imageUrl?: string | null; // (선택) 기존 URL 유지용
+  description?: string | null;
 }
 
 // 등록
-export const addBook = async (form: BookForm) => {
-  const res = await api.post(`/book`, form);
+export const addBook = async (form: BookForm, file?: File | null) => {
+  const fd = new FormData();
+
+  fd.append(
+    "book",
+    new Blob([JSON.stringify(form)], { type: "application/json" })
+  );
+
+  if (file) fd.append("image", file);
+
+  const res = await api.post("/book", fd); // 헤더 건들지 마라
   return res.data;
 };
 
 // 수정
-export const updateBook = async (form: any) => {
-  const res = await api.put(`/book`, form);
+export const updateBook = async (form: BookForm, file?: File | null) => {
+  const fd = new FormData();
+
+  fd.append(
+    "book",
+    new Blob([JSON.stringify(form)], { type: "application/json" })
+  );
+
+  if (file) fd.append("image", file);
+
+  const res = await api.put("/book", fd);
   return res.data;
 };
 
@@ -57,7 +78,9 @@ export const getBooks = async (
 ) => {
   const genreParam = genres.length ? `&genres=${genres.join(",")}` : "";
   const res = await api.get<PageResponse<Book>>(
-    `/book/list?page=${page}&size=${size}&keyword=${encodeURIComponent(keyword)}${genreParam}&_=${Date.now()}`
+    `/book/list?page=${page}&size=${size}&keyword=${encodeURIComponent(
+      keyword
+    )}${genreParam}&_=${Date.now()}`
   );
   return res.data;
 };
@@ -70,7 +93,9 @@ export const getBook = async (id: number) => {
 
 // 최근 도서
 export const getRecentBooks = async (size = 5) => {
-  const res = await api.get<Book[]>(`/book/recent?size=${size}&_=${Date.now()}`);
+  const res = await api.get<Book[]>(
+    `/book/recent?size=${size}&_=${Date.now()}`
+  );
   return res.data;
 };
 

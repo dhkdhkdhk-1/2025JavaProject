@@ -35,52 +35,40 @@ public class SecurityConfig {
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-
-                        // ✅ 로그인, 회원가입, 토큰 관련은 허용
-                        .requestMatchers( "/auth", "/auth/**").permitAll()
-
-                        // ✅ 조회수 증가 API만 비회원 접근 허용
+                        .requestMatchers("/auth/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/board/*/view").permitAll()
-
-                        // ✅ 관리자
-                        .requestMatchers("/admin/**").hasAnyRole("ADMIN")
-
-                        .requestMatchers("/user/list/**").hasAnyRole("ADMIN")
-                        // ✅ 나머지 게시판 API는 로그인 필요
-                        .requestMatchers("/board/**").authenticated()
-                        // ✅ 리뷰, 책, 지점
-                        .requestMatchers("/reviews/user/**").permitAll()
-                        .requestMatchers("/reviews/book/**").permitAll()
-                        .requestMatchers("/reviews/list").permitAll()
-                        .requestMatchers("/reviews/{id}").permitAll()   // 단일 조회
-                        .requestMatchers("/reviews/*").permitAll()      // 가장 마지막
-                        .requestMatchers("/book/**").permitAll()
-                        .requestMatchers("/branch/**").permitAll()
-                        // ✅ cs 관련 코드
+                        .requestMatchers(HttpMethod.GET, "/book/**", "/branch/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/reviews/**").permitAll()
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/user/list/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/book/**", "/branch/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT,  "/book/**", "/branch/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE,"/book/**", "/branch/**").hasRole("ADMIN")
                         .requestMatchers("/cs/admin/**").hasAnyRole("ADMIN", "MANAGER")
                         .requestMatchers("/cs/**").authenticated()
-                        // 위시리스트
                         .requestMatchers("/wishlist/**").authenticated()
-                        // ✅ 나머지는 로그인 필요
+                        .requestMatchers("/board/**").authenticated()
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(handling -> handling
                         .authenticationEntryPoint(jwtAuthenticationEntryPoint())
                         .accessDeniedHandler(jwtAccessDeniedHandler())
                 )
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-                .addFilterBefore(jwtExceptionFilter, JwtAuthenticationFilter.class);
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                //.addFilterBefore(jwtExceptionFilter, JwtAuthenticationFilter.class);
 
         return http.build();
     }
 
     @Bean
     public JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint() {
+        System.out.println("entry");
         return new JwtAuthenticationEntryPoint();
     }
 
     @Bean
     public JwtAccessDeniedHandler jwtAccessDeniedHandler() {
+        System.out.println("deniedhandler");
         return new JwtAccessDeniedHandler();
     }
 

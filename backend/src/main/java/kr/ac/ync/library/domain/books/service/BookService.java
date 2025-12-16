@@ -6,15 +6,17 @@ import kr.ac.ync.library.domain.books.dto.BookResponse;
 import kr.ac.ync.library.domain.books.entity.enums.BookCategory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
 public interface BookService {
 
-    BookResponse register(BookRegisterRequest request);
+    BookResponse register(BookRegisterRequest request, MultipartFile image) throws IOException;
 
-    BookResponse modify(BookModRequest request);
+    BookResponse modify(BookModRequest request, MultipartFile image) throws IOException;
 
     void remove(Long id);
 

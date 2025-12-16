@@ -8,9 +8,12 @@ import kr.ac.ync.library.domain.books.entity.enums.BookCategory;
 import kr.ac.ync.library.domain.books.service.BookService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -21,14 +24,21 @@ public class BookController {
 
     private final BookService bookService;
 
-    @PostMapping
-    public ResponseEntity<BookResponse> register(@Valid @RequestBody BookRegisterRequest request) {
-        return ResponseEntity.ok(bookService.register(request));
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<BookResponse> register(
+            @RequestPart(value = "book") @Valid BookRegisterRequest request,
+            @RequestPart(value = "image", required = false) MultipartFile image
+    ) throws IOException {
+
+        return ResponseEntity.ok(bookService.register(request, image));
     }
 
-    @PutMapping
-    public ResponseEntity<BookResponse> modify(@Valid @RequestBody BookModRequest request) {
-        return ResponseEntity.ok(bookService.modify(request));
+    @PutMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<BookResponse> modify(
+            @RequestPart("book") @Valid BookModRequest request,
+            @RequestPart(value = "image", required = false) MultipartFile image
+    ) throws IOException {
+        return ResponseEntity.ok(bookService.modify(request, image));
     }
 
     @DeleteMapping("/{id}")

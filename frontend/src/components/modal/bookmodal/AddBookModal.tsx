@@ -3,7 +3,7 @@ import Modal from "../Modal";
 
 export interface AddBookModalProps {
   isOpen: boolean;
-  onAdd: (book: any) => void;
+  onAdd: (formData: FormData) => void;
   onClose: () => void;
 }
 
@@ -18,7 +18,9 @@ const AddBookModal: React.FC<AddBookModalProps> = ({
     publisher: "",
     category: "",
     branchId: "",
+    imageUrl: "",
   });
+  const [imageFile, setImageFile] = useState<File | null>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -29,7 +31,23 @@ const AddBookModal: React.FC<AddBookModalProps> = ({
   };
 
   const handleSubmit = () => {
-    onAdd(form);
+    const fd = new FormData();
+
+    // 서버가 @RequestPart("book") String 을 기대하니까 JSON 문자열로 넣기
+    fd.append(
+      "book",
+      JSON.stringify({
+        title: form.title,
+        author: form.author,
+        publisher: form.publisher,
+        category: form.category,
+        branchId: form.branchId === "" ? null : Number(form.branchId),
+      })
+    );
+
+    if (imageFile) fd.append("image", imageFile);
+
+    onAdd(fd);
     onClose();
   };
 
@@ -54,6 +72,11 @@ const AddBookModal: React.FC<AddBookModalProps> = ({
         placeholder="출판사"
         value={form.publisher}
         onChange={handleChange}
+      />
+      <input
+        type="file"
+        accept="image/*"
+        onChange={(e) => setImageFile(e.target.files?.[0] ?? null)}
       />
       <input
         name="branchId"
