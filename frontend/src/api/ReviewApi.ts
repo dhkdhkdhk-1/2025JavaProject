@@ -71,15 +71,6 @@ export const writeReview = async (
   return res.data;
 };
 
-/** 리뷰 수정 */
-export const updateReview = async (
-  id: number,
-  data: ReviewRequest
-) => {
-  const res = await api.put(`/reviews/user/${id}`, data);
-  return res.data;
-};
-
 /** 리뷰 삭제 */
 export const deleteReview = async (id: number) => {
   const res = await api.delete(`/reviews/user/${id}`);
