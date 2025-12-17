@@ -1,6 +1,7 @@
 package kr.ac.ync.library.domain.rentals.service;
 
 import jakarta.transaction.Transactional;
+import kr.ac.ync.library.domain.books.entity.BookBranchEntity;
 import kr.ac.ync.library.domain.books.entity.BookEntity;
 import kr.ac.ync.library.domain.books.exception.BookNotFoundException;
 import kr.ac.ync.library.domain.books.repository.BookRepository;
@@ -8,7 +9,6 @@ import kr.ac.ync.library.domain.branch.entity.BranchEntity;
 import kr.ac.ync.library.domain.branch.repository.BranchRepository;
 import kr.ac.ync.library.domain.rentals.dto.RentalRegisterRequest;
 import kr.ac.ync.library.domain.rentals.dto.RentalResponse;
-import kr.ac.ync.library.domain.rentals.dto.RentalReturnRequest;
 import kr.ac.ync.library.domain.rentals.entity.RentalEntity;
 import kr.ac.ync.library.domain.rentals.exception.RentalNotFoundException;
 import kr.ac.ync.library.domain.rentals.mapper.RentalMapper;
@@ -36,16 +36,26 @@ public class RentalServiceImpl implements RentalService {
     public void register(RentalRegisterRequest request, Long userId) {
         UserEntity user = userRepository.findById(userId)
                 .orElseThrow(() -> UserNotFoundException.EXCEPTION);
+
         BookEntity book = bookRepository.findById(request.getBookId())
                 .orElseThrow(() -> BookNotFoundException.EXCEPTION);
+
         BranchEntity branch = branchRepository.findById(request.getBranchId())
                 .orElseThrow(() -> new RuntimeException("지점 없음"));
+
+        BookBranchEntity bookBranch =
+                rentalRepository.findBookBranch(book, branch)
+                        .orElseThrow(() -> new RuntimeException("해당 지점에 책 없음"));
+
+        if (!bookBranch.isAvailable()) {
+            throw new RuntimeException("이미 대여 중");
+        }
 
         RentalEntity rental = RentalMapper.toEntity(user, book, branch);
         rentalRepository.save(rental);
 
-        book.markAsBorrowed();
-        bookRepository.save(book);
+        // 🔥 해당 지점만 대여 불가
+        bookBranch.setAvailable(false);
     }
 
     // 🔥 관리자 반납 처리
@@ -60,9 +70,13 @@ public class RentalServiceImpl implements RentalService {
         rental.setReturnDate(LocalDateTime.now());
         rental.setStatus("返却済み");
 
-        BookEntity book = rental.getBook();
-        book.markAsReturned();
-        bookRepository.save(book);
+        BookBranchEntity bookBranch =
+                rentalRepository.findBookBranch(
+                        rental.getBook(),
+                        rental.getBranch()
+                ).orElseThrow();
+
+        bookBranch.setAvailable(true);
     }
 
     @Override

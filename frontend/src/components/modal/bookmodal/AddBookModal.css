@@ -1,0 +1,51 @@
+.branch-search {
+  position: relative;
+  margin-top: 12px;
+}
+
+.branch-dropdown {
+  position: absolute;
+  top: 42px;
+  width: 100%;
+  border: 1px solid #ddd;
+  background: #fff;
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 10;
+}
+
+.branch-item {
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+.branch-item:hover {
+  background: #f5f5f5;
+}
+
+.branch-empty {
+  padding: 8px;
+  color: #999;
+}
+
+.selected-branches {
+  margin-top: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.branch-chip {
+  display: inline-flex;
+  align-items: center;
+  background: #eee;
+  padding: 6px 10px;
+  border-radius: 16px;
+  gap: 6px;
+}
+
+.branch-chip button {
+  background: none;
+  border: none;
+  cursor: pointer;
+}

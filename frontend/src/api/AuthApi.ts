@@ -11,6 +11,13 @@ export function setAccessToken(token: string | null) {
   else delete api.defaults.headers.common["Authorization"];
 }
 
+api.interceptors.request.use((config) => {
+  if (config.data instanceof FormData) {
+    delete config.headers["Content-Type"];
+  }
+  return config;
+});
+
 /** DTO 정의 */
 export interface LoginRequest {
   email: string;

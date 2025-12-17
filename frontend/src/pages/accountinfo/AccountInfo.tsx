@@ -79,11 +79,18 @@ const AccountInfo: React.FC = () => {
       navigate("/mypage");
     } catch (error: any) {
       console.error("会員情報修正失敗:", error);
-      if (error.response?.data) {
-        alert(error.response.data.message || "会員情報修正に失敗しました。");
-      } else {
-        alert("会員情報修正途中エラーが発生しました。");
+
+      // ✅ 로그인된 계정 비밀번호가 틀린 경우
+      if (
+        error.response?.status === 401 ||
+        error.response?.data?.message?.includes("비밀번호") ||
+        error.response?.data?.message?.includes("パスワード")
+      ) {
+        alert("ログイン中のパスワードと入力したパスワードが一致しません。");
+        return;
       }
+
+      alert("会員情報修正に失敗しました。");
     }
   };
 

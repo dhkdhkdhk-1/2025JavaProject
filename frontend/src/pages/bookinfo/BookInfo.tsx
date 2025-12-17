@@ -26,12 +26,15 @@ const BookInfo: React.FC = () => {
   const [branches, setBranches] = useState<BranchStatus[]>([]);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState<string>("");
+
   const [selectedBranchId, setSelectedBranchId] = useState<number | "">("");
   const [wished, setWished] = useState(false);
 
   const placeholder = "https://placehold.co/357x492?text=No+Image";
 
-  /** ⭐ 도서 + 지점 + 찜 여부 불러오기 (로그인 체크 제거) */
+  /* =========================
+     ⭐ 초기 데이터 로딩
+  ========================= */
   useEffect(() => {
     async function fetchData() {
       try {
@@ -62,7 +65,9 @@ const BookInfo: React.FC = () => {
     fetchData();
   }, [id]);
 
-  /** ⭐ 찜하기 / 취소 */
+  /* =========================
+     ⭐ 찜하기
+  ========================= */
   const handleWishlist = async () => {
     if (!id) return;
     try {
@@ -80,7 +85,9 @@ const BookInfo: React.FC = () => {
     }
   };
 
-  /** ⭐ 대여 처리 */
+  /* =========================
+     ⭐ 대여
+  ========================= */
   const handleRent = async () => {
     if (!id || !selectedBranchId) {
       alert("支店を選択してください。");
@@ -88,7 +95,7 @@ const BookInfo: React.FC = () => {
     }
 
     const proceed = window.confirm(
-      "3日以内に支店で受け取ってください。受け取らない場合、自動的にキャンセルされます。進めますか？"
+      "3日以内に支店で受け取ってください。進めますか？"
     );
     if (!proceed) return;
 
@@ -105,12 +112,16 @@ const BookInfo: React.FC = () => {
     }
   };
 
-  /** ⭐ UI 렌더링 */
+  /* =========================
+     ⭐ UI
+  ========================= */
   if (loading) return <div style={{ padding: 16 }}>読み込み中...</div>;
   if (err) return <div style={{ padding: 16, color: "crimson" }}>{err}</div>;
   if (!book) return <div style={{ padding: 16 }}>本が見つかりません。</div>;
 
-  const selectedBranch = branches.find((b) => b.branchId === selectedBranchId);
+  const selectedBranch = branches.find(
+    (b) => b.branchId === selectedBranchId
+  );
 
   return (
     <div className="book-info-page">
@@ -132,11 +143,15 @@ const BookInfo: React.FC = () => {
 
             {/* 도서 정보 */}
             <div className="product-details">
-              <div className="breadcrumb">{book.category ?? "分類なし"}</div>
+              <div className="breadcrumb">
+                {book.category ?? "分類なし"}
+              </div>
 
               <div className="title-section">
                 <h1 className="book-title">{book.title}</h1>
-                <div className="genre-tag">{book.category ?? "分類なし"}</div>
+                <div className="genre-tag">
+                  {book.category ?? "分類なし"}
+                </div>
               </div>
 
               <div className="author-section">
@@ -149,12 +164,15 @@ const BookInfo: React.FC = () => {
                 <select
                   className="location-select"
                   value={selectedBranchId}
-                  onChange={(e) => setSelectedBranchId(Number(e.target.value))}
+                  onChange={(e) =>
+                    setSelectedBranchId(Number(e.target.value))
+                  }
                 >
                   <option value="">支店を選択してください</option>
                   {branches.map((b) => (
                     <option key={b.branchId} value={b.branchId}>
-                      {b.branchName} — {b.available ? "貸出可能" : "貸出不可"}
+                      {b.branchName} —{" "}
+                      {b.available ? "貸出可能" : "貸出不可"}
                     </option>
                   ))}
                 </select>
@@ -162,42 +180,36 @@ const BookInfo: React.FC = () => {
                 {selectedBranch && (
                   <div
                     className={`branch-status ${
-                      selectedBranch.available ? "available" : "unavailable"
+                      selectedBranch.available
+                        ? "available"
+                        : "unavailable"
                     }`}
                   >
-                    {selectedBranch.available ? "貸出可能" : "貸出不可"}
+                    {selectedBranch.available
+                      ? "貸出可能"
+                      : "貸出不可"}
                   </div>
                 )}
 
-                <div>
+                <div className="action-buttons">
                   <button
                     className="rent-button"
-                    disabled={!selectedBranch || !selectedBranch.available}
+                    disabled={
+                      !selectedBranch || !selectedBranch.available
+                    }
                     onClick={handleRent}
                   >
                     レンタル
                   </button>
 
                   <button
-                    className={`rent-button ${wished ? "wish-active" : ""}`}
+                    className={`rent-button ${
+                      wished ? "wish-active" : ""
+                    }`}
                     onClick={handleWishlist}
                   >
-                    {wished ? "💖" : "🤍 "}
+                    {wished ? "💖" : "🤍"}
                   </button>
-                </div>
-              </div>
-
-              {/* 책 소개 */}
-              <div className="accordion-container">
-                <div className="accordion-item open">
-                  <div className="accordion-header">
-                    <h3 className="accordion-title">本の紹介</h3>
-                  </div>
-                  <div className="accordion-content">
-                    <p className="accordion-text">
-                      {book.description ?? "紹介やあらすじの情報がありません。"}
-                    </p>
-                  </div>
                 </div>
               </div>
 
@@ -209,11 +221,13 @@ const BookInfo: React.FC = () => {
                     width="24"
                     height="24"
                     viewBox="0 0 24 24"
-                    fill={i < Math.round(book.rating ?? 0) ? "#FFD700" : "none"}
+                    fill={
+                      i < Math.round(book.rating ?? 0)
+                        ? "#FFD700"
+                        : "none"
+                    }
                     stroke="#2C2C2C"
                     strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
                   >
                     <path d="M12 2L14.9 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L9.1 8.26L12 2Z" />
                   </svg>
@@ -223,11 +237,13 @@ const BookInfo: React.FC = () => {
                 </span>
               </div>
 
-              {/* 리뷰 섹션 */}
+              {/* 리뷰 미리보기 */}
               <ReviewSection
                 bookId={Number(id)}
                 limit={2}
-                onMoreClick={() => navigate(`/review/book/${id}`)}
+                onMoreClick={() =>
+                  navigate(`/review/book/${id}`)
+                }
               />
             </div>
 
