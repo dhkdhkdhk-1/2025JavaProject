@@ -32,8 +32,6 @@ public class BookEntity extends BaseTimeEntity {
     private String author;
     private String publisher;
 
-    @Builder.Default
-    @Column(nullable = false)
     private boolean available = true;
 
     @Column(columnDefinition = "TEXT")

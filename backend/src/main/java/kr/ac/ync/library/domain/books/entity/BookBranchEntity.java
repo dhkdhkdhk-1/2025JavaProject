@@ -29,7 +29,10 @@ public class BookBranchEntity {
     private BranchEntity branch;
 
     /** ✅ 지점별 대여 가능 여부 */
-    private boolean available;
+    @Builder.Default
+    @Column(nullable = false)
+    private boolean available = true;
+
 
     // ===== 유틸 메서드 =====
     public static BookBranchEntity link(BookEntity book, BranchEntity branch, boolean available) {

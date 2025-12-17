@@ -82,6 +82,7 @@ const AddBookModal: React.FC<AddBookModalProps> = ({
         <option value="SCIENCE">과학</option>
         <option value="OTHER">기타</option>
       </select>
+      <hr/>
 
       <button type="button" onClick={() => setBranchModalOpen(true)}>
         지점 선택 ({form.branchIds.length}개)

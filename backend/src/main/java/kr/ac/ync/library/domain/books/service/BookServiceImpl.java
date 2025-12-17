@@ -33,14 +33,35 @@ public class BookServiceImpl implements BookService {
     /** ✅ 도서 등록 (여러 지점) */
     @Override
     public BookResponse register(BookRegisterRequest request, MultipartFile image) throws IOException {
+
+        // 1️⃣ Book 엔티티 생성
         BookEntity bookEntity = BookMapper.toEntity(request);
 
-        if (image != null && !image.isEmpty()) {
-            String imageUrl = s3Uploader.uploadBookImage(image);
-            bookEntity.uptImageUrl(imageUrl);
+        // 2️⃣ 이미지 처리 (유지)
+    if (image != null && !image.isEmpty()) {
+        String imageUrl = s3Uploader.uploadBookImage(image);
+        bookEntity.uptImageUrl(imageUrl);
+    }
+
+        // 3️⃣ 지점 연결 (🔥 핵심)
+        List<BranchEntity> branches = branchRepository.findAllById(request.getBranchIds());
+
+        for (BranchEntity branch : branches) {
+            BookBranchEntity relation = BookBranchEntity.builder()
+                    .book(bookEntity)
+                    .branch(branch)
+                    .available(true) // ⭐ 초기 대여 가능
+                    .build();
+
+            // 양방향 연결
+            bookEntity.addBranchRelation(relation);
+            branch.addBookRelation(relation);
         }
 
-        return BookMapper.toResponse(bookRepository.save(bookEntity));
+        // 4️⃣ 저장 (cascade로 BookBranchEntity 같이 저장됨)
+        BookEntity saved = bookRepository.save(bookEntity);
+
+        return BookMapper.toResponse(saved);
     }
 
     @Override
