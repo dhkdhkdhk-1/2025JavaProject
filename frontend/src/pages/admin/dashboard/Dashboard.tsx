@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import PieChartBox from "../../../components/chart/PieChartBox";
-import { getBooks, Book } from "../../../api/BookApi";
+import { getBooks } from "../../../api/BookApi";
 import { getBranches, BranchResponse } from "../../../api/BranchApi";
-// import { getAdmins, User, getUsers } from "../../../api/UserApi";
-// import { getAllRentals } from "../../../api/RentalApi";
+import { getAdmins, getUsers } from "../../../api/UserApi";
+import { getAllRentals, RentalResponse } from "../../../api/RentalApi";
 import "./Dashboard.css";
 import { Borrower } from "@/types/Dashboard";
 
@@ -14,7 +14,6 @@ interface DashboardData {
   borrowedCount: number;
   returnedCount: number;
   admins: { name: string; id: string; status: string }[];
-  books: Book[];
   branches: BranchResponse[];
   borrowers: Borrower[];
 }
@@ -25,43 +24,54 @@ const Dashboard: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // ✅ 본/지점 메타 동시 조회 (총개수만 필요)
-        const [bookPage, branchPage] = await Promise.all([
-          getBooks(0, 1),
-          getBranches(0, 4),
-        ]);
+        const [bookPage, branchPage, userPage, adminPage, rentals] =
+          await Promise.all([
+            getBooks(0, 1), // totalBooks 용
+            getBranches(0, 4), // 지점 프리뷰
+            getUsers(0, 1), // totalUsers 용
+            getAdmins(0, 5), // 관리자 프리뷰
+            getAllRentals(), // 대여/반납/연체 계산
+          ]);
 
-        // ✅ DashboardData 스키마에 맞춘 목데이터
-        const mock: DashboardData = {
-          totalUsers: 150,
+        // 대여중/반납완료 카운트
+        const returnedCount = rentals.filter((r) => r.returned).length;
+        const borrowedCount = rentals.filter((r) => !r.returned).length;
+
+        // 연체자 프리뷰: dueDate < 오늘 && 아직 반납 안함
+        const today = new Date();
+        const overdue: RentalResponse[] = rentals
+          .filter((r) => !r.returned && r.dueDate)
+          .filter((r) => new Date(r.dueDate) < today)
+          .sort(
+            (a, b) =>
+              new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime()
+          )
+          .slice(0, 3);
+
+        const borrowers: Borrower[] = overdue.map((r) => ({
+          name: r.userName ?? "（不明）",
+          book: r.bookTitle ?? `Book ID-${r.bookId}`,
+          id: String(r.id),
+        }));
+
+        const dashboardData: DashboardData = {
+          totalUsers: userPage.totalElements ?? 0,
           totalBooks: bookPage.totalElements ?? 0,
           totalBranches: branchPage.totalElements ?? 0,
-          borrowedCount: 75,
-          returnedCount: 25,
-          borrowers: [
-            { name: "キム・チョルス", book: "Borrowed ID-10", id: "123" },
-            { name: "イ・ヨンヒ", book: "Borrowed ID-03", id: "123" },
-            { name: "パク・ジミン", book: "Borrowed ID-07", id: "123" },
-          ],
-          admins: [
-            {
-              name: "チェ・ヨンヒョン",
-              id: "Admin ID: 1",
-              status: "アクティブ",
-            },
-            {
-              name: "キム・ジェファン",
-              id: "Admin ID: 2",
-              status: "アクティブ",
-            },
-            { name: "イ・ジファン", id: "Admin ID: 3", status: "アクティブ" },
-            { name: "ハン・ジミン", id: "Admin ID: 4", status: "アクティブ" },
-          ],
-          books: [], // 지금은 필요 없으니 빈배열로 채움
-          branches: branchPage.content, // BranchResponse[]
+          borrowedCount,
+          returnedCount,
+
+          admins: (adminPage.content ?? []).map((a: any) => ({
+            name: a.username ?? a.name ?? "（不明）",
+            id: `Admin ID: ${a.id}`,
+            status: "アクティブ",
+          })),
+
+          branches: branchPage.content ?? [],
+          borrowers,
         };
 
-        setData(mock); // ✅ 꼭 호출
+        setData(dashboardData);
       } catch (err) {
         console.error("📊 ダッシュボードデータの読み込みに失敗しました:", err);
       }
@@ -145,7 +155,7 @@ const Dashboard: React.FC = () => {
             <h4>延滞者リスト</h4>
             {data.borrowers.length > 0 ? (
               data.borrowers.map((b, idx) => (
-                <div className="list-item" key={idx}>
+                <div className="list-item" key={b.id ?? idx}>
                   <span>📖 {b.book}</span>
                   <div className="list-item-status">{b.name}</div>
                 </div>
@@ -159,7 +169,7 @@ const Dashboard: React.FC = () => {
           <div className="list-card">
             <h4>支店リスト</h4>
             {data.branches.map((b, idx) => (
-              <div className="list-item" key={idx}>
+              <div className="list-item" key={b.id ?? idx}>
                 <span>🏫 {b.name}</span>
                 <div className="list-item-status">ID: {b.id}</div>
               </div>
