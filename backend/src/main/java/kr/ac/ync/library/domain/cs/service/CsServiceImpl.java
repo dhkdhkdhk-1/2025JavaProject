@@ -20,6 +20,8 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -72,15 +74,20 @@ public class CsServiceImpl implements CsService{
     @Override // 유저 문의내역 전체 출력
     public Page<CsUserListResponse> getMyList(Long userId, Pageable pageable) {
 
-        Page<CsEntity> page = csRepository.findByUserId(userId, pageable);
+        Pageable sortedPageable = PageRequest.of(
+                pageable.getPageNumber(),
+                pageable.getPageSize(),
+                Sort.by(Sort.Direction.DESC, "createdDateTime")
+        );
 
-        List<CsUserListResponse> getUserList = page
-                .getContent()
+        Page<CsEntity> page = csRepository.findByUserId(userId, sortedPageable);
+
+        List<CsUserListResponse> list = page.getContent()
                 .stream()
                 .map(CsMapper::toCsUserListResponse)
                 .toList();
 
-        return new PageImpl<>(getUserList, pageable, page.getTotalElements());
+        return new PageImpl<>(list, sortedPageable, page.getTotalElements());
     }
 
     @Override
