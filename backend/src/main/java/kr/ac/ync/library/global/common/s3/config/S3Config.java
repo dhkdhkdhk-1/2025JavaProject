@@ -1,3 +1,4 @@
+/*
 package kr.ac.ync.library.global.common.s3.config;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -16,3 +17,4 @@ public class S3Config {
                 .build();
     }
 }
+*/
