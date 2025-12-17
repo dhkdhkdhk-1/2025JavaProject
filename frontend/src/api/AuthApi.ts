@@ -94,8 +94,6 @@ export const login = async (
       error.response?.data?.message?.includes("脱退")
     ) {
       alert("脱退されたアカウントです。再加入してください。");
-    } else {
-      alert("ログイン失敗：メールまたはパスワードを確認してください。");
     }
     return null;
   }
