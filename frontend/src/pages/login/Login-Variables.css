@@ -1,3 +1,12 @@
+body,
+button,
+input,
+select,
+textarea {
+  font-family: "Noto Sans JP", "Noto Sans KR", "Hiragino Sans", "Meiryo",
+    sans-serif;
+}
+
 :root {
   --color-primary: #222;
   --color-secondary: #007bff;
@@ -6,12 +15,13 @@
   --color-background: #fff;
   --color-text-muted: #444;
 
-  --font-size-title: 32px;
+  /* ✅ 회원가입과 동일하게 조정 */
+  --font-size-title: 28px;
   --font-size-input: 14px;
-  --font-size-button: 16px;
+  --font-size-button: 15px;
 
-  --spacing-base: 20px;
-  --spacing-large: 40px;
+  --spacing-base: 16px;
+  --spacing-large: 24px;
 
   --border-radius: 6px;
   --input-padding: 8px 12px;

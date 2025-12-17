@@ -1,9 +1,11 @@
-name: 🚀 Deploy Backend to EC2
+name: 🚀 Deploy Backend with Docker
 
 on:
   push:
-    branches: ["main"] # admin 브랜치 푸시 시 자동 배포
-  workflow_dispatch: # 수동 실행 가능
+    branches: ["main"]
+    paths:
+      - "backend/**"
+  workflow_dispatch:
 
 jobs:
   deploy:
@@ -13,46 +15,83 @@ jobs:
       - name: ✅ Checkout repository
         uses: actions/checkout@v4
 
-      - name: 🧩 Setup Java 17
+      - name: ☕ Setup Java 17
         uses: actions/setup-java@v3
         with:
           java-version: 17
           distribution: temurin
 
-      - name: 🔧 Deploy to EC2 (via SSH)
+      - name: 🏗️ Build Spring Boot JAR
+        run: |
+          cd backend
+          chmod +x ./gradlew
+          ./gradlew clean bootJar -x test --console=plain --no-daemon
+
+      - name: 🔐 Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: 🐋 Build & Push Docker image
+        run: |
+          cd backend
+          IMAGE_NAME=${{ secrets.DOCKERHUB_USERNAME }}/library-backend
+
+          # Docker 이미지 빌드 (커밋 SHA + latest 두 개 태그)
+          docker build -t $IMAGE_NAME:${{ github.sha }} -t $IMAGE_NAME:latest .
+
+          # Docker Hub에 푸시
+          docker push $IMAGE_NAME:${{ github.sha }}
+          docker push $IMAGE_NAME:latest
+
+      - name: 🚀 Deploy on EC2 (pull & run)
         uses: appleboy/ssh-action@v1.0.0
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ubuntu
           key: ${{ secrets.EC2_KEY }}
           script_stop: true
-          pty: true
-          timeout: 10m
-          command_timeout: 5m
           script: |
             echo "===== 🚀 Deploy Start $(date) ====="
-            source /etc/profile
-            source ~/.bashrc
 
-            cd /home/ubuntu/app/2025JavaProject/backend
+            IMAGE_NAME=${{ secrets.DOCKERHUB_USERNAME }}/library-backend
 
-            echo "> 🧭 Fetch latest code from GitHub"
-            git fetch --all
-            git reset --hard origin/admin
-            git pull origin admin
+            echo "> 🛑 Stop & remove old container"
+            sudo docker stop library-app || true
+            sudo docker rm library-app || true
 
-            echo "> 🧹 Clean up old containers"
-            docker stop library-app || true
-            docker rm library-app || true
+            echo "> 🧹 Clean up old images"
+            sudo docker image prune -af || true
 
-            echo "> 🏗️ Build Spring Boot JAR"
-            chmod +x ./gradlew
-            ./gradlew clean bootJar -x test --console=plain --no-daemon 2>&1 | tee gradle.log
+            echo "> 📥 Pull latest image"
+            sudo docker pull $IMAGE_NAME:latest
 
-            echo "> 🐋 Build Docker image"
-            docker build -t library-backend . 2>&1 | tee docker.log
-
-            echo "> 🚀 Run new container"
-            docker run -d -p 8080:8080 --name library-app library-backend
+            echo "> 🐋 Run new container"
+            sudo docker run -d \
+              --name library-app \
+              -p 8080:8080 \
+              -e SPRING_PROFILES_ACTIVE=prod \
+              -e SPRING_CONFIG_ADDITIONAL_LOCATION=file:/app/config/ \
+              -v /home/ubuntu/app/config:/app/config \
+              $IMAGE_NAME:latest
 
             echo "===== ✅ Deploy Complete $(date) ====="
+
+      - name: 💬 Discord Notification
+        if: always()
+        run: |
+          if [ "${{ job.status }}" == "success" ]; then
+            STATUS="✅ Backend Docker 배포 성공!"
+            COLOR=3066993
+          else
+            STATUS="❌ Backend Docker 배포 실패!"
+            COLOR=15158332
+          fi
+          MESSAGE="**${STATUS}** 
+          브랜치: ${{ github.ref_name }} 
+          커밋: ${{ github.actor }} - ${{ github.event.head_commit.message }}
+          서버: ${{ secrets.EC2_HOST }}"
+          curl -H "Content-Type: application/json" \
+            -d "{\"embeds\":[{\"title\":\"Backend Deploy\",\"description\":\"${MESSAGE}\",\"color\":${COLOR}}]}" \
+            ${{ secrets.DISCORD_WEBHOOK_URL }}

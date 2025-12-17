@@ -61,6 +61,7 @@ public class JwtProvider {
                 .header()
                 .add(Header.JWT_TYPE, JwtType.ACCESS)
                 .and()
+                .claim("role", userRepository.findByEmail(email).orElseThrow(() -> UserNotFoundException.EXCEPTION).getRole())
                 .subject(email) // sub
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + jwtProperties.getExpiration()))

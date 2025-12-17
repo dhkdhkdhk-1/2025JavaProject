@@ -1,4 +1,12 @@
-/* src/pages/signup/Signup-Variables.css */
+body,
+button,
+input,
+select,
+textarea {
+  font-family: "Noto Sans JP", "Noto Sans KR", "Hiragino Sans", "Meiryo",
+    sans-serif;
+}
+
 :root {
   --color-primary: #222;
   --color-secondary: #555;

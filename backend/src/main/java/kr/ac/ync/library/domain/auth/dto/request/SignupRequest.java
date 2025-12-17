@@ -7,21 +7,22 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class SignupRequest { //회원가입
+public class SignupRequest {
 
     @NotBlank(message = "아이디(이메일)를 입력해주세요.")
     @Email(message = "아이디는 이메일 형식이어야 합니다.")
     private String email;
 
     @NotBlank(message = "닉네임을 입력해주세요.")
-    private String username; // 유저 닉네임
+    private String username;
 
     @NotBlank(message = "비밀번호를 입력해주세요.")
     private String password;
 
-    @NotBlank(message = "비밀번호를 한번 더 입력해주십시오")
+    @NotBlank(message = "비밀번호를 한번 더 입력해주십시오.")
     private String passwordCheck;
 
-    @NotBlank(message = "전화번호를 입력해주세요.")
-    private String phone;
+    private boolean restorePosts; // ✅ 게시글 복원 여부
+
+    private Boolean rejoinConfirm;  // 재가입 확정 여부 (1단계/2단계 구분)
 }

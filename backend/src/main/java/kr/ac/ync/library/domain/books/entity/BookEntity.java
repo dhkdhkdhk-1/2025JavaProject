@@ -1,6 +1,7 @@
 package kr.ac.ync.library.domain.books.entity;
 
 import jakarta.persistence.*;
+import kr.ac.ync.library.domain.books.dto.BookModRequest;
 import kr.ac.ync.library.domain.books.entity.enums.BookCategory;
 import kr.ac.ync.library.domain.reviews.entity.ReviewEntity;
 import kr.ac.ync.library.global.common.entity.BaseTimeEntity;
@@ -46,6 +47,7 @@ public class BookEntity extends BaseTimeEntity {
 
     /** ✅ 리뷰 관계 */
     @OneToMany(mappedBy = "book", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private List<ReviewEntity> reviews = new ArrayList<>();
 
     // ====== 편의 메서드 ======
@@ -73,4 +75,5 @@ public class BookEntity extends BaseTimeEntity {
     public void uptImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
     }
+
 }

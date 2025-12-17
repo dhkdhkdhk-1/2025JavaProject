@@ -2,14 +2,17 @@ package kr.ac.ync.library.domain.board.controller;
 
 import kr.ac.ync.library.domain.board.dto.BoardRequest;
 import kr.ac.ync.library.domain.board.dto.BoardResponse;
+import kr.ac.ync.library.domain.board.repository.BoardRepository;
 import kr.ac.ync.library.domain.board.service.BoardService;
 import kr.ac.ync.library.domain.users.mapper.UserMapper;
+import kr.ac.ync.library.domain.users.repository.UserRepository;
 import kr.ac.ync.library.global.common.security.auth.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
 import org.springframework.http.*;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.*;
 
 @RestController
@@ -18,24 +21,36 @@ import java.util.*;
 public class BoardController {
 
     private final BoardService boardService;
+    private final UserRepository userRepository;
+    private final BoardRepository boardRepository;
 
-    /** ✅ 검색 + 분류 + 페이징 + maxId 포함 */
+    /** ✅ 검색 + 분류 + 페이징 + maxId + 게시판 타입(일반/공지) 구분 */
     @GetMapping
     public ResponseEntity<Map<String, Object>> getAllBoards(
             @RequestParam(value = "page", required = false, defaultValue = "0") int page,
             @RequestParam(value = "size", required = false, defaultValue = "10") int size,
             @RequestParam(value = "keyword", required = false) String keyword,
-            @RequestParam(value = "searchType", required = false, defaultValue = "전체") String searchType,
-            @RequestParam(value = "category", required = false, defaultValue = "전체") String category
+            @RequestParam(value = "searchType", required = false, defaultValue = "제목+내용") String searchType,
+            @RequestParam(value = "category", required = false, defaultValue = "전체") String category,
+            @RequestParam(value = "type", required = false) String boardTypeFromFront   // "掲示板" / "告知"
     ) {
         if (size > 50) size = 50;
         if (page < 0) page = 0;
 
-        // 💡 다시 id 내림차순 정렬 복원
+        // ⭐ 프론트에서 "掲示板" / "告知" 로 오기 때문에 내부적으로 general / notice 로 변환
+        String internalBoardType;
+        if ("告知".equals(boardTypeFromFront)) {
+            internalBoardType = "notice";   // 공지 게시판
+        } else {
+            // null, "掲示板", 그 외 값 → 전부 일반 게시판 취급
+            internalBoardType = "general";
+        }
+
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));
 
-        Page<BoardResponse> boardPage = boardService.getAllBoards(keyword, searchType, category, pageable);
-        long maxId = boardService.getMaxBoardId(); // ✅ 전체 최대 ID
+        Page<BoardResponse> boardPage =
+                boardService.getAllBoards(keyword, searchType, category, internalBoardType, pageable);
+        long maxId = boardService.getMaxBoardId();
 
         Map<String, Object> result = new HashMap<>();
         result.put("content", boardPage.getContent());
@@ -89,4 +104,24 @@ public class BoardController {
         boardService.incrementViewCount(id);
         return ResponseEntity.ok().build();
     }
+
+    @GetMapping("/notice/top3") // 메인페이지에 공지 3개 끌어오기
+    public List<BoardResponse> getLatestNotice() {
+        return boardService.getLatestNotices();
+    }
+
+    @GetMapping("/has-post/{email}")
+    public ResponseEntity<Boolean> hasPost(@PathVariable String email) {
+        var user = userRepository.findByEmail(email)
+                .orElse(null);
+
+        if (user == null) {
+            return ResponseEntity.ok(false);
+        }
+
+        boolean exists = boardRepository.existsByUser_Id(user.getId());
+
+        return ResponseEntity.ok(exists);
+    }
+
 }

@@ -1,12 +1,22 @@
-import axios from "axios";
+import { api } from "./AuthApi";
+
+/* =========================
+   Types
+========================= */
 
 export interface BranchResponse {
   id: number;
   name: string;
-  address: string;
-  managerName: string;
+  location: string;
 }
 
+export interface BranchRequest {
+  id?: number;
+  name: string;
+  location: string;
+}
+
+/** ✅ 공통 페이지 응답 */
 export interface PageResponse<T> {
   content: T[];
   totalPages: number;
@@ -14,17 +24,56 @@ export interface PageResponse<T> {
   number: number;
 }
 
-const BASE_URL = process.env.REACT_APP_API_BASE_URL;
+/* =========================
+   ✅ 서버 전용 BASE_URL
+========================= */
+const BASE_URL = (() => {
+  const url = process.env.REACT_APP_API_BASE_URL;
+  if (!url) {
+    throw new Error("REACT_APP_API_BASE_URL is not defined");
+  }
+  return url;
+})();
 
+/* =========================
+   API Functions
+========================= */
+
+/** ✅ 지점 목록 조회 */
 export const getBranches = async (
-  page: number = 0,
-  size: number = 5
+  page = 0,
+  size = 10
 ): Promise<PageResponse<BranchResponse>> => {
-  const response = await axios.get<PageResponse<BranchResponse>>(
-    `${BASE_URL}/list`,
-    {
-      params: { page, size },
-    }
+  const res = await api.get<PageResponse<BranchResponse>>(
+    `${BASE_URL}/branch/list`,
+    { params: { page, size } }
   );
-  return response.data;
+  return res.data;
+};
+
+/** ✅ 지점 등록 */
+export const addBranch = async (
+  data: BranchRequest
+): Promise<BranchResponse> => {
+  const res = await api.post<BranchResponse>(`${BASE_URL}/branch`, data);
+  return res.data;
+};
+
+/** ✅ 지점 수정 */
+export const updateBranch = async (
+  data: BranchRequest
+): Promise<BranchResponse> => {
+  const res = await api.put<BranchResponse>(`${BASE_URL}/branch`, data);
+  return res.data;
+};
+
+/** ✅ 지점 삭제 */
+export const deleteBranch = async (id: number): Promise<void> => {
+  await api.delete(`${BASE_URL}/branch/${id}`);
+};
+
+/** ✅ 단일 조회 */
+export const getBranchById = async (id: number): Promise<BranchResponse> => {
+  const res = await api.get<BranchResponse>(`${BASE_URL}/branch/${id}`);
+  return res.data;
 };

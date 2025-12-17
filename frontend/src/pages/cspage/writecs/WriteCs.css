@@ -1,0 +1,209 @@
+.board-container {
+  max-width: 1000px;
+  margin: 50px auto;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 40px;
+}
+
+.board-title {
+  text-align: center;
+  font-size: 2rem;
+  font-weight: bold;
+  margin-bottom: 40px;
+}
+
+.board-input,
+.board-textarea {
+  width: 100%;
+  padding: 10px;
+  margin-top: 5px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 0.95rem;
+}
+
+.board-button {
+  background-color: #222;
+  color: #fff;
+  padding: 8px 18px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.board-button:hover:not(:disabled) {
+  background-color: #444;
+}
+
+.board-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.board-button.active {
+  background-color: #444;
+}
+
+.board-meta {
+  font-size: 0.9rem;
+  color: #777;
+  margin-bottom: 15px;
+}
+
+.board-meta-left {
+  text-align: left;
+}
+
+.board-meta-right {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.board-meta-row {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 4px;
+}
+
+.board-content {
+  background-color: #f9f9f9;
+  padding: 20px;
+  border-radius: 8px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+.board-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+.board-table th,
+.board-table td {
+  border-bottom: 1px solid #e5e5e5;
+  padding: 12px;
+  text-align: center;
+}
+
+.board-table th {
+  background-color: #f4f4f4;
+  color: #333;
+}
+
+.board-table tr:hover {
+  background-color: #fafafa;
+  cursor: pointer;
+}
+
+/* 페이지네이션 */
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  margin-top: 25px;
+}
+
+.page-number {
+  border: none;
+  background-color: #eee;
+  border-radius: 6px;
+  padding: 6px 10px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.page-number:hover {
+  background-color: #ddd;
+}
+
+.page-number.active {
+  background-color: #222;
+  color: white;
+  font-weight: bold;
+}
+
+.pagination .board-button {
+  color: black;
+}
+
+.pagination .board-button:disabled {
+  color: black;
+  opacity: 0.5;
+}
+
+/* ✅ 검색창 영역 */
+.board-search-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 25px;
+  gap: 8px;
+}
+
+/* ✅ 카테고리 드롭다운 */
+.board-category-select {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 20px;
+  background-color: #f9f9f9;
+  font-size: 0.95rem;
+  cursor: pointer;
+  outline: none;
+}
+
+/* ✅ 검색 타입 드롭다운 */
+.board-search-select {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 20px;
+  font-size: 0.95rem;
+  background-color: #f9f9f9;
+  cursor: pointer;
+  outline: none;
+}
+
+.board-search-input {
+  flex: 1;
+  max-width: 300px;
+  padding: 8px 14px;
+  border: 1px solid #ddd;
+  border-radius: 20px;
+  font-size: 0.95rem;
+  transition: 0.2s ease;
+}
+
+.board-search-input:focus {
+  border-color: #1a73e8;
+  outline: none;
+  box-shadow: 0 0 4px rgba(26, 115, 232, 0.3);
+}
+
+.board-search-button {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  color: #555;
+  transition: color 0.2s;
+}
+
+.board-search-button:hover {
+  color: #000;
+}
+
+/* ✅ 깜빡임 최소화 효과 */
+.fade-in {
+  opacity: 1;
+  transition: opacity 0.25s ease-in;
+}
+.fade-out {
+  opacity: 0.6;
+  transition: opacity 0.25s ease-out;
+}

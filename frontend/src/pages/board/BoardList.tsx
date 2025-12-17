@@ -1,155 +1,252 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { getBoardList, BoardResponse } from "../../api/BoardApi";
+import { getMe, User } from "../../api/AuthApi";
 import BoardTable from "./components/BoardTable";
 import axios from "axios";
 import "./board.css";
 
 const BoardList: React.FC = () => {
   const [boards, setBoards] = useState<BoardResponse[]>([]);
-  const [allBoards, setAllBoards] = useState<BoardResponse[]>([]); // ✅ 전체 게시글 목록
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
-  const [totalElements, setTotalElements] = useState(0);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
 
-  const [searchType, setSearchType] = useState("전체");
+  const [searchType, setSearchType] = useState("タイトル+内容");
   const [keyword, setKeyword] = useState("");
-  const [category, setCategory] = useState("전체");
+  const [category, setCategory] = useState("すべて");
+
+  const [uiBoardType, setUiBoardType] = useState<"掲示板" | "告知">("掲示板");
+  const [apiBoardType, setApiBoardType] = useState<"general" | "notice" | "">(
+    ""
+  );
+
+  const [baseAll, setBaseAll] = useState<BoardResponse[]>([]);
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
 
   const navigate = useNavigate();
   const location = useLocation();
 
-  /** ✅ 전체 게시글 불러오기 (모든 페이지 순회해서 전체 데이터 로드) */
-  const fetchAllBoards = useCallback(async () => {
-    try {
-      let all: BoardResponse[] = [];
-      let pageNum = 0;
-      let hasMore = true;
-
-      while (hasMore) {
-        const res = await getBoardList(pageNum, "", "전체", "전체");
-        all = [...all, ...res.data.content];
-        hasMore = pageNum < res.data.totalPages - 1;
-        pageNum++;
+  /** ------------ 현재 로그인 사용자 정보 가져오기 -------------- */
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const me = await getMe();
+        setCurrentUser(me);
+      } catch {
+        setCurrentUser(null); // 비로그인
       }
-
-      setAllBoards(all);
-      setTotalElements(all.length);
-    } catch (error) {
-      console.error("전체 게시글 불러오기 실패:", error);
-    }
+    };
+    fetchUser();
   }, []);
 
-  /** ✅ 현재 조건의 게시글 불러오기 */
+  /** ------------ URL → type 상태 반영 -------------- */
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const typeParam = params.get("type");
+
+    if (typeParam === "notice") {
+      setUiBoardType("告知");
+      setApiBoardType("notice");
+    } else {
+      setUiBoardType("掲示板");
+      setApiBoardType("general");
+    }
+  }, [location.search]);
+
+  /** ------------ baseAll 불러오기 -------------- */
+  const fetchBaseList = useCallback(async () => {
+    if (apiBoardType === "") return;
+
+    const res = await getBoardList(
+      0,
+      "",
+      "タイトル+内容",
+      "すべて",
+      apiBoardType
+    );
+
+    let base = res.data.content
+      .filter((b) => b.deleted !== true)
+      .filter((b) =>
+        apiBoardType === "notice"
+          ? ["告知", "入荷", "行事"].includes(b.type)
+          : ["一般", "リクエスト", "質問", "", null].includes(b.type)
+      )
+      .sort((a, b) => b.id - a.id)
+      .map((b, idx, arr) => ({ ...b, displayId: arr.length - idx }));
+
+    setBaseAll(base);
+  }, [apiBoardType]);
+
+  useEffect(() => {
+    fetchBaseList();
+  }, [fetchBaseList]);
+
+  /** ------------ 게시글 목록 불러오기 -------------- */
   const fetchBoards = useCallback(
-    async (
-      pageNum: number,
-      keywordStr: string,
-      searchTypeStr: string,
-      categoryStr: string
-    ) => {
+    async (pageNum: number, kw: string, st: string, ct: string) => {
+      if (apiBoardType === "") return;
+
       try {
         setLoading(true);
         setErrorMsg("");
-        const res = await getBoardList(
-          pageNum,
-          keywordStr,
-          searchTypeStr,
-          categoryStr
-        );
 
-        if (res.data.content.length === 0) {
-          setBoards([]);
-          setErrorMsg("🔍 해당 조건에 맞는 게시글이 없습니다.");
+        const res = await getBoardList(0, kw, st, ct, apiBoardType);
+        let list = res.data.content.filter((b) => b.deleted !== true);
+
+        if (apiBoardType === "notice") {
+          list = list.filter((b) => ["告知", "入荷", "行事"].includes(b.type));
         } else {
-          setBoards(res.data.content);
+          list = list.filter((b) =>
+            ["一般", "リクエスト", "質問", "", null].includes(b.type)
+          );
         }
 
-        setTotalPages(res.data.totalPages);
-      } catch (error) {
-        console.error("게시글 불러오기 실패:", error);
-        if (axios.isAxiosError(error) && error.response?.status === 401) {
-          alert("세션이 만료되었습니다. 다시 로그인해주세요.");
+        if (ct !== "すべて") list = list.filter((b) => b.type === ct);
+
+        if (kw.trim()) {
+          const kwLower = kw.toLowerCase();
+          list = list.filter(
+            (b) =>
+              (b.title || "").toLowerCase().includes(kwLower) ||
+              (b.content || "").toLowerCase().includes(kwLower) ||
+              (b.username || "").toLowerCase().includes(kwLower)
+          );
+        }
+
+        list.sort(
+          (a, b) =>
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
+
+        const numbered =
+          !kw.trim() && ct === "すべて"
+            ? baseAll
+            : list.map((b) => {
+                const found = baseAll.find((x) => x.id === b.id);
+                return { ...b, displayId: found?.displayId ?? b.id };
+              });
+
+        const total = Math.ceil(numbered.length / 10);
+        const paginated = numbered.slice(pageNum * 10, pageNum * 10 + 10);
+
+        setBoards(paginated);
+        setTotalPages(total);
+      } catch (err) {
+        console.error(err);
+        if (axios.isAxiosError(err) && err.response?.status === 401) {
+          alert("ログインしてください。");
           navigate("/login");
         } else {
-          setErrorMsg("❌ 데이터를 불러오는 중 오류가 발생했습니다.");
+          setErrorMsg("❌ データ読み込みエラー");
         }
       } finally {
         setLoading(false);
       }
     },
-    [navigate]
+    [apiBoardType, baseAll, navigate]
   );
 
-  /** ✅ URL 변경 시 새 데이터 가져오기 */
+  /** ------------ URL 변경 시 fetchBoards 실행 -------------- */
   useEffect(() => {
+    if (apiBoardType === "") return;
+
     const params = new URLSearchParams(location.search);
-    const newSearchType = params.get("searchType") || "전체";
-    const newKeyword = params.get("keyword") || "";
-    const newCategory = params.get("category") || "전체";
-    const newPage = parseInt(params.get("page") || "0", 10);
+    const kw = params.get("keyword") || "";
+    const st = params.get("searchType") || "タイトル+内容";
+    const ct = params.get("category") || "すべて";
+    const pg = parseInt(params.get("page") || "0", 10);
+    const refresh = params.get("refresh");
 
-    setSearchType(newSearchType);
-    setKeyword(newKeyword);
-    setCategory(newCategory);
-    setPage(newPage);
+    setKeyword(kw);
+    setSearchType(st);
+    setCategory(ct);
+    setPage(pg);
 
-    fetchAllBoards(); // ✅ 전체 목록 갱신 (모든 페이지 데이터)
-    fetchBoards(newPage, newKeyword, newSearchType, newCategory);
-  }, [location.search, fetchBoards, fetchAllBoards]);
+    if (refresh) {
+      navigate(`/board?type=${apiBoardType}`);
+      return;
+    }
 
-  /** ✅ 검색 실행 */
+    fetchBoards(pg, kw, st, ct);
+  }, [location.search, apiBoardType, fetchBoards, navigate]);
+
+  /** ------------ 게시판 전환 -------------- */
+  const handleBoardTypeChange = (uiType: "掲示板" | "告知") => {
+    const apiType = uiType === "告知" ? "notice" : "general";
+    setUiBoardType(uiType);
+    setApiBoardType(apiType);
+    navigate(`/board?type=${apiType}`);
+  };
+
+  /** ------------ 검색 -------------- */
   const handleSearch = () => {
-    const query = new URLSearchParams();
-    if (keyword.trim()) query.append("keyword", keyword);
-    if (searchType !== "전체") query.append("searchType", searchType);
-    if (category !== "전체") query.append("category", category);
-    query.append("page", "0");
-    navigate(`/board?${query.toString()}`);
-  };
+    const q = new URLSearchParams();
+    if (keyword.trim()) q.append("keyword", keyword);
+    q.append("searchType", searchType);
+    if (category !== "すべて") q.append("category", category);
 
-  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") handleSearch();
-  };
-
-  const handlePageChange = (newPage: number) => {
-    const query = new URLSearchParams(location.search);
-    query.set("page", newPage.toString());
-    navigate(`/board?${query.toString()}`);
-  };
-
-  const handleCategoryChange = (newCategory: string) => {
-    const query = new URLSearchParams(location.search);
-    query.set("category", newCategory);
-    query.set("page", "0");
-    navigate(`/board?${query.toString()}`);
-  };
-
-  /** ✅ 전체 기준 ID 계산 (1부터 시작, 모든 페이지 기준) */
-  const calculateGlobalId = (boardId: number) => {
-    const index = allBoards.findIndex((b) => b.id === boardId);
-    if (index === -1) return 0;
-    // 전체 목록은 최신순이므로 → 오래된 글이 1번, 최신글이 totalElements번
-    return totalElements - index;
+    navigate(`/board?type=${apiBoardType}&${q.toString()}`);
+    fetchBoards(0, keyword, searchType, category);
   };
 
   return (
     <div className={`board-container ${loading ? "fade-out" : "fade-in"}`}>
-      <h1 className="board-title">📋 게시판</h1>
+      <h1 className="board-title">
+        {uiBoardType === "掲示板" ? "掲示板" : "お知らせ"}
+      </h1>
 
-      {/* ✅ 검색 바 */}
+      <div className="board-category-toggle">
+        <button
+          onClick={() => handleBoardTypeChange("掲示板")}
+          className={`general-button ${
+            uiBoardType === "掲示板" ? "active" : ""
+          }`}
+        >
+          掲示板
+        </button>
+
+        <button
+          onClick={() => handleBoardTypeChange("告知")}
+          className={`notice-button ${uiBoardType === "告知" ? "active" : ""}`}
+        >
+          お知らせ
+        </button>
+      </div>
+
       <div className="board-search-bar">
         <select
           className="board-category-select"
           value={category}
-          onChange={(e) => handleCategoryChange(e.target.value)}
+          onChange={(e) => {
+            const value = e.target.value;
+            setCategory(value);
+
+            const q = new URLSearchParams();
+            if (keyword.trim()) q.append("keyword", keyword);
+            q.append("searchType", searchType);
+            if (value !== "すべて") q.append("category", value);
+
+            navigate(`/board?type=${apiBoardType}&${q.toString()}`);
+          }}
         >
-          <option value="전체">전체</option>
-          <option value="일반">일반</option>
-          <option value="요청">요청</option>
-          <option value="질문">질문</option>
+          {uiBoardType === "掲示板" ? (
+            <>
+              <option value="すべて">すべて</option>
+              <option value="一般">一般</option>
+              <option value="リクエスト">リクエスト</option>
+              <option value="質問">質問</option>
+            </>
+          ) : (
+            <>
+              <option value="すべて">すべて</option>
+              <option value="告知">告知</option>
+              <option value="入荷">入荷</option>
+              <option value="行事">行事</option>
+            </>
+          )}
         </select>
 
         <select
@@ -157,81 +254,104 @@ const BoardList: React.FC = () => {
           value={searchType}
           onChange={(e) => setSearchType(e.target.value)}
         >
-          <option value="전체">전체</option>
-          <option value="제목">제목</option>
-          <option value="제목+내용">제목 + 내용</option>
+          <option value="タイトル+内容">タイトル＋内容</option>
+          <option value="タイトル">タイトル</option>
+          <option value="投稿者">投稿者</option>
         </select>
 
         <input
           className="board-search-input"
           type="text"
-          placeholder="검색어를 입력하세요"
+          placeholder="キーワード"
           value={keyword}
           onChange={(e) => setKeyword(e.target.value)}
-          onKeyDown={handleKeyPress}
+          onKeyDown={(e) => e.key === "Enter" && handleSearch()}
         />
+
         <button className="board-search-button" onClick={handleSearch}>
           🔍
         </button>
       </div>
 
-      {/* ✅ 게시글 테이블 */}
       {loading ? (
-        <p style={{ textAlign: "center", color: "#777" }}>불러오는 중...</p>
+        <p style={{ textAlign: "center" }}>読み込み中...</p>
       ) : errorMsg ? (
-        <p style={{ textAlign: "center", color: "#999" }}>{errorMsg}</p>
+        <p style={{ textAlign: "center" }}>{errorMsg}</p>
       ) : (
         <BoardTable
-          boards={boards.map((b) => ({
-            id: b.id,
-            displayId: calculateGlobalId(b.id), // ✅ 전체 목록 기준 ID 표시
-            title: b.title,
-            type: b.type,
-            username: b.username,
-            viewCount: b.viewCount,
-          }))}
-          onSelect={(id) => navigate(`/board/${id}`)}
+          boards={boards}
+          onSelect={(id) => navigate(`/board/${id}?type=${apiBoardType}`)}
         />
       )}
 
-      {/* ✅ 페이지네이션 */}
-      {totalPages > 1 && (
-        <div className="pagination">
+      {/* ------------ 글쓰기 버튼: 권한에 따라 노출 -------------- */}
+      <div className="board-write-area">
+        {/* 일반 게시판 → 로그인 유저 모두 가능 */}
+        {apiBoardType === "general" && currentUser && (
           <button
             className="board-button"
-            onClick={() => handlePageChange(Math.max(page - 1, 0))}
-            disabled={page === 0}
+            onClick={() => navigate(`/board/write?type=一般`)}
           >
-            ← 이전
+            投稿する
           </button>
+        )}
 
-          {[...Array(totalPages)].map((_, num) => (
+        {/* 공지 게시판 → 관리자 or 매니저만 */}
+        {apiBoardType === "notice" &&
+          currentUser &&
+          (currentUser.role === "ADMIN" || currentUser.role === "MANAGER") && (
             <button
-              key={num}
-              onClick={() => handlePageChange(num)}
-              className={`page-number ${num === page ? "active" : ""}`}
+              className="board-button"
+              onClick={() => navigate(`/board/write?type=告知`)}
             >
-              {num + 1}
+              お知らせ作成
             </button>
-          ))}
+          )}
+      </div>
 
-          <button
-            className="board-button"
-            onClick={() => handlePageChange(Math.min(page + 1, totalPages - 1))}
-            disabled={page >= totalPages - 1}
-          >
-            다음 →
-          </button>
-        </div>
-      )}
-
-      {/* ✅ 글쓰기 버튼 */}
-      <div style={{ textAlign: "right", marginTop: "20px" }}>
+      {/* 페이지네이션 */}
+      <div className="pagination">
         <button
           className="board-button"
-          onClick={() => navigate("/board/write")}
+          disabled={page === 0}
+          onClick={() =>
+            navigate(`/board?type=${apiBoardType}&page=${page - 1}`)
+          }
         >
-          ✏️ 글쓰기
+          ⇠前へ
+        </button>
+
+        {Array.from(
+          {
+            length: Math.min(5, totalPages),
+          },
+          (_, i) => {
+            const start = Math.max(0, page - 2);
+            const pageNum = start + i;
+            if (pageNum >= totalPages) return null;
+
+            return (
+              <button
+                key={pageNum}
+                className={`page-number ${pageNum === page ? "active" : ""}`}
+                onClick={() =>
+                  navigate(`/board?type=${apiBoardType}&page=${pageNum}`)
+                }
+              >
+                {pageNum + 1}
+              </button>
+            );
+          }
+        )}
+
+        <button
+          className="board-button"
+          disabled={page === totalPages - 1}
+          onClick={() =>
+            navigate(`/board?type=${apiBoardType}&page=${page + 1}`)
+          }
+        >
+          次へ⇢
         </button>
       </div>
     </div>

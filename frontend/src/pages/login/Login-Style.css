@@ -1,7 +1,16 @@
 @import "./Login-Variables.css";
 
+body,
+button,
+input,
+select,
+textarea {
+  font-family: "Noto Sans JP", "Noto Sans KR", "Hiragino Sans", "Meiryo",
+    sans-serif;
+}
+
 .login-page {
-  max-width: 400px;
+  max-width: 420px; /* ✅ 회원가입과 동일 */
   margin: 80px auto 120px auto;
   padding: 0 var(--spacing-base);
   background-color: var(--color-background);
@@ -9,6 +18,11 @@
 }
 
 .login-title {
+  display: flex; /* 중앙 정렬을 위한 flex 사용 */
+  justify-content: center; /* 수평 중앙 */
+  align-items: center; /* 수직 중앙 */
+  text-align: center; /* 텍스트 정렬 */
+  white-space: nowrap; /* 🔹 줄바꿈 방지 */
   margin-bottom: var(--spacing-large);
   font-weight: bold;
   font-size: var(--font-size-title);
@@ -87,7 +101,7 @@
 /* ✅ 회원가입 + 비밀번호 찾기 */
 .login-link-container {
   display: flex;
-  flex-direction: column; /* 위아래 배치 */
+  flex-direction: column;
   align-items: flex-start;
   gap: 4px;
   margin-top: 8px;
@@ -123,4 +137,67 @@
 .login-button:hover {
   background-color: black;
   color: white;
+}
+
+/* 기존 clickable과 동일한 스타일 적용 */
+.clickable-text span {
+  color: #007bff;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.clickable-text span:hover {
+  text-decoration: underline;
+}
+
+.dropdown-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+/* ▼ Dropdown 전체 박스 */
+.email-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 10%; /* ★ 가로 폭 줄이기 */
+  width: 80%; /* ★ 중앙 좁은 폭 */
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  z-index: 9999;
+  margin-top: 4px;
+}
+
+/* ▼ Dropdown 항목 */
+.dropdown-item {
+  padding: 8px 10px;
+  font-size: 14px;
+  cursor: pointer;
+  white-space: nowrap;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.dropdown-item:hover {
+  background-color: #f4f4f4;
+}
+
+/* 이메일 텍스트 */
+.dropdown-email-text {
+  flex: 1;
+}
+
+/* X 삭제 버튼 */
+.dropdown-delete-btn {
+  margin-left: 8px;
+  color: #888;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.dropdown-delete-btn:hover {
+  color: #d33;
 }

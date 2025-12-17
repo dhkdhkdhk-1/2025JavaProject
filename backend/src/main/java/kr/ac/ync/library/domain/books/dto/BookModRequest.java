@@ -6,12 +6,11 @@ import kr.ac.ync.library.domain.books.entity.enums.BookCategory;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
+
 @Getter
 @Setter
 public class BookModRequest {
-
-    @NotNull(message = "책 ID를 입력해주세요.")
-    private Long id;
 
     @NotBlank(message = "책 제목을 입력해주세요.")
     private String title;
@@ -31,5 +30,5 @@ public class BookModRequest {
     private String imageUrl;    // 이미지 URL
 
     @NotNull(message = "지점ID(branchId)는 필수입니다.")
-    private Long branchId;      // ★ 수정 시에도 받기
+    private List<Long> branchIds;      // ★ 수정 시에도 받기
 }

@@ -16,7 +16,8 @@ public class RentalResponse {
     private Long bookId;       // ✅ 추가: 프론트에서 bookId 필요
     private String bookTitle;
 
-    private String username;
+    private String userName;
+    private String userEmail;
     private String branchName;
 
     private LocalDateTime rentalDate;

@@ -1,17 +1,31 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import BoardForm from "./components/BoardForm";
 import { createBoard, BoardRequest } from "../../api/BoardApi";
 
-const BoardWrite: React.FC = () => {
+interface BoardWriteProps {
+  boardType?: "一般" | "告知";
+}
+
+const BoardWrite: React.FC<BoardWriteProps> = ({ boardType = "一般" }) => {
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // ✅ URL의 type값 우선 적용
+  const params = new URLSearchParams(location.search);
+  const typeParam =
+    (params.get("type") as "一般" | "告知") || boardType || "一般";
+
   const [form, setForm] = useState<BoardRequest>({
     title: "",
     content: "",
-    type: "일반",
+    type: typeParam,
   });
 
-  // ✅ 타입 유연하게 수정
+  useEffect(() => {
+    setForm((prev) => ({ ...prev, type: typeParam }));
+  }, [typeParam]);
+
   const handleChange = (
     e:
       | React.ChangeEvent<
@@ -20,29 +34,36 @@ const BoardWrite: React.FC = () => {
       | { target: { name: string; value: string } }
   ) => {
     const { name, value } = e.target;
-    setForm({ ...form, [name]: value });
+    setForm((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async () => {
-    const token = localStorage.getItem("accessToken");
-    if (!token) {
-      alert("로그인이 필요합니다.");
-      navigate("/login");
+    if (!form.title.trim() || !form.content.trim()) {
+      alert("タイトルと内容を全部書いてください。");
       return;
     }
 
     try {
       await createBoard(form);
-      alert("게시글이 등록되었습니다.");
-      navigate("/board");
+      alert("投稿が登録されました。");
+      const goType = ["告知", "入荷", "行事"].includes(form.type)
+        ? "notice"
+        : "general";
+
+      navigate(`/board?type=${goType}&refresh=1`);
     } catch (err) {
-      console.error(err);
-      alert("게시글 등록 실패 (인증 오류)");
+      console.error("投稿登録失敗:", err);
+      alert("投稿を登録している中エラーが発生しました。");
     }
   };
 
   return (
-    <BoardForm form={form} onChange={handleChange} onSubmit={handleSubmit} />
+    <BoardForm
+      form={form}
+      onChange={handleChange}
+      onSubmit={handleSubmit}
+      boardType={typeParam}
+    />
   );
 };
 

@@ -1,0 +1,101 @@
+@import "../login/Login-Variables.css";
+
+body,
+button,
+input,
+select,
+textarea {
+  font-family: "Noto Sans JP", "Noto Sans KR", "Hiragino Sans", "Meiryo",
+    sans-serif;
+}
+
+/* ✅ 전체 컨테이너 */
+.withdraw-page {
+  max-width: 420px;
+  margin: 80px auto 120px auto;
+  padding: 0 var(--spacing-base);
+  background-color: var(--color-background);
+  text-align: center;
+}
+
+/* ✅ 제목 */
+.withdraw-title {
+  margin-bottom: var(--spacing-large);
+  font-weight: bold;
+  font-size: var(--font-size-title);
+  color: var(--color-primary);
+}
+
+/* ✅ 박스 */
+.withdraw-box {
+  border: 1px solid var(--color-border);
+  padding: var(--spacing-large) var(--spacing-base);
+  border-radius: var(--border-radius);
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+  background-color: var(--color-background);
+  text-align: left;
+}
+
+/* ✅ 비밀번호 입력창 영역 (두 칸 동일 스타일) */
+.password-container {
+  position: relative;
+  margin-bottom: var(--spacing-base);
+}
+
+/* ✅ Input 크기 통일 */
+.withdraw-input-field {
+  width: 100%;
+  height: 42px;
+  padding-right: 40px; /* 👁 버튼 공간 확보 */
+  box-sizing: border-box;
+}
+
+/* ✅ 눈 아이콘 버튼 */
+.toggle-password-btn {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(10%);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  color: #666;
+  transition: color 0.2s;
+}
+
+.toggle-password-btn:hover {
+  color: #000;
+}
+
+/* ✅ 버튼 디자인 */
+.withdraw-button {
+  width: 100%;
+  display: block;
+  padding: 12px 0;
+  font-weight: 600;
+  font-size: var(--font-size-button);
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  border: 1px solid black;
+  background-color: white;
+  color: black;
+  transition: all 0.2s ease;
+  margin-top: 12px;
+}
+
+.withdraw-button:hover {
+  background-color: black;
+  color: white;
+}
+
+/* ✅ 취소 버튼 */
+.withdraw-button.cancel {
+  background-color: white;
+  color: black;
+  border: 1px solid black;
+}
+
+.withdraw-button.cancel:hover {
+  background-color: #f2f2f2;
+}

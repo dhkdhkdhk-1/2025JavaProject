@@ -1,0 +1,62 @@
+/* =========================
+   입력 공통
+========================= */
+.modal-body input,
+.modal-body select {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  font-size: 14px;
+}
+
+/* =========================
+   지점 태그 컨테이너
+========================= */
+.branch-tag-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+
+  margin-top: 6px;
+  margin-bottom: 20px; /* 🔥 버튼과 거리 */
+  max-height: 90px;    /* 🔥 지점 많아질 때 */
+  overflow-y: auto;
+}
+
+/* =========================
+   지점 태그
+========================= */
+.branch-tag {
+  display: inline-flex;
+  align-items: center;
+
+  padding: 4px 8px;     /* 🔥 작게 */
+  font-size: 12px;
+  border-radius: 14px;
+
+  background-color: #f1f3f5;
+  color: #333;
+}
+
+/* 태그 X 버튼 */
+.branch-tag button {
+  margin-left: 6px;
+  font-size: 12px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #666;
+}
+
+/* =========================
+   모달 버튼 영역
+========================= */
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid #eee; /* 🔥 시각적 분리 */
+}

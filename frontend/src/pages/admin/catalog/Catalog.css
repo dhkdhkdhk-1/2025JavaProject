@@ -1,0 +1,121 @@
+/* =========================
+   Catalog 컨테이너 (🔥 핵심 수정)
+========================= */
+.catalog-container {
+  background-color: #f9f9fb;
+  padding-left: 105px;          /* ❌ 140px 제거 */
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* =========================
+   탭 버튼
+========================= */
+.tab-buttons {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.tab-buttons button {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  background-color: #e3e3e3;
+  color: #333;
+  font-weight: 500;
+  cursor: pointer;
+  border-radius: 8px;
+}
+
+.tab-buttons button.active {
+  background-color: #333;
+  color: white;
+}
+
+/* =========================
+   검색
+========================= */
+.catalog-search {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 10px;
+}
+
+.catalog-search input {
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  width: 220px;
+}
+
+/* =========================
+   테이블
+========================= */
+.catalog-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  border-radius: 8px;
+  overflow: visible;
+}
+
+.catalog-table th,
+.catalog-table td {
+  padding: 12px;
+  text-align: center;
+  border-bottom: 1px solid #eee;
+}
+
+.catalog-table th {
+  background-color: #f3f4f6;
+  color: #333;
+  font-weight: 600;
+}
+
+/* =========================
+   데이터 없음
+========================= */
+.empty-row td {
+  padding: 40px 0;
+  text-align: center;
+  color: #777;
+  font-size: 14px;
+}
+
+/* =========================
+   버튼 그룹
+========================= */
+.action-buttons {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  align-items: center;
+}
+
+.action-buttons button {
+  white-space: nowrap;
+}
+
+/* =========================
+   버튼
+========================= */
+.approve-btn {
+  background-color: #2ecc71;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.mail-btn {
+  background-color: #333;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+}

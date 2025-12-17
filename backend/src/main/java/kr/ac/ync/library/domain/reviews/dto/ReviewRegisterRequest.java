@@ -7,8 +7,8 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class ReviewRegisterRequest
-{
+public class ReviewRegisterRequest {
+
     @NotEmpty(message = "리뷰 제목 입력")
     private String title;
 

@@ -20,7 +20,7 @@ const BookList: React.FC = () => {
     SCIENCE: false,
     OTHER: false,
   });
-  const [sortOrder, setSortOrder] = useState<"최신순" | "평점순">("최신순");
+  const [sortOrder, setSortOrder] = useState<"新着順" | "評価順">("新着順");
 
   const [keyword, setKeyword] = useState<string>("");
   const [page, setPage] = useState<number>(0);
@@ -74,7 +74,7 @@ const BookList: React.FC = () => {
 
         // ✅ 정렬 적용 (프론트 단)
         let sortedContent = [...res.content];
-        if (sortOrder === "평점순") {
+        if (sortOrder === "評価順") {
           sortedContent.sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0));
         }
 
@@ -125,13 +125,13 @@ const BookList: React.FC = () => {
 
   return (
     <div className="book-list-page">
-      <h2 className="page-title">도서목록</h2>
+      <h2 className="page-title">書籍一覧</h2>
 
       <div className="book-list-layout">
         {/* ✅ 왼쪽 필터 메뉴 */}
         <aside className="filter-menu">
           <div className="filter-section">
-            <div className="section-title">선택된 장르</div>
+            <div className="section-title">選択されたジャンル</div>
             <div className="keyword-list">
               {selectedFilters.map((filter, index) => (
                 <div
@@ -160,7 +160,7 @@ const BookList: React.FC = () => {
             </div>
           </div>
 
-          <div className="section-title">장르</div>
+          <div className="section-title">ジャンル</div>
           <div className="checkbox-group">
             {Object.entries(genreFilters).map(([genre, checked]) => (
               <div key={genre} className="checkbox-field">
@@ -224,7 +224,7 @@ const BookList: React.FC = () => {
 
             {/* 정렬 버튼 */}
             <div className="sort-toggles">
-              {(["최신순", "평점순"] as const).map((option) => (
+              {(["新着順", "評価順"] as const).map((option) => (
                 <div
                   key={option}
                   className={`sort-toggle ${sortOrder === option ? "active" : ""}`}

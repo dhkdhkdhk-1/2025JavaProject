@@ -2,7 +2,6 @@ package kr.ac.ync.library.domain.rentals.mapper;
 
 import kr.ac.ync.library.domain.books.entity.BookEntity;
 import kr.ac.ync.library.domain.branch.entity.BranchEntity;
-import kr.ac.ync.library.domain.rentals.dto.Rental;
 import kr.ac.ync.library.domain.rentals.dto.RentalResponse;
 import kr.ac.ync.library.domain.rentals.entity.RentalEntity;
 import kr.ac.ync.library.domain.users.entity.UserEntity;
@@ -29,24 +28,8 @@ public class RentalMapper
                 .id(entity.getId())
                 .bookId(entity.getBook().getId())
                 .bookTitle(entity.getBook().getTitle())
-                .username(entity.getUser().getUsername())
-                .branchName(entity.getBranch().getName())
-                .rentalDate(entity.getRentalDate())
-                .dueDate(entity.getDueDate())
-                .returnDate(entity.getReturnDate())
-                .status(entity.getStatus())
-                .returned(entity.isReturned())
-                .build();
-    }
-
-    public static Rental toDTO(RentalEntity entity) {
-        return Rental.builder()
-                .id(entity.getId())
-                .userId(entity.getUser().getId())
-                .username(entity.getUser().getUsername())
-                .bookId(entity.getBook().getId())
-                .bookTitle(entity.getBook().getTitle())
-                .branchId(entity.getBranch().getId())
+                .userName(entity.getUser().getUsername())
+                .userEmail(entity.getUser().getEmail())
                 .branchName(entity.getBranch().getName())
                 .rentalDate(entity.getRentalDate())
                 .dueDate(entity.getDueDate())

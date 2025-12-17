@@ -35,4 +35,9 @@ public class BoardEntity extends BaseTimeEntity {
     private String content;
 
     private Long viewCount;
+
+    /** ✅ 게시글 soft delete 플래그 (DB에 남기지만 표시 안 함) */
+    @Column(nullable = false)
+    private Boolean deleted = false;
+
 }

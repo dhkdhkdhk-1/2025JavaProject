@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { InputField } from "./components/InputField";
@@ -16,12 +16,36 @@ const Login: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [remember, setRemember] = useState(false);
 
+  const [savedEmails, setSavedEmails] = useState<string[]>([]);
+
   const navigate = useNavigate();
 
-  const handleLogin = async () => {
+  /** 저장된 이메일 로드 */
+  useEffect(() => {
+    const saved = JSON.parse(localStorage.getItem("savedEmails") || "[]");
+    setSavedEmails(saved);
+  }, []);
+
+  /** 이메일 저장 (remember === true 일 때) */
+  const saveEmailIfNeeded = (emailValue: string) => {
+    let updated = [...savedEmails];
+
+    if (!updated.includes(emailValue)) {
+      updated.push(emailValue);
+      localStorage.setItem("savedEmails", JSON.stringify(updated));
+      setSavedEmails(updated);
+    }
+  };
+
+  /** 로그인 처리 */
+  const handleLogin = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+
     const tokens = await login({ email, password });
     if (!tokens) {
-      alert("로그인 실패: 이메일과 비밀번호를 확인하세요.");
+      alert(
+        "ログインに失敗しました：メールアドレスとパスワードを確認してください。"
+      );
       return;
     }
 
@@ -29,44 +53,61 @@ const Login: React.FC = () => {
     localStorage.setItem("refreshToken", tokens.refreshToken);
     setAccessToken(tokens.accessToken);
 
+    if (remember) saveEmailIfNeeded(email);
+
     try {
       const me = await getMe();
-      localStorage.setItem("role", me.role);
-      window.dispatchEvent(new Event("storage"));
 
-      if (me.role === "ADMIN") navigate("/admin");
-      else navigate("/home");
-    } catch (e) {
-      console.error("/user/me 조회 실패", e);
-      alert("로그인은 되었지만 사용자 정보를 불러오지 못했습니다.");
+      if (me.deleted) {
+        alert("脱退したアカウントです。再加入後に利用してください。");
+        navigate("/signup");
+        return;
+      }
+
+      localStorage.setItem("role", me.role);
+      navigate(me.role === "ADMIN" ? "/admin" : "/home");
+    } catch {
+      alert("ログインはしましたが情報読み込みに失敗しました。");
       navigate("/home");
     }
   };
 
   return (
     <div className="login-page">
-      <TextContentTitle title="로그인" align="center" className="login-title" />
+      <TextContentTitle title="ログイン" className="login-title" />
 
-      <div className="login-box">
-        <InputField
-          className="login-input"
-          inputClassName="login-input-field"
-          label="Email"
-          value={email}
-          valueType="value"
-          onChange={(e) => setEmail(e.target.value)}
-        />
+      <form className="login-box" onSubmit={handleLogin} autoComplete="off">
+        {/* 이메일 입력 */}
+        <div className="dropdown-wrapper" onClick={(e) => e.stopPropagation()}>
+          <InputField
+            className="login-input"
+            inputClassName="login-input-field"
+            label="Email"
+            value={email}
+            valueType="value"
+            onChange={(e) => setEmail(e.target.value)}
+            type="email"
+            name="username"
+            inputId="login-email"
+            autoComplete="username" // 🔥 자동완성 활성화
+          />
+        </div>
 
+        {/* 비밀번호 입력 */}
         <div className="password-container">
           <InputField
             className="login-input"
             inputClassName="login-input-field"
-            label="Password"
+            label="パスワード"
             value={password}
             valueType="value"
             onChange={(e) => setPassword(e.target.value)}
             type={showPassword ? "text" : "password"}
+            name="password"
+            inputId="login-password"
+            autoComplete="new-password"
           />
+
           <button
             type="button"
             className="toggle-password-btn"
@@ -77,40 +118,41 @@ const Login: React.FC = () => {
           </button>
         </div>
 
-        {/* ✅ 체크박스 + 텍스트 같은 줄에 */}
-        <div className="remember-container">
+        {/* 체크박스 */}
+        <label className="remember-container clickable-text">
           <input
             type="checkbox"
             checked={remember}
             onChange={(e) => setRemember(e.target.checked)}
           />
-          <span>계정 정보 저장</span>
-        </div>
+          <span>ログイン情報を保存</span>
+        </label>
 
-        {/* ✅ 회원가입 + 비밀번호 찾기 순서 변경 */}
+        {/* 링크 */}
         <div className="login-link-container">
           <div
             className="login-signup clickable"
             onClick={() => navigate("/signup")}
           >
-            회원가입
+            会員登録
           </div>
+
           <div
             className="login-forgot clickable"
-            onClick={() => alert("비밀번호 찾기 기능 준비 중입니다.")}
+            onClick={() => navigate("/findpassword")}
           >
-            비밀번호 찾기
+            パスワードを探す
           </div>
         </div>
 
+        {/* 로그인 버튼 */}
         <VariantPrimaryWrapper
           className="login-button"
-          label="로그인"
+          label="ログイン"
           size="medium"
           variant="primary"
-          onClick={handleLogin}
         />
-      </div>
+      </form>
     </div>
   );
 };

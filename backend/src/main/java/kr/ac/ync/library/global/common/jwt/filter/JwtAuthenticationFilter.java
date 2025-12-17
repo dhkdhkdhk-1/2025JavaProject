@@ -24,17 +24,20 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
-
         String path = request.getRequestURI();
-
         // ✅ Preflight 요청 통과 (CORS OPTIONS)
         if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
             filterChain.doFilter(request, response);
             return;
         }
 
+        if (path.startsWith("/auth")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         // ✅ 인증 제외 경로 (로그인, 회원가입, 책, 지점, 조회수 증가 등)
-        if (isExcludedPath(path)) {
+        if (isExcludedPath(request)) {
             filterChain.doFilter(request, response);
             return;
         }
@@ -47,6 +50,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             token = authorization.substring(7);
         }
 
+
         // ✅ 토큰이 없거나 "Bearer"만 있는 경우는 그냥 통과 (에러 방지)
         if (!StringUtils.hasText(token) || "Bearer".equals(token)) {
             filterChain.doFilter(request, response);
@@ -56,19 +60,23 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         // ✅ 유효한 토큰이면 인증정보 저장
         if (jwtProvider.validateToken(token)) {
             Authentication authentication = jwtProvider.getAuthentication(token);
+            System.out.println("AUTH = " + authentication.getAuthorities());
             SecurityContextHolder.getContext().setAuthentication(authentication);
         }
 
         filterChain.doFilter(request, response);
     }
 
-    // ✅ 인증 제외 경로 정의
-    private boolean isExcludedPath(String path) {
-        return path.startsWith("/auth")       // 로그인, 회원가입, 토큰 재발급
-                || path.startsWith("/book")   // 도서 조회 관련
-                || path.startsWith("/branch") // 지점 조회 관련
-                || path.equals("/")           // 홈
-                || path.equals("/error")      // 에러 페이지
-                || path.matches("^/board/\\d+/view$"); // ✅ 게시글 조회수 증가 허용
+    private boolean isExcludedPath(HttpServletRequest request) {
+        String path = request.getRequestURI();
+        String method = request.getMethod();
+        if (path.startsWith("/auth")) return true;
+        if (path.startsWith("/book") && "GET".equalsIgnoreCase(method)) return true;
+        if (path.startsWith("/branch") && "GET".equalsIgnoreCase(method)) return true;
+        if (path.equals("/") || path.equals("/error")) return true;
+        if (path.matches("^/board/\\d+/view$")) return true;
+
+        return false;
     }
+
 }

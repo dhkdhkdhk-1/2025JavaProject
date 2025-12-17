@@ -1,48 +1,42 @@
+// components/BoardTable.tsx
 import React from "react";
+import { BoardResponse } from "../../../api/BoardApi";
 import "../board.css";
 
 interface Props {
-  boards: {
-    id: number;
-    displayId?: number; // ✅ 화면용 번호
-    title: string;
-    type: string;
-    username: string;
-    viewCount: number;
-  }[];
+  boards: BoardResponse[];
   onSelect: (id: number) => void;
 }
 
 const BoardTable: React.FC<Props> = ({ boards, onSelect }) => {
+  if (!boards || boards.length === 0) {
+    return <p>投稿がありません。</p>;
+  }
+
   return (
     <table className="board-table">
       <thead>
         <tr>
-          <th>번호</th>
-          <th>분류</th>
-          <th>제목</th>
-          <th>작성자</th>
-          <th>조회수</th>
+          <th className="col-no">番号</th>
+          <th className="col-type">分類</th>
+          <th className="col-title">タイトル</th>
+          <th className="col-user">投稿者</th>
+          <th className="col-view">閲覧数</th>
         </tr>
       </thead>
+
       <tbody>
-        {boards.length > 0 ? (
-          boards.map((b) => (
-            <tr key={b.id} onClick={() => onSelect(b.id)}>
-              <td>{b.displayId ?? b.id}</td>
-              <td>{b.type}</td>
-              <td style={{ textAlign: "left" }}>{b.title}</td>
-              <td>{b.username}</td>
-              <td>{b.viewCount}</td>
-            </tr>
-          ))
-        ) : (
-          <tr>
-            <td colSpan={5} style={{ textAlign: "center", color: "#888" }}>
-              게시글이 없습니다.
+        {boards.map((board) => (
+          <tr key={board.id} onClick={() => onSelect(board.id)}>
+            <td className="col-no">{board.displayId ?? board.id}</td>
+            <td className="col-type">{board.type}</td>
+            <td className="col-title" title={board.title}>
+              {board.title}
             </td>
+            <td className="col-user">{board.username}</td>
+            <td className="col-view">{board.viewCount}</td>
           </tr>
-        )}
+        ))}
       </tbody>
     </table>
   );
