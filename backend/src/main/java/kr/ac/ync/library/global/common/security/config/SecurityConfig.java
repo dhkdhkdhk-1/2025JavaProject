@@ -50,9 +50,9 @@ public class SecurityConfig {
 
                         // ADMIN 전용
                         .requestMatchers("/user/list/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.POST, "/book/**", "/branch/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.PUT,  "/book/**", "/branch/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE,"/book/**", "/branch/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/book/**", "/branch/**").hasAnyRole("ADMIN", "MANAGER")
+                        .requestMatchers(HttpMethod.PUT,  "/book/**", "/branch/**").hasAnyRole("ADMIN", "MANAGER")
+                        .requestMatchers(HttpMethod.DELETE,"/book/**", "/branch/**").hasAnyRole("ADMIN", "MANAGER")
 
                         // 로그인 필요
                         .requestMatchers("/cs/**").authenticated()
