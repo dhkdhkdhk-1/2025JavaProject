@@ -47,6 +47,7 @@ const BoardForm: React.FC<Props> = ({
         value={form.title}
         onChange={onChange}
         placeholder="タイトルを書いてください。"
+        maxLength={25}
       />
 
       <label className="field-label">分類</label>

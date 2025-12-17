@@ -47,7 +47,6 @@ const ReviewList: React.FC = () => {
     }
   };
 
-
   /** ✅ 도서 상세보기 이동 */
   const handleBookClick = (bookId: number) => {
     navigate(`/book/${bookId}`);
@@ -99,12 +98,12 @@ const ReviewList: React.FC = () => {
                     : item.comment}
                 </p>
 
-                  <button
-                    className="reviewlist-remove-btn"
-                    onClick={() => handleRemove(item.id)}
-                  >
-                    🗑 削除
-                  </button>
+                <button
+                  className="reviewlist-remove-btn"
+                  onClick={() => handleRemove(item.id)}
+                >
+                  🗑 削除
+                </button>
               </div>
             </div>
           ))}

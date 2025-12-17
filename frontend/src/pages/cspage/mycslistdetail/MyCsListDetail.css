@@ -9,9 +9,12 @@
 
 .board-title {
   text-align: center;
-  font-size: 2rem;
+  font-size: 1.2rem; /* 🔽 크기 줄이기 (원하면 더 조절) */
   font-weight: bold;
   margin-bottom: 40px;
+
+  white-space: nowrap;
+  overflow: hidden;
 }
 
 .board-input,

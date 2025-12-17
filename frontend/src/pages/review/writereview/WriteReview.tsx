@@ -59,7 +59,9 @@ const WriteReview: React.FC = () => {
       <div className="product-section">
         <img
           className="product-image"
-          src={book.imageUrl || "https://via.placeholder.com/300x400?text=No+Image"}
+          src={
+            book.imageUrl || "https://via.placeholder.com/300x400?text=No+Image"
+          }
           alt={book.title}
         />
         <div className="product-info-column">
