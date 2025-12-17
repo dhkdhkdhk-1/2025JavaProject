@@ -14,6 +14,7 @@ import java.util.Map;
 
 public interface BookService {
 
+
     BookResponse register(BookRegisterRequest request, MultipartFile image) throws IOException;
 
     BookResponse modify(Long id, BookModRequest request, MultipartFile image) throws IOException;
@@ -26,8 +27,10 @@ public interface BookService {
 
     Page<BookResponse> getList(Pageable pageable);
 
-    /** ✅ 장르 + 검색어 필터 포함 목록 조회 */
     Page<BookResponse> getList(Pageable pageable, String keyword, List<BookCategory> genres);
 
     List<Map<String, Object>> getBookBranchStatus(Long bookId);
+
+    // ✅ 추가: 지점별 대여 가능 여부 변경
+    void updateBookBranchAvailability(Long bookId, Long branchId, boolean available);
 }

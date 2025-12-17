@@ -1,5 +1,6 @@
 package kr.ac.ync.library.domain.books.service;
 
+import jakarta.transaction.Transactional;
 import kr.ac.ync.library.domain.books.dto.BookModRequest;
 import kr.ac.ync.library.domain.books.dto.BookRegisterRequest;
 import kr.ac.ync.library.domain.books.dto.BookResponse;
@@ -13,6 +14,7 @@ import kr.ac.ync.library.domain.branch.entity.BranchEntity;
 import kr.ac.ync.library.domain.branch.repository.BranchRepository;
 import kr.ac.ync.library.global.common.s3.S3Uploader;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -77,8 +79,6 @@ public class BookServiceImpl implements BookService {
             String newImageUrl = s3Uploader.uploadBookImage(image);
             bookEntity.uptImageUrl(newImageUrl);
 
-            BookEntity saved = bookRepository.save(bookEntity);
-
             if (oldImageUrl != null && !oldImageUrl.isBlank() && !oldImageUrl.equals(newImageUrl)) {
                 try {
                     s3Uploader.deleteByUrl(oldImageUrl);
@@ -88,7 +88,36 @@ public class BookServiceImpl implements BookService {
                 }
             }
         }
-            return BookMapper.toResponse(bookRepository.save(bookEntity));
+
+// ===== 지점 관계 수정 (값이 있을 때만) =====
+        if (request.getBranchIds() != null && !request.getBranchIds().isEmpty()) {
+
+            List<BookBranchEntity> existingRelations = bookEntity.getBookBranches();
+            Set<Long> requestBranchIds = new HashSet<>(request.getBranchIds());
+
+            // 1️⃣ 요청에서 빠진 지점 → 관계 제거
+            existingRelations.removeIf(rel ->
+                    !requestBranchIds.contains(rel.getBranch().getId())
+            );
+
+            // 2️⃣ 새로 추가된 지점만 relation 생성
+            Set<Long> existingBranchIds = existingRelations.stream()
+                    .map(r -> r.getBranch().getId())
+                    .collect(Collectors.toSet());
+
+            List<BranchEntity> branches = branchRepository.findAllById(requestBranchIds);
+
+            for (BranchEntity branch : branches) {
+                if (!existingBranchIds.contains(branch.getId())) {
+                    BookBranchEntity.link(bookEntity, branch, true);
+                }
+            }
+        }
+            try {
+                return BookMapper.toResponse(bookRepository.save(bookEntity));
+            } catch (DataIntegrityViolationException e){
+                throw new IllegalStateException("이미 등록된 지점입니다.");
+            }
     }
 
     @Override
@@ -166,5 +195,23 @@ public class BookServiceImpl implements BookService {
             m.put("available", map.getOrDefault(b.getId(), false));
             return m;
         }).toList();
+    }
+
+    @Override
+    @Transactional
+    public void updateBookBranchAvailability(Long bookId, Long branchId, boolean available) {
+
+        BookEntity book = bookRepository.findById(bookId)
+                .orElseThrow(() -> BookNotFoundException.EXCEPTION);
+
+        BookBranchEntity relation = book.getBookBranches().stream()
+                .filter(r -> r.getBranch().getId().equals(branchId))
+                .findFirst()
+                .orElseThrow(() ->
+                        new IllegalArgumentException("해당 책-지점 관계가 존재하지 않습니다.")
+                );
+
+        // ⭐ 여기서만 상태 변경
+        relation.setAvailable(available);
     }
 }

@@ -56,6 +56,17 @@ public class BookController {
         return ResponseEntity.ok(bookService.getBookBranchStatus(id));
     }
 
+    // ✅ 지점별 도서 대여 가능 / 불가능 토글
+    @PatchMapping("/{bookId}/branches/{branchId}/availability")
+    public ResponseEntity<Void> updateBranchAvailability(
+            @PathVariable Long bookId,
+            @PathVariable Long branchId,
+            @RequestParam boolean available
+    ) {
+        bookService.updateBookBranchAvailability(bookId, branchId, available);
+        return ResponseEntity.ok().build();
+    }
+
     // ✅ 숫자만 매칭되게 해서 /book/recent, /book/list 와 충돌 방지
     @GetMapping("/{id:\\d+}")
     public ResponseEntity<BookResponse> get(@PathVariable Long id) {

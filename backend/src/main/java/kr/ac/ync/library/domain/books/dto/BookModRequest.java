@@ -23,12 +23,11 @@ public class BookModRequest {
 
     private String publisher;
 
-    private boolean available;
+    private Boolean available;
 
     // ★ 추가 확인
     private String description; // 줄거리
     private String imageUrl;    // 이미지 URL
 
-    @NotNull(message = "지점ID(branchId)는 필수입니다.")
     private List<Long> branchIds;      // ★ 수정 시에도 받기
 }

@@ -30,7 +30,7 @@ public class BookMapper {
         entity.uptPublisher(dto.getPublisher());
         entity.uptCategory(dto.getCategory());
 
-        if (dto.isAvailable()) {
+        if (dto.getAvailable()) {
             entity.markAsReturned();
         } else {
             entity.markAsBorrowed();

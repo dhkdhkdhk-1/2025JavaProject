@@ -130,7 +130,6 @@ const UpdateBookModal: React.FC<Props> = ({
         <button
           className="modal-btn confirm"
           onClick={handleSubmit}
-          disabled={form.branchIds.length === 0}
         >
           UPDATE
         </button>
