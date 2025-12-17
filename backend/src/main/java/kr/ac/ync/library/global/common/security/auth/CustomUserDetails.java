@@ -1,6 +1,6 @@
 package kr.ac.ync.library.global.common.security.auth;
 
-import kr.ac.ync.library.domain.users.dto.User; // ✅ 꼭 DTO User import
+import kr.ac.ync.library.domain.users.dto.User;
 import kr.ac.ync.library.domain.users.entity.enums.UserRole;
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
@@ -13,15 +13,15 @@ import java.util.Collections;
 @Getter
 public class CustomUserDetails implements UserDetails {
 
-    private final User user; // 1번 프로젝트 User DTO
-    private Collection<? extends GrantedAuthority> authorities;
+    private final User user;
+    private final Collection<? extends GrantedAuthority> authorities;
 
     public CustomUserDetails(User user) {
         this.user = user;
+
+        // ✅ ROLE_ADMIN / ROLE_MANAGER / ROLE_USER 그대로 부여
         this.authorities = Collections.singleton(
-                new SimpleGrantedAuthority(
-                        user.getRole() == UserRole.ADMIN ? "ROLE_ADMIN" : "ROLE_USER"
-                )
+                new SimpleGrantedAuthority("ROLE_" + user.getRole().name())
         );
     }
 
@@ -37,18 +37,27 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public String getUsername() {
+        // ✅ JWT subject = email
         return user.getEmail();
     }
 
     @Override
-    public boolean isAccountNonExpired() { return true; }
+    public boolean isAccountNonExpired() {
+        return true;
+    }
 
     @Override
-    public boolean isAccountNonLocked() { return true; }
+    public boolean isAccountNonLocked() {
+        return true;
+    }
 
     @Override
-    public boolean isCredentialsNonExpired() { return true; }
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
 
     @Override
-    public boolean isEnabled() { return true; }
+    public boolean isEnabled() {
+        return true;
+    }
 }
