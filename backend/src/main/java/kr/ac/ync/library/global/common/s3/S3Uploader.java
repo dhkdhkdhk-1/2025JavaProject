@@ -24,6 +24,7 @@ public class S3Uploader {
     private String cloudfrontUrl;
 
     /** ✅ 업로드 */
+
     public String uploadBookImage(MultipartFile file) throws IOException {
         String key = "books/" + UUID.randomUUID() + "-" + safeName(file.getOriginalFilename());
 
@@ -39,6 +40,7 @@ public class S3Uploader {
     }
 
     /** ✅ 기존 이미지 삭제 (URL 기준) */
+
     public void deleteByUrl(String imageUrl) {
         if (imageUrl == null || imageUrl.isBlank()) return;
 
@@ -49,6 +51,7 @@ public class S3Uploader {
     }
 
     /** CloudFront/S3 URL → S3 key 추출 */
+
     private String extractKey(String url) {
         // 예: https://xxxx.cloudfront.net/books/uuid-file.jpg
         int idx = url.indexOf("/books/");

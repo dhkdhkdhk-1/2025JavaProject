@@ -63,10 +63,7 @@ export interface ReviewRequest {
 }
 
 /** 리뷰 작성 */
-export const writeReview = async (
-  bookId: number,
-  data: ReviewRequest
-) => {
+export const writeReview = async (bookId: number, data: ReviewRequest) => {
   const res = await api.post(`/reviews/user/${bookId}`, data);
   return res.data;
 };

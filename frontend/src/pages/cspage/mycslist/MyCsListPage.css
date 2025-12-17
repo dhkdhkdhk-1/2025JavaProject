@@ -13,13 +13,13 @@
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  padding: 40px 0;
+  padding: 120px 0;
 }
 
 /* =========================================================
    🔷 1. 문의 내역 전체 컨테이너
    ========================================================= */
-.board-container {
+.cslist-container {
   width: 100%;
   max-width: 1000px;
   background: #ffffff;
@@ -32,90 +32,90 @@
   flex-direction: column;
   justify-content: flex-start;
   align-items: center;
+  margin: 0 auto;
 }
 
 /* =========================================================
    🔷 2. 제목 영역
    ========================================================= */
-.board-title {
+.cslist-title {
   text-align: center;
   font-size: 2rem;
   font-weight: bold;
   margin-bottom: 25px;
   color: #000;
-  font-family: "Noto Sans JP", "Inter", -apple-system, Roboto, Helvetica, sans-serif;
+  font-family: "Noto Sans JP", "Inter", -apple-system, Roboto, Helvetica,
+    sans-serif;
 }
 
 /* =========================================================
    🔷 3. 테이블 wrapper (전체 영역 차지, 하단 여백 최소화)
    ========================================================= */
-.table-wrapper {
+.cslist-wrapper {
   width: 100%;
+  min-height: 600px; /* 🔥 60px × 10 + header */
   border: 1px solid #ddd;
   border-radius: 8px;
   background: #fff;
   padding: 20px;
   box-sizing: border-box;
-
-  /* ✅ 내용이 많아도 일정 높이 유지 */
-  height: 650px;
-
-  /* ✅ flex 제거 → 중앙 정렬 방지 */
-  display: block;
 }
 
 /* =========================================================
    🔷 4. 테이블 스타일
    ========================================================= */
-.board-table {
+.cslist-table {
   width: 100%;
-  height: 100%; /* ✅ wrapper를 꽉 채움 */
+
   border-collapse: collapse;
   font-size: 0.95rem;
   color: #151619;
 }
 
-.board-table thead tr {
+.cslist-table td.title-cell {
+  text-align: left;
+  white-space: nowrap; /* 줄바꿈 방지 */
+  overflow: hidden; /* 넘침 숨김 */
+  text-overflow: ellipsis; /* … 처리 */
+  max-width: 300px; /* 필요시 조절 */
+}
+
+.cslist-table thead tr {
   background: #f8f8f8;
   border-bottom: 2px solid #ddd;
 }
 
-.board-table th,
-.board-table td {
+.cslist-table th,
+.cslist-table td {
   padding: 14px 10px;
   text-align: center;
 }
 
-.board-table th {
+.cslist-table th {
   font-weight: 600;
   color: #000;
 }
 
-.board-table tbody tr {
+.cslist-table tbody tr {
   border-bottom: 1px solid #e5e5e5;
   transition: background 0.2s ease;
 }
 
-.board-table tbody tr:hover {
+.cslist-table tbody tr:hover {
   background: #fafafa;
-}
-
-/* ✅ 행 높이 일정하게 유지 */
-.board-table tbody td {
-  height: 60px;
 }
 
 /* =========================================================
    🔷 5. 버튼 영역 (오른쪽 끝 정렬 + 여백 최소)
    ========================================================= */
-.table-footer {
+.cslist-footer {
   display: flex;
   justify-content: flex-end;
   width: 100%;
   margin-top: 10px; /* ✅ 공백 최소화 */
 }
 
-.board-button {
+.cslist-button {
   background: #000;
   color: #fff;
   border-radius: 8px;
@@ -127,7 +127,7 @@
   transition: background 0.2s ease;
 }
 
-.board-button:hover {
+.cslist-button:hover {
   background: #333;
 }
 
@@ -135,23 +135,56 @@
    🔷 반응형 (모바일 대응)
    ========================================================= */
 @media (max-width: 768px) {
-  .board-container {
+  .cslist-container {
     padding: 20px;
   }
 
-  .table-wrapper {
+  .cslist-wrapper {
     height: 500px; /* 모바일에서 조금 작게 */
   }
 
-  .board-title {
+  .cslist-title {
     font-size: 1.5rem;
   }
 
-  .board-button {
+  .cslist-button {
     width: 100%;
   }
 
-  .table-footer {
+  .cslist-footer {
     justify-content: center;
   }
+}
+.cslist-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.cslist-table {
+  table-layout: fixed;
+}
+
+.cslist-table td.title-cell {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+/* ===============================
+   CS pagination 버튼 색상 고정
+   =============================== */
+.pagination .cslist-button {
+  background-color: #000;
+  color: #fff;
+}
+
+.pagination .cslist-button:hover:not(:disabled) {
+  background-color: #333;
+}
+
+.pagination .cslist-button:disabled {
+  background-color: #000;
+  color: #fff;
+  opacity: 0.4;
+  cursor: not-allowed;
 }

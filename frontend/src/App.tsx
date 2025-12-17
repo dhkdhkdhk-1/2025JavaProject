@@ -79,7 +79,8 @@ const AdminLayoutGuard: React.FC = () => {
   const role = localStorage.getItem("role");
 
   if (!token) return <Navigate to="/login" replace />;
-  if (role !== "ADMIN" && role !== "MANAGER") return <Navigate to="/home" replace />;
+  if (role !== "ADMIN" && role !== "MANAGER")
+    return <Navigate to="/home" replace />;
   return <AdminLayout />;
 };
 
