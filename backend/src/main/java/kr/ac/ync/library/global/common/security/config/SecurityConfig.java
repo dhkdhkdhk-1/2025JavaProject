@@ -36,20 +36,32 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/auth/**").permitAll()
+
+                        // 공개 API
                         .requestMatchers(HttpMethod.POST, "/board/*/view").permitAll()
                         .requestMatchers(HttpMethod.GET, "/book/**", "/branch/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/reviews/**").permitAll()
-                        .requestMatchers("/admin/**").hasRole("ADMIN")
+
+                        // 🔥 관리자 화면 접근 (ADMIN + MANAGER)
+                        .requestMatchers("/admin/**").hasAnyRole("ADMIN", "MANAGER")
+
+                        // 🔥 CS 관리자 API (ADMIN + MANAGER)
+                        .requestMatchers("/cs/admin/**").hasAnyRole("ADMIN", "MANAGER")
+
+                        // ADMIN 전용
                         .requestMatchers("/user/list/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/book/**", "/branch/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT,  "/book/**", "/branch/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE,"/book/**", "/branch/**").hasRole("ADMIN")
-                        .requestMatchers("/cs/admin/**").hasAnyRole("ADMIN", "MANAGER")
+
+                        // 로그인 필요
                         .requestMatchers("/cs/**").authenticated()
                         .requestMatchers("/wishlist/**").authenticated()
                         .requestMatchers("/board/**").authenticated()
+
                         .anyRequest().authenticated()
                 )
+
                 .exceptionHandling(handling -> handling
                         .authenticationEntryPoint(jwtAuthenticationEntryPoint())
                         .accessDeniedHandler(jwtAccessDeniedHandler())

@@ -12,6 +12,11 @@ public class UserMapper {
                 .email(entity.getEmail())
                 .password(entity.getPassword())
                 .role(entity.getRole())
+                .branchId(
+                        entity.getBranch() != null
+                                ? entity.getBranch().getId()
+                                : null
+                )
                 .build();
     }
 
