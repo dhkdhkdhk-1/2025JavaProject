@@ -31,17 +31,6 @@ public class ReviewUserController {
         reviewService.register(request, bookId, user.getId());
     }
 
-    // 🔹 리뷰 수정
-    @PutMapping("/{id}")
-    public void modify(
-            @PathVariable Long id,
-            @Valid @RequestBody ReviewModRequest request
-    ) {
-        User user = userSecurity.getUser();
-        request.setId(id);
-        reviewService.modify(request, user.getId());
-    }
-
     // 🔹 리뷰 삭제
     @DeleteMapping("/{id}")
     public void remove(@PathVariable Long id) {

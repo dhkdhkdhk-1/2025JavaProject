@@ -47,13 +47,6 @@ const ReviewList: React.FC = () => {
     }
   };
 
-  /** ✅ 리뷰 수정 페이지 이동 */
-  const handleEdit = (review: ReviewItem) => {
-    navigate(`/review/edit/${review.bookId}`, {
-      state: { review }, // 기존 데이터 전달
-    });
-  };
-
   /** ✅ 도서 상세보기 이동 */
   const handleBookClick = (bookId: number) => {
     navigate(`/book/${bookId}`);
@@ -104,21 +97,12 @@ const ReviewList: React.FC = () => {
                     ? item.comment.substring(0, 80) + "..."
                     : item.comment}
                 </p>
-
-                <div className="reviewlist-btn-group">
-                  <button
-                    className="reviewlist-edit-btn"
-                    onClick={() => handleEdit(item)}
-                  >
-                    ✏ 編集
-                  </button>
-                  <button
-                    className="reviewlist-remove-btn"
-                    onClick={() => handleRemove(item.id)}
-                  >
-                    🗑 削除
-                  </button>
-                </div>
+                <button
+                  className="reviewlist-remove-btn"
+                  onClick={() => handleRemove(item.id)}
+                >
+                  🗑 削除
+                </button>
               </div>
             </div>
           ))}
