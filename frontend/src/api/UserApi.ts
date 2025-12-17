@@ -5,6 +5,7 @@ export interface User {
   username: string;
   email: string;
   role: string;
+  branchId?: number | null;
 }
 
 export interface PageResponse<T> {

@@ -34,6 +34,10 @@ public class UserEntity extends BaseTimeEntity {
     @Column(nullable = false)
     private Boolean deleted = false;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "branch_id")
+    private BranchEntity branch;
+
     public void changeUsername(String username) {
         if (username != null && !username.isBlank()) {
             this.username = username;

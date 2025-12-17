@@ -1,8 +1,13 @@
 package kr.ac.ync.library.domain.users.service;
 
 import kr.ac.ync.library.domain.board.repository.BoardRepository;
+import kr.ac.ync.library.domain.branch.entity.BranchEntity;
+import kr.ac.ync.library.domain.branch.exception.BranchNotFoundException;
+import kr.ac.ync.library.domain.branch.repository.BranchRepository;
 import kr.ac.ync.library.domain.users.dto.*;
 import kr.ac.ync.library.domain.users.entity.UserEntity;
+import kr.ac.ync.library.domain.users.entity.enums.UserRole;
+import kr.ac.ync.library.domain.users.exception.BranchNotAssignedException;
 import kr.ac.ync.library.domain.users.exception.InvalidPasswordException;
 import kr.ac.ync.library.domain.users.exception.UserNotFoundException;
 import kr.ac.ync.library.domain.users.mapper.UserMapper;
@@ -22,6 +27,7 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final BoardRepository boardRepository;
+    private final BranchRepository branchRepository;
 
     @Override
     public Page<UserResponse> getList(Pageable pageable) {
@@ -79,6 +85,20 @@ public class UserServiceImpl implements UserService {
         UserEntity user = userRepository.findById(id).orElseThrow(() -> UserNotFoundException.EXCEPTION);
         user.changeUsername(request.getUsername());
         user.changeRole(request.getRole());
+
+        if(request.getRole() == UserRole.MANAGER) {
+            if(request.getBranchId() == null) {
+                throw BranchNotAssignedException.EXCEPTION;
+            }
+
+            BranchEntity branch = branchRepository.findById(request.getBranchId())
+                    .orElseThrow(() -> BranchNotFoundException.EXCEPTION);
+
+            user.setBranch(branch);
+        } else {
+            user.setBranch(null);
+        }
+
         userRepository.save(user);
         return UserMapper.toResponse(user);
     }
