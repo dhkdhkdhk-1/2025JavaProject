@@ -152,6 +152,7 @@ const WriteCs: React.FC = () => {
           onChange={handleChange}
           placeholder="タイトルを入力してください"
           disabled={loading}
+          maxLength={25}
         />
 
         <label className="cs-label" style={{ marginTop: "15px" }}>
