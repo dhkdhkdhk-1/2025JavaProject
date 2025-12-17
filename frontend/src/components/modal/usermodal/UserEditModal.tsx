@@ -3,12 +3,13 @@ import { adminUpdateUser } from "../../../api/UserApi";
 import { getBranches, BranchResponse } from "../../../api/BranchApi";
 import "./UserEditModal.css";
 
+/** ✅ API User 타입에 맞춤 */
 interface User {
   id: number;
   username: string;
   email: string;
-  role: string;
-  branchId?: number | null; // MANAGER 전용
+  role: string;              // 🔥 핵심: string으로 통일
+  branchId?: number | null;
 }
 
 interface Props {
@@ -21,36 +22,36 @@ const UserEditModal: React.FC<Props> = ({ user, onClose, onUpdated }) => {
   const [form, setForm] = useState({
     username: "",
     email: "",
-    role: "",
+    role: user.role,                 // ✅ 초기값 중요
     branchId: user.branchId ?? null,
   });
 
   const [branches, setBranches] = useState<BranchResponse[]>([]);
 
-  /** ✅ 초기값 세팅 */
+  /** ✅ 유저 변경 시 상태 초기화 */
   useEffect(() => {
     setForm({
       username: "",
       email: "",
-      role: "",
+      role: user.role,               // ❗ 빈 문자열 X
       branchId: user.branchId ?? null,
     });
   }, [user]);
 
-  /** ✅ 지점 목록 조회 (단일 선택) */
+  /** ✅ 지점 목록 조회 */
   useEffect(() => {
     getBranches(0, 100).then((res) => {
       setBranches(res.content);
     });
   }, []);
 
-  /** 입력값 변경 */
+  /** ✅ 입력 변경 */
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
 
-    // ⭐ role 변경 시 MANAGER 아니면 지점 제거
+    // MANAGER → 다른 권한이면 지점 제거
     if (name === "role" && value !== "MANAGER") {
       setForm((prev) => ({
         ...prev,
@@ -66,11 +67,11 @@ const UserEditModal: React.FC<Props> = ({ user, onClose, onUpdated }) => {
     }));
   };
 
-  /** 저장 */
+  /** ✅ 저장 */
   const handleSubmit = async () => {
     const finalRole = form.role || user.role;
 
-    // ⭐ MANAGER인데 지점 미선택 방지
+    // MANAGER인데 지점 없으면 차단
     if (finalRole === "MANAGER" && !form.branchId) {
       alert("MANAGER는 반드시 지점을 선택해야 합니다.");
       return;
@@ -83,10 +84,15 @@ const UserEditModal: React.FC<Props> = ({ user, onClose, onUpdated }) => {
       branchId: finalRole === "MANAGER" ? form.branchId : null,
     };
 
-    await adminUpdateUser(user.id, updatedData);
-    alert("✅ 회원 정보가 수정되었습니다.");
-    onUpdated();
-    onClose();
+    try {
+      await adminUpdateUser(user.id, updatedData);
+      alert("✅ 회원 정보가 수정되었습니다.");
+      onUpdated();
+      onClose();
+    } catch (err) {
+      console.error(err);
+      alert("❌ 수정에 실패했습니다.");
+    }
   };
 
   return (
@@ -115,13 +121,12 @@ const UserEditModal: React.FC<Props> = ({ user, onClose, onUpdated }) => {
         {/* 권한 */}
         <label>권한</label>
         <select name="role" value={form.role} onChange={handleChange}>
-          <option value="">현재: {user.role}</option>
           <option value="USER">USER</option>
           <option value="MANAGER">MANAGER</option>
           <option value="ADMIN">ADMIN</option>
         </select>
 
-        {/* ⭐ MANAGER 전용 지점 선택 */}
+        {/* ✅ MANAGER 전용 지점 선택 */}
         {form.role === "MANAGER" && (
           <>
             <label>지점</label>
@@ -130,7 +135,9 @@ const UserEditModal: React.FC<Props> = ({ user, onClose, onUpdated }) => {
               onChange={(e) =>
                 setForm((prev) => ({
                   ...prev,
-                  branchId: Number(e.target.value) || null,
+                  branchId: e.target.value
+                    ? Number(e.target.value)
+                    : null,
                 }))
               }
             >
