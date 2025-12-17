@@ -1,6 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getMyCsList, CsUserListResponse, CsStatus, CsCategory } from "../../../api/CsApi";
+import {
+  getMyCsList,
+  CsUserListResponse,
+  CsStatus,
+  CsCategory,
+} from "../../../api/CsApi";
 import "./MyCsListPage.css";
 
 // ✅ 카테고리 한글 변환
@@ -82,7 +87,9 @@ const MyCsListPage: React.FC = () => {
   if (loading) {
     return (
       <div className="board-container">
-        <div style={{ textAlign: "center", padding: "50px" }}>読み込み中...</div>
+        <div style={{ textAlign: "center", padding: "50px" }}>
+          読み込み中...
+        </div>
       </div>
     );
   }
@@ -136,7 +143,7 @@ const MyCsListPage: React.FC = () => {
                   onClick={() => navigate(`/cs/detail/${c.id}`)}
                 >
                   <td>{totalElements - (currentPage * pageSize + index)}</td>
-                  <td style={{ textAlign: "left" }}>{c.title}</td>
+                  <td className="title-cell">{c.title}</td>
                   <td>{getCategoryLabel(c.csCategory)}</td>
                   <td
                     style={{
@@ -157,7 +164,10 @@ const MyCsListPage: React.FC = () => {
 
       {/* ✅ 페이지네이션 */}
       {totalPages > 1 && (
-        <div className="pagination" style={{ marginTop: "20px", justifyContent: "center" }}>
+        <div
+          className="pagination"
+          style={{ marginTop: "20px", justifyContent: "center" }}
+        >
           <button
             className="board-button"
             onClick={() => handlePageChange(0)}

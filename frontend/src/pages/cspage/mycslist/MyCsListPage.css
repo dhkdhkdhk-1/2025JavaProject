@@ -43,7 +43,8 @@
   font-weight: bold;
   margin-bottom: 25px;
   color: #000;
-  font-family: "Noto Sans JP", "Inter", -apple-system, Roboto, Helvetica, sans-serif;
+  font-family: "Noto Sans JP", "Inter", -apple-system, Roboto, Helvetica,
+    sans-serif;
 }
 
 /* =========================================================
@@ -56,12 +57,6 @@
   background: #fff;
   padding: 20px;
   box-sizing: border-box;
-
-  /* ✅ 내용이 많아도 일정 높이 유지 */
-  height: 650px;
-
-  /* ✅ flex 제거 → 중앙 정렬 방지 */
-  display: block;
 }
 
 /* =========================================================
@@ -69,10 +64,18 @@
    ========================================================= */
 .board-table {
   width: 100%;
-  height: 100%; /* ✅ wrapper를 꽉 채움 */
+
   border-collapse: collapse;
   font-size: 0.95rem;
   color: #151619;
+}
+
+.board-table td.title-cell {
+  text-align: left;
+  white-space: nowrap; /* 줄바꿈 방지 */
+  overflow: hidden; /* 넘침 숨김 */
+  text-overflow: ellipsis; /* … 처리 */
+  max-width: 300px; /* 필요시 조절 */
 }
 
 .board-table thead tr {
@@ -154,4 +157,29 @@
   .table-footer {
     justify-content: center;
   }
+}
+.board-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+/* tbody가 wrapper 높이를 차지하도록 */
+.board-table tbody {
+  display: block;
+  height: 600px; /* 60px × 10 */
+}
+
+/* thead 고정 */
+.board-table thead {
+  display: table;
+  width: 100%;
+  table-layout: fixed;
+}
+
+/* tbody 행도 table처럼 */
+.board-table tbody tr {
+  display: table;
+  width: 100%;
+  table-layout: fixed;
 }
