@@ -73,7 +73,9 @@ const WriteCs: React.FC = () => {
 
   const handleChange = (
     e:
-      | React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+      | React.ChangeEvent<
+          HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+        >
       | { target: { name: string; value: string | number } }
   ) => {
     const { name, value } = e.target;
@@ -127,7 +129,8 @@ const WriteCs: React.FC = () => {
         alert("ログインが必要です。");
         navigate("/login", { replace: true });
       } else if (err.response?.status === 400) {
-        const errorMessage = err.response?.data?.message || "入力内容を確認してください。";
+        const errorMessage =
+          err.response?.data?.message || "入力内容を確認してください。";
         alert(errorMessage);
       } else {
         alert("お問い合わせの作成に失敗しました。");
@@ -138,87 +141,85 @@ const WriteCs: React.FC = () => {
   };
 
   return (
-    <div className="board-container">
-      <h1 className="board-title">お問い合わせ作成</h1>
-
-      <label>タイトル</label>
-      <input
-        className="board-input"
-        name="title"
-        value={form.title}
-        onChange={handleChange}
-        placeholder="タイトルを入力してください"
-        disabled={loading}
-      />
-
-      <label style={{ marginTop: "15px", display: "block" }}>支店</label>
-      {loadingBranches ? (
-        <div style={{ margin: "10px 0" }}>支店リストを読み込み中...</div>
-      ) : (
-        <select
-          className="board-input"
-          name="branchId"
-          value={form.branchId || ""}
+    <div className="cs-container">
+      <h1 className="cs-title">お問い合わせ作成</h1>
+      <div className="cs-content">
+        <label className="cs-label">タイトル</label>
+        <input
+          className="cs-input"
+          name="title"
+          value={form.title}
           onChange={handleChange}
+          placeholder="タイトルを入力してください"
           disabled={loading}
-          style={{ marginTop: "5px" }}
-        >
-          <option value="">支店を選択してください</option>
-          {branches.map((branch) => (
-            <option key={branch.id} value={branch.id}>
-              {branch.name}
-            </option>
-          ))}
-        </select>
-      )}
+        />
 
-      <label style={{ marginTop: "15px", display: "block" }}>分類</label>
-      <div style={{ margin: "10px 0" }}>
-        {[
-          { value: CsCategory.BOOK, label: "書籍関連" },
-          { value: CsCategory.ACCOUNT, label: "アカウント関連" },
-          { value: CsCategory.ETC, label: "その他" },
-        ].map((cat) => (
-          <button
-            key={cat.value}
-            type="button"
-            className={`board-button ${form.category === cat.value ? "active" : ""}`}
-            style={{
-              marginRight: "5px",
-              backgroundColor: form.category === cat.value ? "#444" : "#222",
-            }}
-            onClick={() => handleCategoryChange(cat.value)}
+        <label className="cs-label" style={{ marginTop: "15px" }}>
+          支店
+        </label>
+        {loadingBranches ? (
+          <div style={{ margin: "10px 0" }}>支店リストを読み込み中...</div>
+        ) : (
+          <select
+            className="cs-input"
+            name="branchId"
+            value={form.branchId || ""}
+            onChange={handleChange}
             disabled={loading}
           >
-            {cat.label}
-          </button>
-        ))}
+            <option value="">支店を選択してください</option>
+            {branches.map((branch) => (
+              <option key={branch.id} value={branch.id}>
+                {branch.name}
+              </option>
+            ))}
+          </select>
+        )}
+
+        <label className="cs-label" style={{ marginTop: "15px" }}>
+          分類
+        </label>
+        <div className="cs-category">
+          {[
+            { value: CsCategory.BOOK, label: "書籍関連" },
+            { value: CsCategory.ACCOUNT, label: "アカウント関連" },
+            { value: CsCategory.ETC, label: "その他" },
+          ].map((cat) => (
+            <button
+              key={cat.value}
+              type="button"
+              className={`cs-button ${
+                form.category === cat.value ? "active" : ""
+              }`}
+              onClick={() => handleCategoryChange(cat.value)}
+              disabled={loading}
+            >
+              {cat.label}
+            </button>
+          ))}
+        </div>
+
+        <label className="cs-label">内容</label>
+        <textarea
+          className="cs-textarea"
+          name="content"
+          value={form.content}
+          onChange={handleChange}
+          placeholder="お問い合わせ内容を入力してください"
+          disabled={loading}
+        />
       </div>
-
-      <label>内容</label>
-      <textarea
-        className="board-textarea"
-        rows={10}
-        name="content"
-        value={form.content}
-        onChange={handleChange}
-        placeholder="お問い合わせ内容を入力してください"
-        disabled={loading}
-      />
-
-      <div style={{ textAlign: "right", marginTop: "20px" }}>
+      <div className="cs-actions">
         <button
-          className="board-button"
+          className="cs-button"
           onClick={() => navigate("/mycslistpage")}
-          style={{ marginRight: "10px" }}
           disabled={loading}
         >
           キャンセル
         </button>
         <button
-          className="board-button"
+          className="cs-button"
           onClick={handleSubmit}
-          type="button"
           disabled={loading || loadingBranches}
         >
           {loading ? "作成中..." : "作成"}
