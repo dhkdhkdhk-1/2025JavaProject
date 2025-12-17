@@ -65,7 +65,7 @@ const Login: React.FC = () => {
       }
 
       localStorage.setItem("role", me.role);
-      navigate(me.role === "ADMIN" ? "/admin" : "/home");
+      navigate(me.role === "ADMIN" || me.role === "MANAGER" ? "/admin" : "/home");
     } catch {
       alert("ログインはしましたが情報読み込みに失敗しました。");
       navigate("/home");

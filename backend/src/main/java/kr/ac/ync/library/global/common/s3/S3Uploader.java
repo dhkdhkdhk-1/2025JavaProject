@@ -35,7 +35,8 @@ public class S3Uploader {
                 .build();
 
         s3Client.putObject(request, RequestBody.fromBytes(file.getBytes()));
-        return cloudfrontUrl + "/" + key;
+        String base = cloudfrontUrl.replaceAll("/+$", "");
+        return base + "/" + key;
     }
 
     /** ✅ 기존 이미지 삭제 (URL 기준) */

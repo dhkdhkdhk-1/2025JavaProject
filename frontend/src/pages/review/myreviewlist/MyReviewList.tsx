@@ -97,6 +97,7 @@ const ReviewList: React.FC = () => {
                     ? item.comment.substring(0, 80) + "..."
                     : item.comment}
                 </p>
+
                 <button
                   className="reviewlist-remove-btn"
                   onClick={() => handleRemove(item.id)}
