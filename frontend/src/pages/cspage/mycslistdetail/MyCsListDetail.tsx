@@ -67,7 +67,7 @@ const MyCsListDetail: React.FC = () => {
           setCs(csData);
         }
       } catch (err: any) {
-        console.error("데이터 로딩 실패:", err);
+        console.error("データ読み込みに失敗しました。:", err);
         if (err.response?.status === 401) {
           alert("ログインが必要です。");
           navigate("/login", { replace: true });

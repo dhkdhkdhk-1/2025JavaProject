@@ -56,7 +56,7 @@ const WriteCs: React.FC = () => {
           );
         }
       } catch (err: any) {
-        console.error("지점 목록 로딩 실패:", err);
+        console.error("支店リストの読み込みに失敗しました。:", err);
         if (err.response?.status === 401) {
           alert("ログインが必要です。");
           navigate("/login", { replace: true });
