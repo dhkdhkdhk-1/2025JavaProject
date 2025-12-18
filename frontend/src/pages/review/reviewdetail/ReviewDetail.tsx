@@ -15,7 +15,7 @@ const ReviewDetail: React.FC = () => {
   useEffect(() => {
     const loadData = async () => {
       if (!id) {
-        alert("유효하지 않은 리뷰 ID입니다.");
+        alert("無効なレビューIDです");
         navigate("/review");
         return;
       }
@@ -32,8 +32,8 @@ const ReviewDetail: React.FC = () => {
         setReview(reviewData);
       } catch (err) {
         // ❗ 여기까지 왔다는 건 대부분 네트워크/404
-        console.error("리뷰 상세 조회 실패:", err);
-        alert("리뷰를 불러오는 중 문제가 발생했습니다.");
+        console.error("レビュー詳細照会失敗", err);
+        alert("レビューの読み込み中に問題が発生しました");
         navigate("/review");
       } finally {
         setLoading(false);
@@ -55,25 +55,25 @@ const ReviewDetail: React.FC = () => {
   const handleDelete = async () => {
     if (!review) return;
 
-    const confirmed = window.confirm("정말로 이 리뷰를 삭제하시겠습니까?");
+    const confirmed = window.confirm("本当にこのレビューを削除しますか？");
     if (!confirmed) return;
 
     try {
       await deleteReview(review.id);
-      alert("리뷰가 삭제되었습니다.");
+      alert("レビューが削除されました.");
       navigate(`/book/${review.bookId}`);
     } catch (err) {
-      console.error("리뷰 삭제 실패:", err);
-      alert("삭제 중 오류가 발생했습니다.");
+      console.error("レビュー削除失敗:", err);
+      alert("削除中にエラーが発生しました。");
     }
   };
 
   if (loading) {
-    return <div className="board-container">불러오는 중...</div>;
+    return <div className="board-container">Loading...</div>;
   }
 
   if (!review) {
-    return <div className="board-container">리뷰를 찾을 수 없습니다.</div>;
+    return <div className="board-container">レビューが見つかりません</div>;
   }
 
   return (
@@ -83,14 +83,14 @@ const ReviewDetail: React.FC = () => {
       <div className="board-meta">
         <div className="board-meta-row">
           <span className="board-meta-left">
-            작성자: {review.username} &nbsp; | &nbsp; [리뷰]
+            作成者: {review.username} &nbsp; | &nbsp; [レビュー]
           </span>
           <span className="board-meta-right">
-            작성일: {new Date(review.createdDateTime).toLocaleString()}
+            作成日: {new Date(review.createdDateTime).toLocaleString()}
           </span>
         </div>
         <div className="board-meta-row">
-          <span className="board-meta-left">별점: {review.rating}</span>
+          <span className="board-meta-left">評価: {review.rating}</span>
         </div>
       </div>
 
@@ -102,7 +102,7 @@ const ReviewDetail: React.FC = () => {
           onClick={() => navigate(`/review/book/${review.bookId}`)}
           style={{ marginRight: "10px" }}
         >
-          목록
+          目録
         </button>
 
         {canEditOrDelete && (
@@ -112,13 +112,13 @@ const ReviewDetail: React.FC = () => {
               onClick={() => navigate(`/review/edit/${review.id}`)}
               style={{ marginRight: "10px" }}
             >
-              수정
+              修整
             </button>
             <button
               className="board-button delete"
               onClick={handleDelete}
             >
-              삭제
+              削除
             </button>
           </>
         )}

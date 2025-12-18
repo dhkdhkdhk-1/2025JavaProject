@@ -25,7 +25,7 @@ export default function Home() {
         const filtered = (data || []).filter((n: any) => !n.deleted);
         setNotices(filtered);
       })
-      .catch((err) => console.error("❌ 최신 공지사항 불러오기 오류:", err));
+      .catch((err) => console.error("❌ 最新のお知らせの読み込みエラー", err));
   }, []);
 
   return (
@@ -76,7 +76,7 @@ export default function Home() {
             style={{ cursor: "pointer" }}
           >
             <img
-              src={book.imageUrl || "https://via.placeholder.com/150"}
+              src={book.imageUrl ||"https://placehold.co/357x492?text=No+Image"}
               alt={book.title}
               className="book-image"
             />

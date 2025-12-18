@@ -62,8 +62,8 @@ const BookTotalReview: React.FC = () => {
         setReviews(res.data.content);
         setTotalPages(res.data.totalPages);
       } catch (error) {
-        console.error("리뷰 불러오기 실패:", error);
-        alert("리뷰를 불러오는 중 오류가 발생했습니다.");
+        console.error("レビューの読み込みに失敗しました", error);
+        alert("レビューを呼んでくるうちの間違いが発生しました.");
         navigate(-1);
       } finally {
         setLoading(false);
@@ -129,7 +129,7 @@ const BookTotalReview: React.FC = () => {
               onClick={() => setPage((p) => Math.max(p - 1, 0))}
               disabled={page === 0}
             >
-              ←
+              前へ
             </button>
 
             <span className="pagination-info">
@@ -141,7 +141,7 @@ const BookTotalReview: React.FC = () => {
               onClick={() => setPage((p) => Math.min(p + 1, totalPages - 1))}
               disabled={page + 1 >= totalPages}
             >
-              →
+              次へ
             </button>
           </div>
         )}

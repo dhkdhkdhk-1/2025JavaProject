@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getBooks, Book, PageResponse } from "../../api/BookApi";
 import "./BookList.css";
@@ -55,10 +55,7 @@ const BookList: React.FC = () => {
     setSelectedFilters(activeGenres);
   }, [genreFilters]);
 
-  const placeholder = useMemo(
-    () => "https://via.placeholder.com/148x206?text=No+Image",
-    []
-  );
+  const placeholder = "https://placehold.co/357x492?text=No+Image"
 
   // ✅ 장르 + 검색어 + 정렬 반영된 목록 가져오기
   useEffect(() => {
@@ -83,13 +80,13 @@ const BookList: React.FC = () => {
             ...res,
             content: sortedContent.map((b) => ({
               ...b,
-              imageUrl: b.imageUrl ?? null,
+              imageUrl: b.imageUrl ?? placeholder,
               description: b.description ?? null,
             })),
           });
         }
       } catch {
-        if (!cancelled) setErrorMsg("목록을 불러오는 중 문제가 발생했어요.");
+        if (!cancelled) setErrorMsg("リストの読み込み中に問題が発生しました.");
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -248,10 +245,10 @@ const BookList: React.FC = () => {
           </div>
 
           {/* 상태 표시 */}
-          {loading && <div style={{ padding: 8 }}>불러오는 중...</div>}
+          {loading && <div style={{ padding: 8 }}>Loading...</div>}
           {errorMsg && <div style={{ padding: 8, color: "crimson" }}>{errorMsg}</div>}
           {!loading && data.totalElements === 0 && (
-            <div style={{ padding: 8 }}>검색 결과가 없습니다.</div>
+            <div style={{ padding: 8 }}>検索結果がありません.</div>
           )}
 
           {/* 도서 목록 */}
@@ -265,11 +262,21 @@ const BookList: React.FC = () => {
               >
                 <div className="book-image">
                   <img
-                    src={book.imageUrl || placeholder}
-                    alt={book.title}
-                    onError={(e) =>
-                      ((e.target as HTMLImageElement).src = placeholder)
+                    src={
+                      book.imageUrl && book.imageUrl.trim() !== ""
+                        ? book.imageUrl
+                        : placeholder
                     }
+                    alt={book.title}
+                    className="book-image"
+                    onError={(e) => {
+                      const img = e.currentTarget;
+
+                      // ⭐ 이미 placeholder면 더 이상 처리하지 않음
+                      if (img.src === placeholder) return;
+
+                      img.src = placeholder;
+                    }}
                   />
                 </div>
                 <div className="book-info">
@@ -312,7 +319,7 @@ const BookList: React.FC = () => {
                   strokeLinejoin="round"
                 />
               </svg>
-              <span>Previous</span>
+              <span>前へ</span>
             </div>
 
             <div className="pagination-list">
@@ -352,7 +359,7 @@ const BookList: React.FC = () => {
               }`}
               onClick={() => gotoPage(page + 1)}
             >
-              <span>Next</span>
+              <span>次へ</span>
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                 <path
                   d="M3.33398 7.99992H12.6673M12.6673 7.99992L8.00065 3.33325M12.6673 7.99992L8.00065 12.6666"

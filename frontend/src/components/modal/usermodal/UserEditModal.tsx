@@ -73,7 +73,7 @@ const UserEditModal: React.FC<Props> = ({ user, onClose, onUpdated }) => {
 
     // MANAGER인데 지점 없으면 차단
     if (finalRole === "MANAGER" && !form.branchId) {
-      alert("MANAGER는 반드시 지점을 선택해야 합니다.");
+      alert("MANAGERは必ず支店を選択しなければなりません.");
       return;
     }
 
@@ -86,22 +86,22 @@ const UserEditModal: React.FC<Props> = ({ user, onClose, onUpdated }) => {
 
     try {
       await adminUpdateUser(user.id, updatedData);
-      alert("✅ 회원 정보가 수정되었습니다.");
+      alert("✅ 会員情報が修正されました.");
       onUpdated();
       onClose();
     } catch (err) {
       console.error(err);
-      alert("❌ 수정에 실패했습니다.");
+      alert("❌ 修正に失敗しました.");
     }
   };
 
   return (
     <div className="modal-overlay">
       <div className="modal">
-        <h2>회원 정보 수정</h2>
+        <h2>会員情報修正</h2>
 
         {/* 이름 */}
-        <label>이름</label>
+        <label>名前</label>
         <input
           name="username"
           placeholder={user.username}
@@ -110,7 +110,7 @@ const UserEditModal: React.FC<Props> = ({ user, onClose, onUpdated }) => {
         />
 
         {/* 이메일 */}
-        <label>이메일</label>
+        <label>メール</label>
         <input
           name="email"
           placeholder={user.email}
@@ -119,7 +119,7 @@ const UserEditModal: React.FC<Props> = ({ user, onClose, onUpdated }) => {
         />
 
         {/* 권한 */}
-        <label>권한</label>
+        <label>権限</label>
         <select name="role" value={form.role} onChange={handleChange}>
           <option value="USER">USER</option>
           <option value="MANAGER">MANAGER</option>
@@ -129,7 +129,7 @@ const UserEditModal: React.FC<Props> = ({ user, onClose, onUpdated }) => {
         {/* ✅ MANAGER 전용 지점 선택 */}
         {form.role === "MANAGER" && (
           <>
-            <label>지점</label>
+            <label>支店</label>
             <select
               value={form.branchId ?? ""}
               onChange={(e) =>
@@ -141,7 +141,7 @@ const UserEditModal: React.FC<Props> = ({ user, onClose, onUpdated }) => {
                 }))
               }
             >
-              <option value="">지점 선택</option>
+              <option value="">支店 選択</option>
               {branches.map((b) => (
                 <option key={b.id} value={b.id}>
                   {b.name} ({b.location})
@@ -152,8 +152,8 @@ const UserEditModal: React.FC<Props> = ({ user, onClose, onUpdated }) => {
         )}
 
         <div className="modal-buttons">
-          <button onClick={handleSubmit}>저장</button>
-          <button onClick={onClose}>닫기</button>
+          <button onClick={handleSubmit}>貯蔵</button>
+          <button onClick={onClose}>閉じる</button>
         </div>
       </div>
     </div>

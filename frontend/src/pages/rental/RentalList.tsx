@@ -84,7 +84,7 @@ const RentalList: React.FC = () => {
                             navigate(`/review/edit/${reviewId}`)
                           }
                         >
-                          ✏ 수정
+                          ✏ 修整
                         </button>
                       ) : (
                         <button
@@ -93,7 +93,7 @@ const RentalList: React.FC = () => {
                             navigate(`/review/write/${r.bookId}`)
                           }
                         >
-                          ✏ 리뷰
+                          ✏ レビュー
                         </button>
                       ))}
                   </td>

@@ -143,7 +143,7 @@ const TotalReview: React.FC = () => {
               onClick={() => setPage(Math.max(startPage - 1, 0))}
               disabled={currentGroup === 0}
             >
-              «
+              最初
             </button>
 
             {/* 이전 페이지 */}
@@ -152,7 +152,7 @@ const TotalReview: React.FC = () => {
               onClick={() => setPage((p) => Math.max(p - 1, 0))}
               disabled={page === 0}
             >
-              ←
+              前へ
             </button>
 
             {/* 페이지 번호 */}
@@ -178,7 +178,7 @@ const TotalReview: React.FC = () => {
               }
               disabled={page >= totalPages - 1}
             >
-              →
+              次へ
             </button>
 
             {/* 다음 그룹 */}
@@ -189,7 +189,7 @@ const TotalReview: React.FC = () => {
               }
               disabled={endPage >= totalPages - 1}
             >
-              »
+              最後
             </button>
           </div>
         )}

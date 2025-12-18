@@ -8,8 +8,8 @@ interface PieChartBoxProps {
 
 const PieChartBox: React.FC<PieChartBoxProps> = ({ borrowed, returned }) => {
   const data = [
-    { name: "대여된 책", value: borrowed },
-    { name: "반납된 책", value: returned },
+    { name: "貸与された本", value: borrowed },
+    { name: "返書された本", value: returned },
   ];
 
   const COLORS = ["#4e79a7", "#c7c7c7"];

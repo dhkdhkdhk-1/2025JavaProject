@@ -14,7 +14,7 @@ const BranchList: React.FC<BranchListProps> = ({ branches }) => {
 
   return (
     <div className="list-card">
-      <h4>지점 목록</h4>
+      <h4>支店目録</h4>
       <ul>
         {current.map((b) => (
           <li key={b.id}>
@@ -28,7 +28,7 @@ const BranchList: React.FC<BranchListProps> = ({ branches }) => {
           onClick={() => setPage((p) => Math.max(p - 1, 0))}
           disabled={page === 0}
         >
-          ◀ 이전
+          ◀ 以前
         </button>
         <span>
           {page + 1} / {totalPages}
@@ -37,7 +37,7 @@ const BranchList: React.FC<BranchListProps> = ({ branches }) => {
           onClick={() => setPage((p) => Math.min(p + 1, totalPages - 1))}
           disabled={page + 1 >= totalPages}
         >
-          다음 ▶
+          以降 ▶
         </button>
       </div>
     </div>

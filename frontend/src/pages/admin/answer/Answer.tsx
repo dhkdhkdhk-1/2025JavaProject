@@ -46,7 +46,7 @@ const AdminCsManager: React.FC = () => {
         setCsList(res.content);
         setTotalPages(res.totalPages);
       } catch (err: any) {
-        console.error("문의 목록 로딩 실패:", err);
+        console.error("問い合わせリストロード失敗:", err);
         if (err.response?.status === 401) {
           alert("ログインが必要です。");
           navigate("/login", { replace: true });
@@ -130,7 +130,7 @@ const AdminCsManager: React.FC = () => {
                 onClick={() => handlePageChange(0)}
                 disabled={currentPage === 0}
               >
-                «
+                前へ
               </button>
               <button
                 className="page-number"
@@ -154,7 +154,7 @@ const AdminCsManager: React.FC = () => {
                 onClick={() => handlePageChange(totalPages - 1)}
                 disabled={currentPage >= totalPages - 1}
               >
-                »
+                次へ
               </button>
             </div>
           )}

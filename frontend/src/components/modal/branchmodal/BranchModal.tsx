@@ -48,15 +48,15 @@ const BranchModal: React.FC<BranchModalProps> = ({
     return (
       <div className="branch-modal">
         <div className="modal-content">
-          <h3>View Branch</h3>
+          <h3>ビューブランチ</h3>
           <p>
-            <b>지점명:</b> {branch.name}
+            <b>支店名:</b> {branch.name}
           </p>
           <p>
-            <b>주소:</b> {branch.location}
+            <b>住所:</b> {branch.location}
           </p>
           <button className="close-btn" onClick={onClose}>
-            CLOSE
+            閉じる
           </button>
         </div>
       </div>
@@ -68,9 +68,9 @@ const BranchModal: React.FC<BranchModalProps> = ({
     return (
       <div className="branch-modal">
         <div className="modal-content">
-          <h3>Delete Confirmation</h3>
+          <h3>削除確認</h3>
           <p>
-            <b>{branch.name}</b> 지점을 삭제하시겠습니까?
+            <b>{branch.name}</b> 支店を削除しますか？
           </p>
           <div className="btn-group">
             <button className="cancel-btn" onClick={onClose}>
@@ -107,7 +107,7 @@ const BranchModal: React.FC<BranchModalProps> = ({
 
         <div className="btn-group">
           <button className="cancel-btn" onClick={onClose}>
-            CANCEL
+            キャンセル
           </button>
           <button className="confirm-btn" onClick={handleSubmit}>
             {mode === "add" ? "ADD" : "UPDATE"}

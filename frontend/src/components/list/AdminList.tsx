@@ -8,7 +8,7 @@ interface AdminListProps {
 const AdminList: React.FC<AdminListProps> = ({ admins }) => {
   return (
     <div>
-      <h4>관리자 목록</h4>
+      <h4>管理者リスト</h4>
       <ul>
         {admins.map((a) => (
           <li key={a.id}>

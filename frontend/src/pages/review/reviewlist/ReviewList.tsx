@@ -27,7 +27,7 @@ const ReviewList: React.FC = () => {
         const data = await getMyReviews();
         setReviews(data);
       } catch {
-        setErr("내 리뷰를 불러오지 못했습니다.");
+        setErr("私のレビューを読み込めませんでした。");
       } finally {
         setLoading(false);
       }
@@ -37,13 +37,13 @@ const ReviewList: React.FC = () => {
 
   /** ✅ 리뷰 삭제 */
   const handleRemove = async (id: number) => {
-    if (!window.confirm("이 리뷰를 삭제하시겠습니까?")) return;
+    if (!window.confirm("このレビューを削除しますか？")) return;
     try {
       await deleteReview(id);
       setReviews((prev) => prev.filter((item) => item.id !== id));
-      alert("리뷰가 삭제되었습니다.");
+      alert("レビューが削除されました。");
     } catch {
-      alert("리뷰 삭제 중 오류가 발생했습니다.");
+      alert("レビューの削除中にエラーが発生しました。");
     }
   };
 
@@ -59,17 +59,17 @@ const ReviewList: React.FC = () => {
     navigate(`/book/${bookId}`);
   };
 
-  if (loading) return <div className="reviewlist-loading">불러오는 중...</div>;
+  if (loading) return <div className="reviewlist-loading">Loading...</div>;
   if (err) return <div className="reviewlist-error">{err}</div>;
 
   return (
     <div className="reviewlist-container">
-      <h2 className="reviewlist-title">내가 작성한 리뷰</h2>
+      <h2 className="reviewlist-title">私が作成したレビュー</h2>
 
       {reviews.length === 0 ? (
         <div className="reviewlist-empty">
-          <p>아직 작성한 리뷰가 없습니다 ✏️</p>
-          <button onClick={() => navigate("/booklist")}>도서 둘러보기</button>
+          <p>まだ作成したレビューがありません ✏️</p>
+          <button onClick={() => navigate("/booklist")}>図書をもっと見る</button>
         </div>
       ) : (
         <div className="reviewlist-grid">
@@ -95,7 +95,7 @@ const ReviewList: React.FC = () => {
                 </h3>
 
                 <p className="reviewlist-meta">
-                  ⭐ {item.rating}점 &nbsp;|&nbsp;{" "}
+                  ⭐ {item.rating}点 &nbsp;|&nbsp;{" "}
                   <span className="reviewlist-subtitle">{item.title}</span>
                 </p>
 
@@ -110,13 +110,13 @@ const ReviewList: React.FC = () => {
                     className="reviewlist-edit-btn"
                     onClick={() => handleEdit(item)}
                   >
-                    ✏ 수정
+                    ✏ 修整
                   </button>
                   <button
                     className="reviewlist-remove-btn"
                     onClick={() => handleRemove(item.id)}
                   >
-                    🗑 삭제
+                    🗑 削除
                   </button>
                 </div>
               </div>

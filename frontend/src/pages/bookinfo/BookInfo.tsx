@@ -55,7 +55,7 @@ const BookInfo: React.FC = () => {
         const wishStatus = await isWishlisted(Number(id));
         setWished(wishStatus);
       } catch (e) {
-        console.error("도서 데이터 불러오기 오류:", e);
+        console.error("図書データ読み込みエラー", e);
         setErr("本の情報を取得できませんでした。");
       } finally {
         setLoading(false);
