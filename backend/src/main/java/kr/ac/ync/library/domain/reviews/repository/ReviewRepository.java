@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface ReviewRepository extends JpaRepository<ReviewEntity, Long> {
 
@@ -23,4 +24,6 @@ public interface ReviewRepository extends JpaRepository<ReviewEntity, Long> {
     List<ReviewEntity> findByUserId(@Param("userId") Long userId);
 
     boolean existsByBookAndUser(BookEntity book, UserEntity user);
+
+    Optional<ReviewEntity> findByBookAndUser(BookEntity book, UserEntity user);
 }

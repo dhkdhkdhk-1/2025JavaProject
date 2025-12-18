@@ -57,4 +57,11 @@ public interface BoardRepository extends JpaRepository<BoardEntity, Long> {
     //게시글 작성 여부
     boolean existsByUser_Id(Long userId);
 
+    @Modifying
+    @Query("""
+UPDATE BoardEntity b
+SET b.viewCount = b.viewCount + 1
+WHERE b.id = :id
+""")
+    void increaseViewCount(@Param("id") Long id);
 }

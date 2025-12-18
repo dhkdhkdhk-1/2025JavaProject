@@ -1,0 +1,190 @@
+:root {
+  --sds-size-space-1600: 64px;
+  --sds-size-space-600: 24px;
+  --sds-color-background-default-default: rgba(255, 255, 255, 1);
+  --sds-size-space-400: 16px;
+  --sds-size-space-100: 4px;
+  --sds-color-text-default-default: rgba(30, 30, 30, 1);
+  --sds-size-space-200: 8px;
+  --sds-size-radius-200: 8px;
+  --sds-color-background-positive-secondary: rgba(207, 247, 211, 1);
+  --sds-color-text-positive-on-positive-secondary: rgba(2, 84, 45, 1);
+  --sds-color-text-default-secondary: rgba(117, 117, 117, 1);
+  --sds-size-space-300: 12px;
+  --sds-typography-scale-06: 32px;
+  --sds-color-border-brand-default: rgba(44, 44, 44, 1);
+  --sds-color-background-brand-default: rgba(44, 44, 44, 1);
+  --sds-color-border-default-default: rgba(217, 217, 217, 1);
+  --sds-color-background-brand-hover: rgba(30, 30, 30, 1);
+  --sds-color-text-brand-on-brand: rgba(245, 245, 245, 1);
+}
+
+/* =========================
+   📄 페이지 전체
+========================= */
+.review-edit-page {
+  display: flex;
+  min-width: 240px;
+  padding: var(--sds-size-space-1600);
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--sds-size-space-600);
+  align-self: stretch;
+  background: var(--sds-color-background-default-default);
+}
+
+/* =========================
+   📘 도서 정보 영역
+========================= */
+.review-edit-book-section {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sds-size-space-1600);
+  position: relative;
+}
+
+.review-edit-book-image {
+  display: flex;
+  width: 299px;
+  height: 334px;
+  justify-content: center;
+  align-items: center;
+}
+
+.review-edit-book-info {
+  display: flex;
+  width: 424px;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 30px;
+}
+
+.review-edit-book-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sds-size-space-400);
+}
+
+.review-edit-title-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sds-size-space-400);
+}
+
+.review-edit-title-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sds-size-space-100);
+}
+
+.review-edit-category {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--sds-color-text-default-default);
+}
+
+.review-edit-author {
+  font-size: 16px;
+  color: var(--sds-color-text-default-secondary);
+}
+
+.review-edit-book-title {
+  font-size: 60px;
+  font-weight: 700;
+  color: var(--sds-color-text-default-default);
+  letter-spacing: -1.2px;
+}
+
+/* =========================
+   ✏️ 리뷰 수정 영역
+========================= */
+.review-edit-section {
+  position: relative;
+  align-self: stretch;
+}
+
+.review-edit-card {
+  display: flex;
+  padding: 45px var(--sds-size-space-600);
+  flex-direction: column;
+  gap: var(--sds-size-space-600);
+  border-radius: var(--sds-size-radius-200);
+  border: 1px solid var(--sds-color-border-default-default);
+  background: var(--sds-color-background-default-default);
+}
+
+.review-edit-rating {
+  display: flex;
+  gap: var(--sds-size-space-100);
+}
+
+.review-edit-star {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+}
+
+.review-edit-star.filled path {
+  fill: #2c2c2c;
+}
+
+.review-edit-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sds-size-space-100);
+}
+
+.review-edit-title-input {
+  width: 100%;
+}
+
+.review-edit-title-field {
+  width: 100%;
+  font-size: 24px;
+  font-weight: 700;
+  border: none;
+  outline: none;
+  background: transparent;
+}
+
+.review-edit-content-input {
+  width: 100%;
+}
+
+.review-edit-content-field {
+  width: 100%;
+  font-size: 16px;
+  border: none;
+  outline: none;
+  background: transparent;
+  resize: vertical;
+  min-height: 100px;
+}
+
+/* =========================
+   ✅ 수정 버튼
+========================= */
+.review-edit-submit {
+  position: absolute;
+  right: 0;
+  bottom: -50px;
+  padding: var(--sds-size-space-200);
+  border-radius: var(--sds-size-radius-200);
+  border: 1px solid var(--sds-color-border-brand-default);
+  background: var(--sds-color-background-brand-hover);
+  color: var(--sds-color-text-brand-on-brand);
+  cursor: pointer;
+}
+
+.review-edit-submit:hover {
+  background: var(--sds-color-background-brand-default);
+}
+
+.review-edit-star {
+  cursor: pointer;
+}
+
+.review-edit-star path {
+  pointer-events: none;
+}

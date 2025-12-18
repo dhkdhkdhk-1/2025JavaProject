@@ -59,6 +59,21 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
+    public ReviewResponse findMyReviewByBook(Long bookId, Long userId) {
+
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> UserNotFoundException.EXCEPTION);
+
+        BookEntity book = bookRepository.findById(bookId)
+                .orElseThrow(() -> BookNotFoundException.EXCEPTION);
+
+        ReviewEntity review = reviewRepository.findByBookAndUser(book, user)
+                .orElseThrow(() -> ReviewNotFoundException.EXCEPTION);
+
+        return ReviewMapper.toResponse(review);
+    }
+
+    @Override
     public Page<ReviewDetailResponse> findByBookIdPaged(Long bookId, Pageable pageable) {
         Page<ReviewEntity> page = reviewRepository.findByBookIdPaged(bookId, pageable);
 
@@ -79,15 +94,7 @@ public class ReviewServiceImpl implements ReviewService {
         if (!old.getUser().getId().equals(userId)) {
             throw UserNotMatchedException.EXCEPTION;
         }
-
-        ReviewEntity updated = ReviewEntity.builder()
-                .id(old.getId())
-                .user(old.getUser())
-                .book(old.getBook())
-                .title(request.getTitle())
-                .comment(request.getComment())
-                .rating(request.getRating())
-                .build();
+        ReviewEntity updated = ReviewMapper.toEntity(request, old.getUser(), old.getBook());
 
         reviewRepository.save(updated);
     }
