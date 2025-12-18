@@ -53,7 +53,7 @@ const Catalog: React.FC = () => {
           ? {
               ...r,
               returned: true,
-              status: "반납완료",
+              status: "返却済み",
               returnDate: new Date().toISOString(),
             }
           : r
