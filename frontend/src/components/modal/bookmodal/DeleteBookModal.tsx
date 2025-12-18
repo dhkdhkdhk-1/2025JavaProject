@@ -10,13 +10,13 @@ interface Props {
 const DeleteBookModal: React.FC<Props> = ({ isOpen, onConfirm, onClose }) => {
   return (
     <Modal isOpen={isOpen} title="Delete Confirmation" onClose={onClose}>
-      <p>선택한 항목을 삭제하시겠습니까?</p>
+      <p>選択した項目を削除しますか？</p>
       <div className="modal-actions">
         <button className="modal-btn cancel" onClick={onClose}>
-          CANCEL
+          キャンセル
         </button>
         <button className="modal-btn confirm" onClick={onConfirm}>
-          CONFIRM
+          確認
         </button>
       </div>
     </Modal>

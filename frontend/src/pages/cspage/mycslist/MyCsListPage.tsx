@@ -189,7 +189,7 @@ const MyCsListPage: React.FC = () => {
                 disabled={currentPage === 0}
                 style={{ marginRight: "10px" }}
               >
-                처음
+                最初
               </button>
               <button
                 className="cslist-button"
@@ -197,7 +197,7 @@ const MyCsListPage: React.FC = () => {
                 disabled={currentPage === 0}
                 style={{ marginRight: "10px" }}
               >
-                이전
+                以前
               </button>
               <span style={{ margin: "0 15px", lineHeight: "35px" }}>
                 {currentPage + 1} / {totalPages}
@@ -208,7 +208,7 @@ const MyCsListPage: React.FC = () => {
                 disabled={currentPage >= totalPages - 1}
                 style={{ marginLeft: "10px" }}
               >
-                다음
+                次へ
               </button>
               <button
                 className="cslist-button"
@@ -216,7 +216,7 @@ const MyCsListPage: React.FC = () => {
                 disabled={currentPage >= totalPages - 1}
                 style={{ marginLeft: "10px" }}
               >
-                마지막
+                最後
               </button>
             </div>
           )}

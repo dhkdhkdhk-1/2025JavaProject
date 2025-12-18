@@ -58,9 +58,9 @@ const BranchSelectModal: React.FC<Props> = ({
   if (!isOpen) return null;
 
   return (
-    <Modal isOpen={isOpen} title="지점 선택" onClose={onClose}>
+    <Modal isOpen={isOpen} title="支店選択" onClose={onClose}>
       <input
-        placeholder="지점 검색"
+        placeholder="支店検索"
         value={keyword}
         onChange={(e) => {
           setKeyword(e.target.value);
@@ -83,7 +83,7 @@ const BranchSelectModal: React.FC<Props> = ({
 
       <div style={{ display: "flex", justifyContent: "space-between" }}>
         <button disabled={page === 0} onClick={() => setPage((p) => p - 1)}>
-          ◀
+          前へ
         </button>
         <span>
           {page + 1} / {totalPages}
@@ -92,13 +92,13 @@ const BranchSelectModal: React.FC<Props> = ({
           disabled={page + 1 >= totalPages}
           onClick={() => setPage((p) => p + 1)}
         >
-          ▶
+          次へ
         </button>
       </div>
 
       <div className="modal-actions">
-        <button onClick={onClose}>취소</button>
-        <button onClick={handleConfirm}>선택 완료 ({checked.length})</button>
+        <button onClick={onClose}>キャンセル</button>
+        <button onClick={handleConfirm}>選択完了 ({checked.length})</button>
       </div>
     </Modal>
   );

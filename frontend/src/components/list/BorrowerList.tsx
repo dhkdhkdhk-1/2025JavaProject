@@ -8,7 +8,7 @@ interface BorrowerListProps {
 const BorrowerList: React.FC<BorrowerListProps> = ({ borrowers }) => {
   return (
     <div>
-      <h4>연체자 목록</h4>
+      <h4>延滞者リスト</h4>
       <ul>
         {borrowers.map((b, i) => (
           <li key={i}>

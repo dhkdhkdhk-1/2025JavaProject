@@ -69,19 +69,19 @@ const UpdateBookModal: React.FC<Props> = ({
     <Modal isOpen={isOpen} title="Update Book" onClose={onClose}>
       <input
         name="title"
-        placeholder="제목"
+        placeholder="タイトル"
         value={form.title}
         onChange={handleTextChange}
       />
       <input
         name="author"
-        placeholder="저자"
+        placeholder="著者"
         value={form.author}
         onChange={handleTextChange}
       />
       <input
         name="publisher"
-        placeholder="출판사"
+        placeholder="出版社"
         value={form.publisher}
         onChange={handleTextChange}
       />
@@ -101,18 +101,18 @@ const UpdateBookModal: React.FC<Props> = ({
       />
 
       <select name="category" value={form.category} onChange={handleTextChange}>
-        <option value="">카테고리 선택</option>
-        <option value="NOVEL">소설</option>
-        <option value="ESSAY">에세이</option>
+        <option value="">カテゴリー選択</option>
+        <option value="NOVEL">小説</option>
+        <option value="ESSAY">エッセイ</option>
         <option value="IT">IT</option>
-        <option value="HISTORY">역사</option>
-        <option value="SCIENCE">과학</option>
-        <option value="OTHER">기타</option>
+        <option value="HISTORY">歴史</option>
+        <option value="SCIENCE">科学</option>
+        <option value="OTHER">その他</option>
       </select>
       <hr></hr>
       <div>
         <button type="button" onClick={() => setBranchModalOpen(true)}>
-          지점 선택 ({form.branchIds.length}개)
+          支店選択 ({form.branchIds.length}개)
         </button>
 
         <BranchSelectModal
@@ -125,13 +125,13 @@ const UpdateBookModal: React.FC<Props> = ({
 
       <div className="modal-actions">
         <button className="modal-btn cancel" onClick={onClose}>
-          CANCEL
+          キャンセル
         </button>
         <button
           className="modal-btn confirm"
           onClick={handleSubmit}
         >
-          UPDATE
+          更新
         </button>
       </div>
     </Modal>

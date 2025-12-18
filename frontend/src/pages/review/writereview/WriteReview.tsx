@@ -24,7 +24,7 @@ const WriteReview: React.FC = () => {
         setBook(data);
       } catch (error) {
         console.error("❌ getBook error:", error);
-        alert("도서 정보를 불러오지 못했습니다.");
+        alert("図書データを読み込めませんでした。");
       } finally {
         setLoading(false);
       }
@@ -35,24 +35,24 @@ const WriteReview: React.FC = () => {
   const handleStarClick = (index: number) => setRating(index + 1);
 
   const handleSubmit = async () => {
-    if (!id) return alert("잘못된 접근입니다.");
+    if (!id) return alert("間違ったアプローチです");
     if (!title.trim() || !content.trim()) {
-      alert("제목과 내용을 모두 입력해주세요.");
+      alert("タイトルと内容をすべて入力してください。");
       return;
     }
 
     try {
       await writeReview(Number(id), { title, comment: content, rating });
-      alert("리뷰가 등록되었습니다!");
+      alert("レビューが登録されました！");
       navigate(`/rental`);
     } catch (error) {
       console.error(error);
-      alert("리뷰 등록 실패 이미 등록되어있습니다");
+      alert("レビュー登録に失敗し、すでに登録されています");
     }
   };
 
-  if (loading) return <div className="loading">불러오는 중...</div>;
-  if (!book) return <div className="error">도서 정보를 찾을 수 없습니다.</div>;
+  if (loading) return <div className="loading">呼び中······</div>;
+  if (!book) return <div className="error">図書情報が見つかりません。</div>;
 
   return (
     <div className="page-product">
@@ -113,7 +113,7 @@ const WriteReview: React.FC = () => {
             <div className="review-title-input">
               <input
                 type="text"
-                placeholder="리뷰 제목"
+                placeholder="レビュータイトル"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 className="title-input"
@@ -121,7 +121,7 @@ const WriteReview: React.FC = () => {
             </div>
             <div className="review-content-input">
               <textarea
-                placeholder="리뷰 내용을 입력하세요."
+                placeholder="レビュー内容を入力してください。"
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
                 className="content-textarea"
@@ -131,7 +131,7 @@ const WriteReview: React.FC = () => {
         </div>
 
         <button className="submit-button" onClick={handleSubmit}>
-          ✅ 리뷰 등록
+          ✅ レビュー登録
         </button>
       </div>
     </div>

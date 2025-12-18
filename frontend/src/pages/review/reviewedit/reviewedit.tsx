@@ -28,7 +28,7 @@ const ReviewEdit: React.FC = () => {
         const bookData = await getBook(review.bookId);
         setBook(bookData);
       } catch {
-        alert("리뷰 정보를 불러오지 못했습니다.");
+        alert("レビュー情報を読み込めませんでした。");
       } finally {
         setLoading(false);
       }
@@ -39,7 +39,7 @@ const ReviewEdit: React.FC = () => {
 
   const handleSubmit = async () => {
     if (!title.trim() || !content.trim()) {
-      alert("제목과 내용을 입력해주세요.");
+      alert("タイトルと内容を入力してください。");
       return;
     }
 
@@ -50,12 +50,12 @@ const ReviewEdit: React.FC = () => {
       rating,
     });
 
-    alert("리뷰가 수정되었습니다.");
+    alert("レビューが修正されました.");
     navigate(`/rental`);
   };
 
-  if (loading) return <div>불러오는 중...</div>;
-  if (!book) return <div>도서 정보를 찾을 수 없습니다.</div>;
+  if (loading) return <div>Loading...</div>;
+  if (!book) return <div>図書情報が見つかりません</div>;
 
   return (
     <div className="review-edit-page">
@@ -117,7 +117,7 @@ const ReviewEdit: React.FC = () => {
                 className="review-edit-title-field"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                placeholder="리뷰 제목"
+                placeholder="レビュータイトル"
               />
             </div>
 
@@ -126,14 +126,14 @@ const ReviewEdit: React.FC = () => {
                 className="review-edit-content-field"
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
-                placeholder="리뷰 내용을 입력하세요."
+                placeholder="レビュー内容を入力してください。"
               />
             </div>
           </div>
         </div>
 
         <button className="review-edit-submit" onClick={handleSubmit}>
-          ✅ 리뷰 수정
+          ✅ レビュー修正
         </button>
       </div>
     </div>
