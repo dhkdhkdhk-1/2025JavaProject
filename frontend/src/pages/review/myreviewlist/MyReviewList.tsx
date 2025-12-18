@@ -11,6 +11,7 @@ interface ReviewItem {
   comment: string;
   rating: number;
   createdDateTime: string;
+  imageUrl?: string | null;
 }
 
 const ReviewList: React.FC = () => {
@@ -73,7 +74,10 @@ const ReviewList: React.FC = () => {
                 onClick={() => handleBookClick(item.bookId)}
               >
                 <img
-                  src="hhttps://placehold.co/357x492?text=No+Image"
+                  src={
+                    item.imageUrl ||
+                    "https://placehold.co/357x492?text=No+Image"
+                  }
                   alt={item.bookTitle}
                   className="reviewlist-image"
                 />
