@@ -330,7 +330,8 @@ const Signup: React.FC = () => {
               </div>
             )}
 
-            <button className="small-btn" onClick={handleResend}>
+            <button className="small-btn" onClick={handleResend}
+            disabled={isVerified}>
               再送信
             </button>
           </div>

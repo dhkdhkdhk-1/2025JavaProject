@@ -73,7 +73,7 @@ const ReviewList: React.FC = () => {
                 onClick={() => handleBookClick(item.bookId)}
               >
                 <img
-                  src="https://via.placeholder.com/200x280?text=Book+Cover"
+                  src="hhttps://placehold.co/357x492?text=No+Image"
                   alt={item.bookTitle}
                   className="reviewlist-image"
                 />
