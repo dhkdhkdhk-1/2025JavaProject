@@ -83,7 +83,7 @@ const WishList: React.FC = () => {
                 <img
                   src={
                     item.imageUrl ||
-                    "https://via.placeholder.com/200x280?text=No+Image"
+                    "https://placehold.co/357x492?text=No+Image"
                   }
                   alt={item.bookTitle}
                   className="wishlist-image"

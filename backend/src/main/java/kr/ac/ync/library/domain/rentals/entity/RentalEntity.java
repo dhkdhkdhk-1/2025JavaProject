@@ -53,7 +53,7 @@ public class RentalEntity{
             this.dueDate = this.rentalDate.plusDays(7); // 기본 7일 대여
         }
         if (this.status == null) {
-            this.status = "대여중";
+            this.status = "貸与中";
         }
     }
 }
