@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { getReview, deleteReview, Review } from "../../../api/ReviewApi";
 import { getMe, User } from "../../../api/AuthApi";
 import "./ReviewDetail.css";
+import { formatDateJP } from "../../../types/Date";
 
 const ReviewDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -86,7 +87,7 @@ const ReviewDetail: React.FC = () => {
             作成者: {review.username} &nbsp; | &nbsp; [レビュー]
           </span>
           <span className="board-meta-right">
-            作成日: {new Date(review.createdDateTime).toLocaleString()}
+            作成日: {formatDateJP(review.createdDateTime)}
           </span>
         </div>
         <div className="board-meta-row">

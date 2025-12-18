@@ -6,6 +6,7 @@ import {
   returnRental,
 } from "../../../api/RentalApi";
 import "./Catalog.css";
+import { formatDateJP } from "../../../types/Date";
 
 const Catalog: React.FC = () => {
   // 현재 선택된 탭 상태 (대여중 / 연체)
@@ -117,9 +118,9 @@ const Catalog: React.FC = () => {
 
                     <td>{r.bookTitle}</td>
                     <td>{r.branchName}</td>
-                    <td>{r.rentalDate}</td>
-                    <td>{r.dueDate}</td>
-                    <td>{r.returnDate ?? "-"}</td>
+                    <td>{formatDateJP(r.rentalDate)}</td>
+                    <td>{formatDateJP(r.dueDate)}</td>
+                    <td>{formatDateJP(r.returnDate ?? "-")}</td>
 
                     <td
                       style={{
