@@ -1,7 +1,11 @@
 import React, { useEffect, useState } from "react";
 import "./WishList.css";
 import { useNavigate } from "react-router-dom";
-import { getMyWishlist, deleteWishlist, WishlistItem } from "../../api/WishlistApi";
+import {
+  getMyWishlist,
+  deleteWishlist,
+  WishlistItem,
+} from "../../api/WishlistApi";
 
 const WishList: React.FC = () => {
   const navigate = useNavigate();
@@ -22,11 +26,13 @@ const WishList: React.FC = () => {
         if (data && Array.isArray(data.content)) {
           setWishlist(data.content);
         } else {
-          console.error("❌ wishlist 응답이 Page 형식입니다. content만 사용해야 합니다.", data);
+          console.error(
+            "❌ ウィッシュリストはページ形式です。内容のみを使用してください。",
+            data
+          );
           setErr("ウィッシュリストの形式が正しくありません。");
           setWishlist([]);
         }
-
       } catch (e) {
         console.error("❌ ウィッシュリスト読み込みエラー:", e);
         setErr("ウィッシュリストを読み込めませんでした。");

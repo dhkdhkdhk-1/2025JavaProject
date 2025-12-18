@@ -62,7 +62,7 @@ const MyCsListPage: React.FC = () => {
         setTotalPages(response.totalPages);
         setTotalElements(response.totalElements);
       } catch (err: any) {
-        console.error("문의 목록 로딩 실패:", err);
+        console.error("お問い合わせリスト読み込みに失敗しました。:", err);
         if (err.response?.status === 401) {
           alert("ログインが必要です。");
           navigate("/login", { replace: true });
@@ -189,7 +189,7 @@ const MyCsListPage: React.FC = () => {
                 disabled={currentPage === 0}
                 style={{ marginRight: "10px" }}
               >
-                처음
+                最初
               </button>
               <button
                 className="cslist-button"
@@ -197,7 +197,7 @@ const MyCsListPage: React.FC = () => {
                 disabled={currentPage === 0}
                 style={{ marginRight: "10px" }}
               >
-                이전
+                前へ
               </button>
               <span style={{ margin: "0 15px", lineHeight: "35px" }}>
                 {currentPage + 1} / {totalPages}
@@ -208,7 +208,7 @@ const MyCsListPage: React.FC = () => {
                 disabled={currentPage >= totalPages - 1}
                 style={{ marginLeft: "10px" }}
               >
-                다음
+                次へ
               </button>
               <button
                 className="cslist-button"
@@ -216,7 +216,7 @@ const MyCsListPage: React.FC = () => {
                 disabled={currentPage >= totalPages - 1}
                 style={{ marginLeft: "10px" }}
               >
-                마지막
+                最後
               </button>
             </div>
           )}
