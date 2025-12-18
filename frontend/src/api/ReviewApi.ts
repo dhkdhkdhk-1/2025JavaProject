@@ -14,6 +14,7 @@ export interface Review {
   comment: string;
   rating: number;
   createdDateTime: string;
+  imageUrl?: string | null;
 }
 
 export interface ReviewEditRequest {
