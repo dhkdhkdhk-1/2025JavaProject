@@ -230,7 +230,7 @@ const Signup: React.FC = () => {
       try {
         existsPost = await hasPost(email);
       } catch (err) {
-        console.error("投稿確認失敗:", err);
+        console.error("投稿確認に失敗しました。:", err);
       }
 
       // 게시글이 있을 때만 복구 여부 질문
