@@ -49,7 +49,7 @@ public class SecurityConfig {
                         .requestMatchers("/cs/admin/**").hasAnyRole("ADMIN", "MANAGER")
 
                         // ADMIN 전용
-                        .requestMatchers("/user/list/**").hasRole("ADMIN")
+                        .requestMatchers("/user/list/**").hasAnyRole("ADMIN", "MANAGER")
                         .requestMatchers(HttpMethod.POST, "/book/**", "/branch/**").hasAnyRole("ADMIN", "MANAGER")
                         .requestMatchers(HttpMethod.PUT,  "/book/**", "/branch/**").hasAnyRole("ADMIN", "MANAGER")
                         .requestMatchers(HttpMethod.DELETE,"/book/**", "/branch/**").hasAnyRole("ADMIN", "MANAGER")

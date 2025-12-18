@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { getMe, User } from "../../../api/AuthApi";
+import { formatDateJP } from "../../../types/Date";
 import {
   getCsDetail,
   CsDetailResponse,
@@ -143,7 +144,7 @@ const MyCsListDetail: React.FC = () => {
             {getCategoryLabel(cs.category)}
           </span>
           <span className="cs-meta-right">
-            作成日: {new Date(cs.createdAt).toLocaleString()}
+            作成日: {formatDateJP(cs.createdAt)}
           </span>
         </div>
         <div className="cs-meta-row">
@@ -160,7 +161,7 @@ const MyCsListDetail: React.FC = () => {
           </span>
           {cs.answerCreatedAt && (
             <span className="cs-meta-right">
-              回答日: {new Date(cs.answerCreatedAt).toLocaleString()}
+              回答日: {formatDateJP(cs.answerCreatedAt)}
             </span>
           )}
         </div>

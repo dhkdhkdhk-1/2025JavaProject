@@ -9,6 +9,7 @@ import {
   CsAdminAnswerRequest,
 } from "../../../api/CsApi";
 import "./AnswerWrite.css";
+import { formatDateJP } from "../../../types/Date";
 
 // ✅ 카테고리 한글 변환
 const getCategoryLabel = (category: CsCategory): string => {
@@ -180,20 +181,15 @@ const AnswerWrite: React.FC = () => {
 
       {/* ✅ 문의 내용 */}
       <div className="board-content">
-        <h3>📩 お問い合わせ内容</h3>
-        <p style={{ whiteSpace: "pre-wrap" }}>{cs.content}</p>
-            
+        <h3>📩 お問い合わせ内容</h3>            
         {/* ✅ 문의 정보 표시 */}
         <div className="board-meta">
           <div className="board-meta-row">
             <span className="board-meta-left">
             件名: <strong>{cs.title}</strong>
+            <p style={{ whiteSpace: "pre-wrap" }}>{cs.content}</p>
+            作成日: {formatDateJP(cs.createdAt)}
             </span>
-          <span className="board-meta-right">
-          <br />
-            作成日: {new Date(cs.createdAt).toLocaleString()}
-            
-          </span>
         </div>
         <div className="board-meta-row">
           <span className="board-meta-left">
