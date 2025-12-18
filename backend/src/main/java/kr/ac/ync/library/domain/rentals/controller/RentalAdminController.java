@@ -45,7 +45,7 @@ public class RentalAdminController {
 
         mailService.sendEmail(
                 rental.getUserEmail(),
-                "[도서 반납 안내] " + rental.getBookTitle(),
+                "[図書返却のご案内] " + rental.getBookTitle(),
                 body
         );
         return ResponseEntity.ok().build();

@@ -120,7 +120,10 @@ const Catalog: React.FC = () => {
                     <td>{r.branchName}</td>
                     <td>{formatDateJP(r.rentalDate)}</td>
                     <td>{formatDateJP(r.dueDate)}</td>
-                    <td>{formatDateJP(r.returnDate ?? "-")}</td>
+                    <td>{r.returnDate
+                        ? new Date(r.returnDate).toLocaleString("ja-JP")
+                        : "-"}
+                    </td>
 
                     <td
                       style={{
