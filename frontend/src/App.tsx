@@ -23,6 +23,7 @@ import RentalList from "./pages/rental/RentalList";
 import WishList from "./pages/wishlist/WishList";
 import ReviewList from "./pages/review/myreviewlist/MyReviewList";
 import WriteReview from "./pages/review/writereview/WriteReview";
+import ReviewEdit from "./pages/review/reviewedit/reviewedit";
 import ReviewDetail from "./pages/review/reviewdetail/ReviewDetail";
 import CsListPage from "./pages/cspage/mycslist/MyCsListPage";
 import MyCsListDetail from "./pages/cspage/mycslistdetail/MyCsListDetail";
@@ -46,6 +47,7 @@ import BoardWrite from "./pages/board/BoardWrite";
 import BoardEdit from "./pages/board/BoardEdit";
 import Answer from "./pages/admin/answer/Answer";
 import AnswerWrite from "./pages/admin/answerwrite/AnswerWrite";
+
 
 /** ✅ 로그인 가드 */
 const ProtectedLayout: React.FC = () => {
@@ -139,6 +141,11 @@ const App: React.FC = () => {
           <Route path="/review/book/:id" element={<TotalReview />} />
           <Route path="/review/list" element={<ReviewList />} />
           <Route path="/review/write/:id" element={<WriteReview />} />
+
+
+          <Route path="/review/edit/:id" element={<ReviewEdit />} />
+          
+
           <Route path="/review/detail/:id" element={<ReviewDetail />} />
         </Route>
 

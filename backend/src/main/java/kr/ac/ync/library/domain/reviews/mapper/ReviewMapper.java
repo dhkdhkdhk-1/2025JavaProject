@@ -2,6 +2,7 @@ package kr.ac.ync.library.domain.reviews.mapper;
 
 import kr.ac.ync.library.domain.books.entity.BookEntity;
 import kr.ac.ync.library.domain.reviews.dto.ReviewDetailResponse;
+import kr.ac.ync.library.domain.reviews.dto.ReviewModRequest;
 import kr.ac.ync.library.domain.reviews.dto.ReviewRegisterRequest;
 import kr.ac.ync.library.domain.reviews.dto.ReviewResponse;
 import kr.ac.ync.library.domain.reviews.entity.ReviewEntity;
@@ -11,6 +12,17 @@ public class ReviewMapper {
 
     public static ReviewEntity toEntity(ReviewRegisterRequest request, UserEntity user, BookEntity book) {
         return ReviewEntity.builder()
+                .user(user)
+                .book(book)
+                .title(request.getTitle())
+                .comment(request.getComment())
+                .rating(request.getRating())
+                .build();
+    }
+
+    public static ReviewEntity toEntity(ReviewModRequest request, UserEntity user, BookEntity book) {
+        return ReviewEntity.builder()
+                .id(request.getId())
                 .user(user)
                 .book(book)
                 .title(request.getTitle())

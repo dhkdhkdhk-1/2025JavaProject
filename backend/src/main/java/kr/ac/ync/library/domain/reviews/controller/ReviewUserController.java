@@ -44,4 +44,23 @@ public class ReviewUserController {
         User user = userSecurity.getUser();
         return ResponseEntity.ok(reviewService.findByUserId(user.getId()));
     }
+
+    @GetMapping("/book/{bookId}")
+    public ResponseEntity<ReviewResponse> getMyReviewByBook(
+            @PathVariable Long bookId
+    ) {
+        User user = userSecurity.getUser();
+        return ResponseEntity.ok(
+                reviewService.findMyReviewByBook(bookId, user.getId())
+        );
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity modify(
+            @PathVariable Long id,
+            @Valid @RequestBody ReviewModRequest request) {
+        User user = userSecurity.getUser();
+        reviewService.modify(request, user.getId());
+        return ResponseEntity.ok().build();
+    }
 }

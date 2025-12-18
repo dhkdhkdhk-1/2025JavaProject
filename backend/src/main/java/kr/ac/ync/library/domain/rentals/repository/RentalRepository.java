@@ -33,4 +33,18 @@ public interface RentalRepository extends JpaRepository<RentalEntity, Long> {
             @Param("book") BookEntity book,
             @Param("branch") BranchEntity branch
     );
+
+    @Query("""
+    SELECT r
+    FROM RentalEntity r
+    WHERE r.user.id = :userId
+      AND r.book.id = :bookId
+      AND r.returned = true
+    ORDER BY r.returnDate DESC
+""")
+    List<RentalEntity> findReturnedRentalsByUserAndBook(
+            @Param("userId") Long userId,
+            @Param("bookId") Long bookId
+    );
+
 }

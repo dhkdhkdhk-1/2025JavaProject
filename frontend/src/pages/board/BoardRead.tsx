@@ -8,6 +8,7 @@ import {
 } from "../../api/BoardApi";
 import { getMe, User } from "../../api/AuthApi";
 import "./board.css";
+import { formatDateJP } from "../../types/Date";
 
 const BoardRead: React.FC = () => {
   const { id } = useParams();
@@ -69,11 +70,11 @@ const BoardRead: React.FC = () => {
           <span>
             投稿者: {board.username} | [{board.type}]
           </span>
-          <span>作成日: {new Date(board.createdAt).toLocaleString()}</span>
+          <span>作成日: {formatDateJP(board.createdAt)}</span>
         </div>
         <div className="board-meta-row">
           <span>閲覧数: {board.viewCount}</span>
-          <span>最終修正日: {new Date(board.modifiedAt).toLocaleString()}</span>
+          <span>最終修正日: {formatDateJP(board.modifiedAt)}</span>
         </div>
       </div>
 

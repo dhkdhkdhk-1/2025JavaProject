@@ -1,5 +1,6 @@
 package kr.ac.ync.library.domain.board.service;
 
+import jakarta.transaction.Transactional;
 import kr.ac.ync.library.domain.board.dto.BoardRequest;
 import kr.ac.ync.library.domain.board.dto.BoardResponse;
 import kr.ac.ync.library.domain.users.entity.UserEntity;
@@ -23,7 +24,11 @@ public interface BoardService {
     BoardResponse createBoard(BoardRequest request, UserEntity user);
     BoardResponse updateBoard(Long id, BoardRequest request, UserEntity user);
     void deleteBoard(Long id, UserEntity user);
+
+
+
     void incrementViewCount(Long id);
+
     long getMaxBoardId();
 
     // 최신 공지 3개 가져오기

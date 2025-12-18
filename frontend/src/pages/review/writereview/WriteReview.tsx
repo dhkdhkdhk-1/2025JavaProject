@@ -44,7 +44,7 @@ const WriteReview: React.FC = () => {
     try {
       await writeReview(Number(id), { title, comment: content, rating });
       alert("리뷰가 등록되었습니다!");
-      navigate(`/review/book/${id}`);
+      navigate(`/rental`);
     } catch (error) {
       console.error(error);
       alert("리뷰 등록 실패 이미 등록되어있습니다");

@@ -158,11 +158,12 @@ public class BoardServiceImpl implements BoardService {
     }
 
     @Override
+    @Transactional
     public void incrementViewCount(Long id) {
-        BoardEntity board = boardRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("게시글을 찾을 수 없습니다."));
-        board.setViewCount(board.getViewCount() + 1);
-        boardRepository.save(board);
+        if (!boardRepository.existsById(id)) {
+            throw new RuntimeException("게시글을 찾을 수 없습니다.");
+        }
+        boardRepository.increaseViewCount(id);
     }
 
     @Override

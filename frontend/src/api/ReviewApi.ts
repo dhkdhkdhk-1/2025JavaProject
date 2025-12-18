@@ -16,6 +16,13 @@ export interface Review {
   createdDateTime: string;
 }
 
+export interface ReviewEditRequest {
+  id: number;
+  title: string;
+  comment: string;
+  rating: number;
+}
+
 /** 페이징 응답 */
 export interface PageResponse<T> {
   content: T[];
@@ -74,8 +81,20 @@ export const deleteReview = async (id: number) => {
   return res.data;
 };
 
+/** ✅ 리뷰 수정 */
+export const editReview = async (data: ReviewEditRequest) => {
+  const res = await api.put(`/reviews/user/${data.id}`, data);
+  return res.data;
+};
+
 /** 내가 쓴 리뷰 목록 */
 export const getMyReviews = async () => {
   const res = await api.get(`/reviews/user/list`);
+  return res.data;
+};
+
+/** 특정 책에 대해 내가 쓴 리뷰 조회 */
+export const getMyReviewByBookId = async (bookId: number): Promise<Review> => {
+  const res = await api.get(`/reviews/user/book/${bookId}`);
   return res.data;
 };
