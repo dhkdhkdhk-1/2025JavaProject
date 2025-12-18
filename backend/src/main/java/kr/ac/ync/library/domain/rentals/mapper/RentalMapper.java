@@ -18,7 +18,7 @@ public class RentalMapper
                 .branch(branch)
                 .rentalDate(LocalDateTime.now())
                 .dueDate(LocalDateTime.now().plusDays(7))
-                .status("대여중")
+                .status("貸与中")
                 .returned(false)
                 .build();
     }
