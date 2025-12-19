@@ -18,6 +18,7 @@ public class UserResponse {
     private String username;
     private String email;
     private UserRole role;
+    private Boolean deleted;
 
     // ✅ Entity → DTO 변환용 생성자 추가
     public UserResponse(UserEntity user) {
@@ -25,5 +26,6 @@ public class UserResponse {
         this.username = user.getUsername();
         this.email = user.getEmail();
         this.role = user.getRole();
+        this.deleted = user.getDeleted();
     }
 }

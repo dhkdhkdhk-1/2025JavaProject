@@ -81,49 +81,59 @@ const Users: React.FC = () => {
       </div>
 
       {/* ユーザー一覧テーブル */}
-      <table className="users-table">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>名前</th>
-            <th>メール</th>
-            <th>権限</th>
-            <th>管理</th>
-          </tr>
-        </thead>
-        <tbody>
-          {filteredUsers.length > 0 ? (
-            filteredUsers.map((u) => (
-              <tr key={u.id}>
-                <td>{u.id}</td>
-                <td>{u.username}</td>
-                <td>{u.email}</td>
-                <td>{u.role}</td>
-                <td className="action-buttons">
-                  <button
-                    className="icon-btn edit"
-                    onClick={() => handleEdit(u)}
-                    title="編集"
-                  >
-                    ✏️
-                  </button>
-                  <button
-                    className="icon-btn delete"
-                    onClick={() => handleDelete(u.id)}
-                    title="削除"
-                  >
-                    🗑️
-                  </button>
-                </td>
-              </tr>
-            ))
-          ) : (
+      <div className="table-scroll">
+        <table className="users-table">
+          <thead>
             <tr>
-              <td colSpan={5}>データがありません。</td>
+              <th>ID</th>
+              <th>名前</th>
+              <th>メール</th>
+              <th>権限</th>
+              <th>管理</th>
+              <th>状態</th>
             </tr>
-          )}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {filteredUsers.length > 0 ? (
+              filteredUsers.map((u) => (
+                <tr key={u.id}>
+                  <td>{u.id}</td>
+                  <td>{u.username}</td>
+                  <td>{u.email}</td>
+                  <td>{u.role}</td>
+                  <td className="action-buttons">
+                    <button
+                      className="icon-btn edit"
+                      onClick={() => handleEdit(u)}
+                      title="編集"
+                    >
+                      ✏️
+                    </button>
+                    <button
+                      className="icon-btn delete"
+                      onClick={() => handleDelete(u.id)}
+                      title="削除"
+                    >
+                      🗑️
+                    </button>
+                  </td>
+                  <td>
+                    {u.deleted ? (
+                      <span className="status deleted">退会</span>
+                    ) : (
+                      <span className="status active">正常</span>
+                    )}
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan={6}>データがありません。</td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
 
       {/* ページネーション */}
       <div className="pagination">

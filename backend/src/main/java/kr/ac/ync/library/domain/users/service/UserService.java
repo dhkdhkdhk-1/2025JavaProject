@@ -11,7 +11,6 @@ import java.util.List;
 
 public interface UserService {
     Page<UserResponse> getList(Pageable pageable);
-    void delete(Long id);
 
     UserResponse updateMyInfo(String email, UserUpdateRequest request);
 
@@ -20,4 +19,7 @@ public interface UserService {
     UserResponse adminUpdateUser(Long id, AdminUserUpdateRequest request);
 
     Page<UserResponse> getAdmins(Pageable pageable);
+
+    // 관리자 페이지에서 유저 삭제
+    void deleteUser(Long userId);
 }
