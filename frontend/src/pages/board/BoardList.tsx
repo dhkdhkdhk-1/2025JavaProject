@@ -193,7 +193,7 @@ const BoardList: React.FC = () => {
   };
 
   return (
-    <div className={`board-container ${loading ? "fade-out" : "fade-in"}`}>
+    <div className="board-container">
       <h1 className="board-title">
         {uiBoardType === "掲示板" ? "掲示板" : "お知らせ"}
       </h1>
@@ -274,7 +274,9 @@ const BoardList: React.FC = () => {
       </div>
 
       {loading ? (
-        <p style={{ textAlign: "center" }}>読み込み中...</p>
+        <p className="fade-in" style={{ textAlign: "center" }}>
+          読み込み中...
+        </p>
       ) : errorMsg ? (
         <p style={{ textAlign: "center" }}>{errorMsg}</p>
       ) : (
