@@ -3,6 +3,8 @@ package kr.ac.ync.library.domain.users.controller;
 import jakarta.validation.Valid;
 import kr.ac.ync.library.domain.auth.service.AuthService;
 import kr.ac.ync.library.domain.users.dto.*;
+import kr.ac.ync.library.domain.users.entity.UserEntity;
+import kr.ac.ync.library.domain.users.repository.UserRepository;
 import kr.ac.ync.library.domain.users.service.UserService;
 import kr.ac.ync.library.global.common.security.UserSecurity;
 import lombok.RequiredArgsConstructor;
@@ -72,5 +74,12 @@ public class UserController {
             @RequestParam(defaultValue = "5") int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
         return ResponseEntity.ok(userService.getAdmins(pageable));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> remove(
+            @PathVariable Long id) {
+        userService.deleteUser(id);
+        return ResponseEntity.ok().build();
     }
 }

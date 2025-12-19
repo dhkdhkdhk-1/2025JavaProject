@@ -36,6 +36,7 @@ public class UserMapper {
                 .username(entity.getUsername())
                 .email(entity.getEmail())
                 .role(entity.getRole())
+                .deleted(entity.getDeleted())
                 .build();
     }
 }

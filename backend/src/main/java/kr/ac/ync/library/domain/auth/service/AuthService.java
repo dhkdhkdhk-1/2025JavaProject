@@ -18,5 +18,4 @@ public interface AuthService {
     void withdraw(WithdrawRequest request);
 
     void updatePasswordByEmail(String email, String newPassword);
-
 }

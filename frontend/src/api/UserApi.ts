@@ -6,6 +6,7 @@ export interface User {
   email: string;
   role: string;
   branchId?: number | null;
+  deleted: boolean;
 }
 
 export interface PageResponse<T> {
@@ -40,3 +41,5 @@ export const getAdmins = async (page = 0, size = 5) => {
   const res = await api.get(`user/list/admin?page=${page}&size=${size}`);
   return res.data;
 };
+
+

@@ -19,8 +19,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
@@ -32,11 +30,6 @@ public class UserServiceImpl implements UserService {
     @Override
     public Page<UserResponse> getList(Pageable pageable) {
         return userRepository.findAll(pageable).map(UserMapper::toResponse);
-    }
-
-    @Override
-    public void delete(Long id) {
-        userRepository.deleteById(id);
     }
 
     @Override
@@ -106,5 +99,15 @@ public class UserServiceImpl implements UserService {
     @Override
     public Page<UserResponse> getAdmins(Pageable pageable) {
         return userRepository.findAdmins(pageable).map(UserMapper::toResponse);
+    }
+
+    // 관리자 페이지에서 유저 삭제
+    @Override
+    public void deleteUser(Long userId)
+    {
+        UserEntity userEntity = userRepository.findById(userId).orElseThrow(() -> UserNotFoundException.EXCEPTION);
+        userEntity.setDeleted(true);
+
+        userRepository.save(userEntity);
     }
 }
