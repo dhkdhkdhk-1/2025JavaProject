@@ -23,7 +23,7 @@ const BookInfo: React.FC = () => {
   const navigate = useNavigate();
 
   // ⭐ 리뷰 정렬 상태 (DEFAULT | RATING)
-  const [reviewSort, setReviewSort] = useState<"RATING" | "DEFAULT">("DEFAULT");
+  const [reviewSort] = useState<"RATING" | "DEFAULT">("DEFAULT");
 
   const [book, setBook] = useState<BookDetail | null>(null);
   const [branches, setBranches] = useState<BranchStatus[]>([]);

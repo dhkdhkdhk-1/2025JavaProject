@@ -1,13 +1,10 @@
 import React, { useEffect, useState } from "react";
 import "./ReviewSection.css";
-import {
-  getTopReviewsByBookId,
-  Review,
-} from "../../../api/ReviewApi";
+import { getTopReviewsByBookId, Review } from "../../../api/ReviewApi";
 
 interface ReviewProps {
   bookId: number;
-  limit?: number; // 몇 개만 보여줄지 (선택)
+  limit?: number;
   sort?: "RATING" | "DEFAULT";
   onMoreClick?: () => void;
 }
@@ -15,6 +12,7 @@ interface ReviewProps {
 const ReviewSection: React.FC<ReviewProps> = ({
   bookId,
   limit,
+  sort = "DEFAULT",
   onMoreClick,
 }) => {
   const [reviews, setReviews] = useState<Review[]>([]);
@@ -25,10 +23,7 @@ const ReviewSection: React.FC<ReviewProps> = ({
     async function fetchReviews() {
       try {
         setLoading(true);
-
-        // ✅ 책 상세용: 최신 6개 전용 API
         const data = await getTopReviewsByBookId(bookId);
-
         setReviews(data);
       } catch (err) {
         console.error(err);
@@ -46,10 +41,22 @@ const ReviewSection: React.FC<ReviewProps> = ({
   if (reviews.length === 0)
     return <div style={{ padding: 16 }}>登録されたレビューはありません。</div>;
 
-  // ✅ limit 있으면 자르기 (기본은 6개 그대로)
+  // ⭐ 정렬 로직 (요구사항 그대로)
+  const sortedReviews = [...reviews].sort((a, b) => {
+    if (sort === "RATING") {
+      if (a.rating != null && b.rating != null) {
+        return b.rating - a.rating;
+      }
+      if (a.rating != null) return -1;
+      if (b.rating != null) return 1;
+      return a.id - b.id;
+    }
+    return a.id - b.id;
+  });
+
   const displayedReviews = limit
-    ? reviews.slice(0, limit)
-    : reviews;
+    ? sortedReviews.slice(0, limit)
+    : sortedReviews;
 
   return (
     <section className="reviews-section">
@@ -63,12 +70,7 @@ const ReviewSection: React.FC<ReviewProps> = ({
             <div key={review.id} className="review-card">
               <div className="rating-stars">
                 {[...Array(5)].map((_, i) => (
-                  <svg
-                    key={i}
-                    className="star-icon"
-                    viewBox="0 0 20 20"
-                    fill="none"
-                  >
+                  <svg key={i} className="star-icon" viewBox="0 0 20 20">
                     <path
                       d="M10 1.66667L12.5743 6.88334L18.3327 7.72501L14.166 11.7833L15.1493 17.5167L10 14.8083L4.84999 17.5167L5.83333 11.7833L1.66666 7.72501L7.42499 6.88334L10 1.66667Z"
                       stroke="#2C2C2C"
@@ -94,7 +96,6 @@ const ReviewSection: React.FC<ReviewProps> = ({
           ))}
         </div>
 
-        {/* ✅ 리뷰 전체 페이지로 이동 */}
         {onMoreClick && (
           <div className="view-more-reviews" onClick={onMoreClick}>
             レビューをもっと見る
