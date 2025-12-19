@@ -70,9 +70,21 @@ const BranchSelectModal: React.FC<Props> = ({
 
       <div style={{ maxHeight: 300, overflowY: "auto", marginTop: 10 }}>
         {branches.map((b) => (
-          <label key={b.id} style={{ display: "block", padding: "4px 0" }}>
+          <label
+            key={b.id}
+            style={{
+              display: "block",
+              padding: "4px 0",
+              marginBottom: "6px", // ⭐ ① 줄 아래 여백
+            }}
+          >
             <input
               type="checkbox"
+              style={{
+                width: "auto",
+                marginBottom: 0,
+                marginRight: "6px", // ⭐ ② 버튼-글자 사이 여백
+              }}
               checked={checked.includes(b.id)}
               onChange={() => toggle(b.id)}
             />
