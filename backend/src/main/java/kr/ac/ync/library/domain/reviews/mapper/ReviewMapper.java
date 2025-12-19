@@ -41,6 +41,7 @@ public class ReviewMapper {
                 .title(entity.getTitle())
                 .comment(entity.getComment())
                 .rating(entity.getRating())
+                .imageUrl(entity.getBook().getImageUrl())
                 .createdDateTime(entity.getCreatedDateTime())
                 .build();
     }
@@ -55,6 +56,7 @@ public class ReviewMapper {
                 .title(entity.getTitle())
                 .comment(entity.getComment())
                 .rating(entity.getRating())
+                .imageUrl(entity.getBook().getImageUrl())
                 .createdDateTime(entity.getCreatedDateTime())
                 .build();
     }

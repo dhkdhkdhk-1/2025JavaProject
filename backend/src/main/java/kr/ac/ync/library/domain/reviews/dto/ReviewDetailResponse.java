@@ -19,5 +19,6 @@ public class ReviewDetailResponse {
     private String title;
     private String comment;
     private Long rating;
+    private String imageUrl;
     private LocalDateTime createdDateTime;
 }
