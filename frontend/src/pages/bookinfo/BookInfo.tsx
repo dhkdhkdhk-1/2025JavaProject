@@ -22,6 +22,9 @@ const BookInfo: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
+  // ⭐ 리뷰 정렬 상태 (DEFAULT | RATING)
+  const [reviewSort, setReviewSort] = useState<"RATING" | "DEFAULT">("DEFAULT");
+
   const [book, setBook] = useState<BookDetail | null>(null);
   const [branches, setBranches] = useState<BranchStatus[]>([]);
   const [loading, setLoading] = useState(true);
@@ -213,7 +216,6 @@ const BookInfo: React.FC = () => {
                 </div>
               </div>
 
-              {/* 평점 */}
               <div className="star-rating">
                 {[...Array(5)].map((_, i) => (
                   <svg
@@ -237,11 +239,12 @@ const BookInfo: React.FC = () => {
                 </span>
               </div>
 
-              {/* 리뷰 미리보기 */}
+
               <ReviewSection
                 bookId={Number(id)}
                 limit={2}
-                onMoreClick={() =>
+                sort={reviewSort}
+                onMoreClick={() => 
                   navigate(`/review/book/${id}`)
                 }
               />

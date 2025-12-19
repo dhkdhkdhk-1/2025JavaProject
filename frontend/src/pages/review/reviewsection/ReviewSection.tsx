@@ -8,6 +8,7 @@ import {
 interface ReviewProps {
   bookId: number;
   limit?: number; // 몇 개만 보여줄지 (선택)
+  sort?: "RATING" | "DEFAULT";
   onMoreClick?: () => void;
 }
 
