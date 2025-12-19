@@ -1,10 +1,9 @@
-admin-layout {
+.admin-layout {
   width: 100%;
-  height: 100vh;
+  /* ❌ height: 100vh 제거 */
+  min-height: 100vh; /* ✅ 최소 높이만 */
   display: flex;
-  margin: 0;
   flex-direction: column;
-  background-color: #fff; /* 🔥 회색 배경 제거 */
 }
 
 .admin-body {
@@ -24,12 +23,13 @@ admin-layout {
   padding: 0;
   margin: 0;
 }
+
 .branch-container {
+  flex: 1;
   width: 100%;
   background: #fff;
   margin: 0;
-  padding: 24px 24px 24px 140px;
-  min-height: 100vh;
+  padding: 24px;
   box-sizing: border-box;
 }
 
