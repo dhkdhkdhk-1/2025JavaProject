@@ -17,13 +17,14 @@ const Branches: React.FC = () => {
     null
   );
   const [showModal, setShowModal] = useState<
-    "add" | "edit" | "view" | "delete" | null
+    "add" | "edit" | "view" | null
   >(null);
+
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [search, setSearch] = useState("");
 
-  /** ✅ 一覧の取得 */
+  /** ✅ 목록 조회 */
   const fetchBranches = async (pageNum = 0) => {
     try {
       const res: PageResponse<BranchResponse> = await getBranches(pageNum, 10);
@@ -39,7 +40,7 @@ const Branches: React.FC = () => {
     fetchBranches();
   }, []);
 
-  /** ✅ 追加 */
+  /** ✅ 추가 */
   const handleAdd = async (form: BranchRequest) => {
     try {
       await addBranch(form);
@@ -50,7 +51,7 @@ const Branches: React.FC = () => {
     }
   };
 
-  /** ✅ 修正 */
+  /** ✅ 수정 */
   const handleUpdate = async (form: BranchRequest) => {
     try {
       await updateBranch(form);
@@ -61,7 +62,7 @@ const Branches: React.FC = () => {
     }
   };
 
-  /** ✅ 削除 */
+  /** ✅ 삭제 */
   const handleDelete = async (id: number) => {
     if (!window.confirm("本当に削除しますか？")) return;
     try {
@@ -72,18 +73,18 @@ const Branches: React.FC = () => {
     }
   };
 
-  /** ✅ ページ移動 */
+  /** ✅ 페이지 이동 */
   const handlePrev = () => page > 0 && fetchBranches(page - 1);
   const handleNext = () => page < totalPages - 1 && fetchBranches(page + 1);
 
-  /** ✅ 検索フィルター */
+  /** ✅ 검색 필터 */
   const filteredBranches = branches.filter((b) =>
     b.name.toLowerCase().includes(search.toLowerCase())
   );
 
   return (
     <div className="branch-container">
-      {/* ヘッダー */}
+      {/* ===== 헤더 ===== */}
       <div className="branch-header">
         <h2>支店管理</h2>
         <div className="branch-actions">
@@ -99,15 +100,15 @@ const Branches: React.FC = () => {
         </div>
       </div>
 
-      {/* テーブル */}
+      {/* ===== 테이블 ===== */}
       <table className="branch-table">
         <thead>
           <tr>
             <th>ID</th>
             <th>支店名</th>
             <th>住所</th>
-            <th>管理者</th>
-            <th>操作</th>
+            <th style={{ textAlign: "center" }}>管理者</th>
+            <th style={{ textAlign: "center" }}>操作</th>
           </tr>
         </thead>
         <tbody>
@@ -117,7 +118,9 @@ const Branches: React.FC = () => {
                 <td>{b.id}</td>
                 <td>{b.name}</td>
                 <td>{b.location}</td>
-                <td className="action-buttons">
+
+                {/* 👁️ → 管理者 */}
+                <td style={{ textAlign: "center" }}>
                   <button
                     className="icon-btn view"
                     onClick={() => {
@@ -128,6 +131,10 @@ const Branches: React.FC = () => {
                   >
                     👁️
                   </button>
+                </td>
+
+                {/* ✏️ 🗑️ → 操作 */}
+                <td className="action-buttons">
                   <button
                     className="icon-btn edit"
                     onClick={() => {
@@ -150,13 +157,15 @@ const Branches: React.FC = () => {
             ))
           ) : (
             <tr>
-              <td colSpan={5}>データがありません。</td>
+              <td colSpan={5} style={{ textAlign: "center" }}>
+                データがありません。
+              </td>
             </tr>
           )}
         </tbody>
       </table>
 
-      {/* ページネーション */}
+      {/* ===== 페이지네이션 ===== */}
       <div className="pagination">
         <button onClick={handlePrev} disabled={page === 0}>
           ◀ 前へ
@@ -169,7 +178,7 @@ const Branches: React.FC = () => {
         </button>
       </div>
 
-      {/* モーダル */}
+      {/* ===== 모달 ===== */}
       {showModal && (
         <BranchModal
           mode={showModal}
